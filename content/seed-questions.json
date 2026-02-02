@@ -1,0 +1,573 @@
+{
+  "meta": {
+    "total_questions": 40,
+    "target_total": 500,
+    "format": "CA PSI Nail Technology Exam Prep",
+    "languages": ["en"],
+    "note": "Seed question bank — 5 per topic. Scale to 500 for production."
+  },
+  "topics": [
+    {
+      "id": 1,
+      "name": "Infection Control & Safety",
+      "target_questions": 75
+    },
+    {
+      "id": 2,
+      "name": "Nail Structure & Growth",
+      "target_questions": 50
+    },
+    {
+      "id": 3,
+      "name": "Skin Structure & Disorders",
+      "target_questions": 50
+    },
+    {
+      "id": 4,
+      "name": "Nail Disorders & Diseases",
+      "target_questions": 60
+    },
+    {
+      "id": 5,
+      "name": "Manicuring & Pedicuring",
+      "target_questions": 90
+    },
+    {
+      "id": 6,
+      "name": "Nail Tips, Wraps & No-Light Gels",
+      "target_questions": 50
+    },
+    {
+      "id": 7,
+      "name": "UV/LED Gels & Acrylic Nails",
+      "target_questions": 75
+    },
+    {
+      "id": 8,
+      "name": "Business Skills & CA State Law",
+      "target_questions": 50
+    }
+  ],
+  "questions": [
+    {
+      "id": 1,
+      "topic_id": 1,
+      "question": "What is the first step a nail technician should take before beginning any service?",
+      "options": [
+        "Apply cuticle oil",
+        "Wash hands with soap and water",
+        "Set up the table",
+        "Ask the client about allergies"
+      ],
+      "correct": 1,
+      "explanation": "Hand washing is always the first step in infection control before any client contact."
+    },
+    {
+      "id": 2,
+      "topic_id": 1,
+      "question": "Which type of disinfectant is approved by the EPA for use in nail salons?",
+      "options": [
+        "Isopropyl alcohol",
+        "Hydrogen peroxide",
+        "Hospital-grade bactericidal disinfectant",
+        "Bleach only"
+      ],
+      "correct": 2,
+      "explanation": "EPA-registered hospital-grade bactericidal, fungicidal, and virucidal disinfectants are required."
+    },
+    {
+      "id": 3,
+      "topic_id": 1,
+      "question": "How long should non-porous implements be immersed in an EPA-registered disinfectant?",
+      "options": [
+        "5 minutes",
+        "10 minutes",
+        "20 minutes",
+        "30 minutes"
+      ],
+      "correct": 1,
+      "explanation": "Non-porous implements require a minimum of 10 minutes of complete immersion."
+    },
+    {
+      "id": 4,
+      "topic_id": 1,
+      "question": "What should a nail technician do with a porous item (such as a nail file) after use on a client?",
+      "options": [
+        "Disinfect and reuse",
+        "Give it to the client or discard it",
+        "Wash with soap and water",
+        "Soak in alcohol"
+      ],
+      "correct": 1,
+      "explanation": "Porous items cannot be properly disinfected and must be given to the client or discarded."
+    },
+    {
+      "id": 5,
+      "topic_id": 1,
+      "question": "What does the term 'sterilization' mean?",
+      "options": [
+        "Removing visible dirt from a surface",
+        "Killing most bacteria on a surface",
+        "Destroying all microbial life, including spores",
+        "Wiping a surface with disinfectant"
+      ],
+      "correct": 2,
+      "explanation": "Sterilization is the complete destruction of all microbial life, including bacterial spores."
+    },
+    {
+      "id": 6,
+      "topic_id": 2,
+      "question": "What is the hardened, visible part of the nail that sits on top of the nail bed called?",
+      "options": [
+        "Nail matrix",
+        "Nail plate",
+        "Lunula",
+        "Hyponychium"
+      ],
+      "correct": 1,
+      "explanation": "The nail plate is the hard, visible portion composed of keratinized cells."
+    },
+    {
+      "id": 7,
+      "topic_id": 2,
+      "question": "Where does nail growth originate?",
+      "options": [
+        "Nail bed",
+        "Free edge",
+        "Nail matrix",
+        "Cuticle"
+      ],
+      "correct": 2,
+      "explanation": "The nail matrix is the area where new nail cells are produced, driving nail growth."
+    },
+    {
+      "id": 8,
+      "topic_id": 2,
+      "question": "What is the average growth rate of a fingernail per month?",
+      "options": [
+        "1/16 inch (1.5 mm)",
+        "1/8 inch (3 mm)",
+        "1/4 inch (6 mm)",
+        "1/2 inch (12 mm)"
+      ],
+      "correct": 1,
+      "explanation": "Fingernails grow approximately 1/8 inch (3 mm) per month on average."
+    },
+    {
+      "id": 9,
+      "topic_id": 2,
+      "question": "What is the whitish, half-moon shape at the base of the nail?",
+      "options": [
+        "Eponychium",
+        "Hyponychium",
+        "Lunula",
+        "Nail bed"
+      ],
+      "correct": 2,
+      "explanation": "The lunula is the visible, lighter-colored half-moon area at the base of the nail plate."
+    },
+    {
+      "id": 10,
+      "topic_id": 2,
+      "question": "What protein makes up the majority of the nail plate?",
+      "options": [
+        "Collagen",
+        "Elastin",
+        "Melanin",
+        "Keratin"
+      ],
+      "correct": 3,
+      "explanation": "The nail plate is primarily composed of hard keratin."
+    },
+    {
+      "id": 11,
+      "topic_id": 3,
+      "question": "What is the outermost layer of the skin?",
+      "options": [
+        "Dermis",
+        "Epidermis",
+        "Hypodermis",
+        "Subcutaneous layer"
+      ],
+      "correct": 1,
+      "explanation": "The epidermis is the outermost protective layer of the skin."
+    },
+    {
+      "id": 12,
+      "topic_id": 3,
+      "question": "What skin condition appears as red, itchy, inflamed patches and may have silver-white scales?",
+      "options": [
+        "Eczema",
+        "Psoriasis",
+        "Dermatitis",
+        "Tinea"
+      ],
+      "correct": 1,
+      "explanation": "Psoriasis is characterized by red patches covered with thick, silvery-white scales."
+    },
+    {
+      "id": 13,
+      "topic_id": 3,
+      "question": "Which layer of the skin contains blood vessels, nerves, and hair follicles?",
+      "options": [
+        "Epidermis",
+        "Stratum corneum",
+        "Dermis",
+        "Stratum granulosum"
+      ],
+      "correct": 2,
+      "explanation": "The dermis contains blood vessels, nerves, sweat glands, oil glands, and hair follicles."
+    },
+    {
+      "id": 14,
+      "topic_id": 3,
+      "question": "A nail technician notices a client has an open sore on their hand. What should the technician do?",
+      "options": [
+        "Apply antiseptic and proceed",
+        "Politely decline the service on the affected area",
+        "Cover it with a bandage and proceed",
+        "Ignore it if it looks clean"
+      ],
+      "correct": 1,
+      "explanation": "Services should not be performed on areas with open sores, wounds, or infections."
+    },
+    {
+      "id": 15,
+      "topic_id": 3,
+      "question": "What is the function of melanin in the skin?",
+      "options": [
+        "Provides moisture",
+        "Protects against UV radiation",
+        "Produces new skin cells",
+        "Regulates body temperature"
+      ],
+      "correct": 1,
+      "explanation": "Melanin is the pigment that provides color and protects the skin from UV damage."
+    },
+    {
+      "id": 16,
+      "topic_id": 4,
+      "question": "What nail condition is characterized by the separation of the nail plate from the nail bed?",
+      "options": [
+        "Onychomycosis",
+        "Onycholysis",
+        "Onychorrhexis",
+        "Paronychia"
+      ],
+      "correct": 1,
+      "explanation": "Onycholysis is the loosening or separation of the nail plate from the nail bed."
+    },
+    {
+      "id": 17,
+      "topic_id": 4,
+      "question": "A client has thickened, discolored, yellowish nails. This is most likely a sign of:",
+      "options": [
+        "Bruised nail",
+        "Hangnail",
+        "Fungal infection (onychomycosis)",
+        "Leukonychia"
+      ],
+      "correct": 2,
+      "explanation": "Onychomycosis (nail fungus) commonly causes thickening, discoloration, and yellowing."
+    },
+    {
+      "id": 18,
+      "topic_id": 4,
+      "question": "Which condition should a nail technician REFUSE to service?",
+      "options": [
+        "Ridges on the nail plate",
+        "Mild hangnails",
+        "Nail fungus or signs of infection",
+        "Bitten nails"
+      ],
+      "correct": 2,
+      "explanation": "Nail technicians must refuse service on any nail showing signs of fungal infection or disease."
+    },
+    {
+      "id": 19,
+      "topic_id": 4,
+      "question": "What are the white spots that sometimes appear on the nail plate called?",
+      "options": [
+        "Melanonychia",
+        "Leukonychia",
+        "Onychomadesis",
+        "Pterygium"
+      ],
+      "correct": 1,
+      "explanation": "Leukonychia refers to white spots on the nail, usually caused by minor injury to the matrix."
+    },
+    {
+      "id": 20,
+      "topic_id": 4,
+      "question": "Paronychia is an infection of the:",
+      "options": [
+        "Nail plate",
+        "Free edge",
+        "Skin around the nail (nail fold)",
+        "Nail matrix"
+      ],
+      "correct": 2,
+      "explanation": "Paronychia is a bacterial or fungal infection of the tissue surrounding the nail."
+    },
+    {
+      "id": 21,
+      "topic_id": 5,
+      "question": "When performing a basic manicure, what is the correct order of steps?",
+      "options": [
+        "Shape, soak, push cuticles, massage, polish",
+        "Soak, shape, push cuticles, polish, massage",
+        "Remove old polish, shape, soak, push cuticles, massage, polish",
+        "Shape, polish, soak, push cuticles, massage"
+      ],
+      "correct": 2,
+      "explanation": "The standard sequence begins with removing old polish and ends with applying new polish."
+    },
+    {
+      "id": 22,
+      "topic_id": 5,
+      "question": "What angle should the nail file be held when shaping the free edge?",
+      "options": [
+        "90 degrees to the nail",
+        "45 degrees under the free edge",
+        "Flat against the nail plate",
+        "Any angle is acceptable"
+      ],
+      "correct": 1,
+      "explanation": "The file should be held at a 45-degree angle under the free edge for proper shaping."
+    },
+    {
+      "id": 23,
+      "topic_id": 5,
+      "question": "What is the main purpose of a base coat in a manicure?",
+      "options": [
+        "To add shine",
+        "To prevent staining and improve polish adhesion",
+        "To dry the nails faster",
+        "To strengthen the nail"
+      ],
+      "correct": 1,
+      "explanation": "Base coat prevents the nail plate from being stained by colored polish and helps polish adhere."
+    },
+    {
+      "id": 24,
+      "topic_id": 5,
+      "question": "Before performing a pedicure, the client's feet should be soaked for approximately:",
+      "options": [
+        "1-2 minutes",
+        "5-10 minutes",
+        "15-20 minutes",
+        "30 minutes"
+      ],
+      "correct": 1,
+      "explanation": "A foot soak of 5-10 minutes softens the skin and prepares the feet for the service."
+    },
+    {
+      "id": 25,
+      "topic_id": 5,
+      "question": "What tool is used to gently push back the cuticle from the nail plate?",
+      "options": [
+        "Nail clipper",
+        "Orangewood stick or cuticle pusher",
+        "Nail buffer",
+        "Emery board"
+      ],
+      "correct": 1,
+      "explanation": "A cuticle pusher or orangewood stick is used to gently push back the cuticle."
+    },
+    {
+      "id": 26,
+      "topic_id": 6,
+      "question": "When applying a nail tip, where should the well of the tip be placed?",
+      "options": [
+        "Over the entire nail plate",
+        "At the free edge only, no contact with nail plate",
+        "At or just before the natural free edge, covering no more than 1/3 of the nail plate",
+        "At the cuticle area"
+      ],
+      "correct": 2,
+      "explanation": "The tip well should contact no more than 1/3 of the natural nail plate."
+    },
+    {
+      "id": 27,
+      "topic_id": 6,
+      "question": "What type of wrap is the strongest and most durable?",
+      "options": [
+        "Paper wrap",
+        "Silk wrap",
+        "Fiberglass wrap",
+        "Linen wrap"
+      ],
+      "correct": 2,
+      "explanation": "Fiberglass wraps are the thinnest, strongest, and most durable of the fabric wraps."
+    },
+    {
+      "id": 28,
+      "topic_id": 6,
+      "question": "What adhesive is commonly used to attach nail tips?",
+      "options": [
+        "Nail polish",
+        "Cyanoacrylate (nail glue)",
+        "Acrylic liquid",
+        "UV gel"
+      ],
+      "correct": 1,
+      "explanation": "Cyanoacrylate-based nail glue is the standard adhesive for attaching nail tips."
+    },
+    {
+      "id": 29,
+      "topic_id": 6,
+      "question": "What is the purpose of a nail wrap?",
+      "options": [
+        "To remove polish",
+        "To add strength and reinforce the natural nail or tip",
+        "To change the nail color",
+        "To remove the cuticle"
+      ],
+      "correct": 1,
+      "explanation": "Wraps are used to strengthen, reinforce, or repair natural nails or tips."
+    },
+    {
+      "id": 30,
+      "topic_id": 6,
+      "question": "A no-light gel cures (hardens) by:",
+      "options": [
+        "Exposure to UV light",
+        "Exposure to LED light",
+        "A chemical activator (spray or brush-on)",
+        "Air drying"
+      ],
+      "correct": 2,
+      "explanation": "No-light gels use a chemical activator (catalyst) to cure, not UV or LED light."
+    },
+    {
+      "id": 31,
+      "topic_id": 7,
+      "question": "What two products are combined to create an acrylic nail enhancement?",
+      "options": [
+        "Base coat and top coat",
+        "Liquid monomer and powder polymer",
+        "UV gel and activator",
+        "Nail glue and nail tip"
+      ],
+      "correct": 1,
+      "explanation": "Acrylic nails are formed by combining liquid monomer and powder polymer."
+    },
+    {
+      "id": 32,
+      "topic_id": 7,
+      "question": "What is the chemical reaction called when monomer and polymer combine to form an acrylic nail?",
+      "options": [
+        "Oxidation",
+        "Polymerization",
+        "Evaporation",
+        "Dehydration"
+      ],
+      "correct": 1,
+      "explanation": "Polymerization is the chemical reaction that hardens the monomer and polymer into a solid acrylic."
+    },
+    {
+      "id": 33,
+      "topic_id": 7,
+      "question": "UV gel nails are cured (hardened) using:",
+      "options": [
+        "A chemical activator",
+        "Air drying",
+        "UV or LED lamp",
+        "Heat from a nail dryer"
+      ],
+      "correct": 2,
+      "explanation": "UV/LED gel nails require a UV or LED lamp to cure and harden."
+    },
+    {
+      "id": 34,
+      "topic_id": 7,
+      "question": "What is the tacky layer on the surface of a cured UV gel called?",
+      "options": [
+        "Top coat",
+        "Inhibition layer (oxygen-inhibited layer)",
+        "Base gel",
+        "Primer residue"
+      ],
+      "correct": 1,
+      "explanation": "The inhibition layer is a sticky residue caused by oxygen preventing the top surface from fully curing."
+    },
+    {
+      "id": 35,
+      "topic_id": 7,
+      "question": "What is the purpose of a nail primer in acrylic application?",
+      "options": [
+        "To add color",
+        "To improve adhesion between the natural nail and the acrylic product",
+        "To cure the acrylic",
+        "To soften the cuticle"
+      ],
+      "correct": 1,
+      "explanation": "Primer dehydrates the nail and creates a better bond between the natural nail and the acrylic enhancement."
+    },
+    {
+      "id": 36,
+      "topic_id": 8,
+      "question": "In California, how many training hours are required to obtain a manicurist license?",
+      "options": [
+        "200 hours",
+        "400 hours",
+        "600 hours",
+        "1,000 hours"
+      ],
+      "correct": 1,
+      "explanation": "California requires 400 hours of approved training for a manicurist license."
+    },
+    {
+      "id": 37,
+      "topic_id": 8,
+      "question": "Which California agency regulates nail technician licensing?",
+      "options": [
+        "Department of Health",
+        "Board of Barbering and Cosmetology (BBC)",
+        "OSHA",
+        "Department of Consumer Affairs only"
+      ],
+      "correct": 1,
+      "explanation": "The California Board of Barbering and Cosmetology (BBC) is the licensing authority."
+    },
+    {
+      "id": 38,
+      "topic_id": 8,
+      "question": "How often must a California manicurist license be renewed?",
+      "options": [
+        "Every year",
+        "Every 2 years",
+        "Every 3 years",
+        "Every 5 years"
+      ],
+      "correct": 1,
+      "explanation": "California manicurist licenses must be renewed every 2 years."
+    },
+    {
+      "id": 39,
+      "topic_id": 8,
+      "question": "A nail salon must display which of the following in a visible location?",
+      "options": [
+        "Price list only",
+        "Salon license and all employee licenses",
+        "Employee schedule",
+        "Product ingredient lists"
+      ],
+      "correct": 1,
+      "explanation": "California law requires the salon license and individual licenses to be displayed in clear view."
+    },
+    {
+      "id": 40,
+      "topic_id": 8,
+      "question": "What should a nail technician do if a client develops an allergic reaction during a service?",
+      "options": [
+        "Continue the service carefully",
+        "Stop the service immediately and remove the product",
+        "Apply more product to seal the area",
+        "Wait and see if it improves"
+      ],
+      "correct": 1,
+      "explanation": "Stop the service immediately, remove the product, and advise the client to seek medical attention if needed."
+    }
+  ]
+}
