@@ -1,0 +1,5 @@
+node_modules/
+dist/
+crawler/data/raw/*.json
+.DS_Store
+*.log
