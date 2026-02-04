@@ -2,32 +2,32 @@
 
 ## Decisions Locked In
 
-| Decision | Choice |
-|----------|--------|
-| Target state | California only |
-| Languages at launch | English + Vietnamese |
-| Revenue model | Monthly subscription ($9.99/mo) |
-| Content creation | AI-generated questions, expert-reviewed |
+| Decision            | Choice                                  |
+| ------------------- | --------------------------------------- |
+| Target state        | California only                         |
+| Languages at launch | English + Vietnamese                    |
+| Revenue model       | Monthly subscription ($9.99/mo)         |
+| Content creation    | AI-generated questions, expert-reviewed |
 
 ---
 
 ## California Exam Spec
 
-| Detail | Value |
-|--------|-------|
-| Exam type | PSI Written (Theory only -- practical eliminated Jan 1, 2022 per SB 803) |
-| Total questions | 70 (60 scored + 10 unscored pretest) |
-| Time limit | 90 minutes |
-| Passing score | 75% (45 out of 60 scored) |
-| Format | Multiple-choice, computer-based |
-| Administrator | PSI Services |
-| Official languages | EN, KO, ES, VI, ZH (app launches with EN + VI) |
-| Training required | 400 hours |
-| Licensing board | CA Board of Barbering & Cosmetology (BBC) |
-| License renewal | Every 2 years, $50, via BreEZe |
-| BBC exam page | https://www.barbercosmo.ca.gov/applicants/national.shtml |
-| PSI CIB | https://test-takers.psiexams.com/api/content/bulletin/713 |
-| Est. annual exam attempts | 7,000-9,000 |
+| Detail                    | Value                                                                    |
+| ------------------------- | ------------------------------------------------------------------------ |
+| Exam type                 | PSI Written (Theory only -- practical eliminated Jan 1, 2022 per SB 803) |
+| Total questions           | 70 (60 scored + 10 unscored pretest)                                     |
+| Time limit                | 90 minutes                                                               |
+| Passing score             | 75% (45 out of 60 scored)                                                |
+| Format                    | Multiple-choice, computer-based                                          |
+| Administrator             | PSI Services                                                             |
+| Official languages        | EN, KO, ES, VI, ZH (app launches with EN + VI)                           |
+| Training required         | 400 hours                                                                |
+| Licensing board           | CA Board of Barbering & Cosmetology (BBC)                                |
+| License renewal           | Every 2 years, $50, via BreEZe                                           |
+| BBC exam page             | https://www.barbercosmo.ca.gov/applicants/national.shtml                 |
+| PSI CIB                   | https://test-takers.psiexams.com/api/content/bulletin/713                |
+| Est. annual exam attempts | 7,000-9,000                                                              |
 
 ---
 
@@ -43,12 +43,11 @@
 
 ## MVP Features
 
-1. **Practice Questions** -- 500+ questions organized by 8 study domains, bilingual EN/VI, with detailed explanations
+1. **Practice Questions** -- 500+ questions organized by 8 study domains, bilingual EN/VI, with detailed explanations. 3 modes: Practice by Topic, Mock Exam, Review Missed.
 2. **Mock Exams** -- 70 questions, 90-min timer, 75% pass (matches real CA exam exactly)
-3. **Study Guides** -- Topic-based review for each study domain, bilingual EN/VI
-4. **AI Tutor** -- Conversational help in English + Vietnamese (primary differentiator, no competitor has this)
-5. **CA State Law Section** -- BBC regulations, sanitation rules, licensing requirements
-6. **Progress Tracking** -- Performance by domain, weak area identification
+3. **AI Tutor** -- Conversational help in English + Vietnamese (primary differentiator, no competitor has this)
+4. **CA State Law Section** -- BBC regulations, sanitation rules, licensing requirements (covered in Domain 8)
+5. **Progress Tracking** -- Performance by domain, weak area identification (stored in localStorage)
 
 ---
 
@@ -87,17 +86,17 @@
 
 > These 8 domains are app study categories organized by Milady Standard Nail Technology topics. They are not the exact PSI exam domain structure -- they serve as our question bank organization for comprehensive coverage.
 
-| Domain | Est. % of Exam | Target Questions |
-|--------|---------------|-----------------|
-| 1. Infection Control & Safety | ~15% | 75 |
-| 2. Nail Structure & Growth | ~10% | 50 |
-| 3. Skin Structure & Disorders | ~10% | 50 |
-| 4. Nail Disorders & Diseases | ~12% | 60 |
-| 5. Manicuring & Pedicuring | ~18% | 90 |
-| 6. Nail Tips, Wraps & No-Light Gels | ~10% | 50 |
-| 7. UV/LED Gels & Acrylic Nails | ~15% | 75 |
-| 8. Business Skills & CA State Law | ~10% | 50 |
-| **Total** | **100%** | **500** |
+| Domain                              | Est. % of Exam | Target Questions |
+| ----------------------------------- | -------------- | ---------------- |
+| 1. Infection Control & Safety       | ~15%           | 75               |
+| 2. Nail Structure & Growth          | ~10%           | 50               |
+| 3. Skin Structure & Disorders       | ~10%           | 50               |
+| 4. Nail Disorders & Diseases        | ~12%           | 60               |
+| 5. Manicuring & Pedicuring          | ~18%           | 90               |
+| 6. Nail Tips, Wraps & No-Light Gels | ~10%           | 50               |
+| 7. UV/LED Gels & Acrylic Nails      | ~15%           | 75               |
+| 8. Business Skills & CA State Law   | ~10%           | 50               |
+| **Total**                           | **100%**       | **500**          |
 
 ---
 
@@ -114,37 +113,40 @@
 
 ## Architecture Simplifications
 
-- Remove `states` table (or keep minimal for future)
-- Remove state selection from onboarding flow
-- `questions` table: no `state_id` needed
-- `mock_exams` template: single config (70q, 90min, 75% pass)
+- **No authentication** -- anonymous access, no sign-in required
+- **No user database** -- all user state (progress, bookmarks, exam history) stored in localStorage
+- **Supabase for questions only** -- `questions` table (seeded from `content/seed-questions.json`) + `topics` table (8 domains), public read via anon key
+- **No `states` table** -- CA-only, not needed
+- **No `mock_exams` table** -- hardcoded config (70q, 90min, 75% pass)
+- **No `study_guides` table** -- cut from MVP; AI tutor + question explanations replace study guides
+- **Rate limiting by device ID or IP** instead of user ID (no auth)
 - Content tagged to 8 study domains only
 - `language` field on content: `en` or `vi` only at launch
 
 ---
 
-## Tech Stack (Unchanged)
+## Tech Stack
 
 - Frontend: Expo/React Native (TypeScript)
-- Backend: Supabase (Postgres, Auth, Edge Functions)
+- Backend: Supabase (Postgres for questions only, Edge Functions for AI proxy)
 - AI: OpenAI GPT API (via Edge Functions)
 - Subscriptions: RevenueCat
-- Auth: Supabase Auth + Apple/Google Sign-In
+- User data: localStorage (no auth, no user database)
 
 ---
 
 ## CA-Specific Content Sources
 
-| Source | Type | Use |
-|--------|------|-----|
-| PSI CIB (CA nail technology) | Official exam blueprint | Domain weights, content outline |
-| NIC Theory CIB | Secondary study reference | Additional content coverage (NIC used by other states, not CA) |
-| Milady Standard Nail Technology (8th Ed) | Primary textbook | Question source material |
-| PSI Vietnamese Study-Pack (700+ q) | Vietnamese reference | Validate Vietnamese translations |
-| LamGiauKieuMy.com | CA Vietnamese questions | Community reference |
-| NguoiVietUSA.net | CA theory in Vietnamese | Community reference |
-| CA BBC website | State regulations | Law question content |
-| CA BBC Sunset Review Report | Exam statistics | Market data verification |
+| Source                                   | Type                      | Use                                                            |
+| ---------------------------------------- | ------------------------- | -------------------------------------------------------------- |
+| PSI CIB (CA nail technology)             | Official exam blueprint   | Domain weights, content outline                                |
+| NIC Theory CIB                           | Secondary study reference | Additional content coverage (NIC used by other states, not CA) |
+| Milady Standard Nail Technology (8th Ed) | Primary textbook          | Question source material                                       |
+| PSI Vietnamese Study-Pack (700+ q)       | Vietnamese reference      | Validate Vietnamese translations                               |
+| LamGiauKieuMy.com                        | CA Vietnamese questions   | Community reference                                            |
+| NguoiVietUSA.net                         | CA theory in Vietnamese   | Community reference                                            |
+| CA BBC website                           | State regulations         | Law question content                                           |
+| CA BBC Sunset Review Report              | Exam statistics           | Market data verification                                       |
 
 ---
 

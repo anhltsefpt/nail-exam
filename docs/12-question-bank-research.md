@@ -39,31 +39,31 @@
 
 ### What "correct" means
 
-| Layer | Requirement |
-|-------|-------------|
-| Factual accuracy | Correct answer must be correct per Milady textbook |
+| Layer              | Requirement                                               |
+| ------------------ | --------------------------------------------------------- |
+| Factual accuracy   | Correct answer must be correct per Milady textbook        |
 | Distractor quality | Wrong options must be plausibly wrong, not obviously fake |
-| Wording | Must match exam style (not tricky, not ambiguous) |
-| CA-specific law | BBC regulations must be current, not outdated |
+| Wording            | Must match exam style (not tricky, not ambiguous)         |
+| CA-specific law    | BBC regulations must be current, not outdated             |
 
 ## Sources of Truth (for AI question generation & verification)
 
 ### Primary Sources
 
-| Source | Cost | Use |
-|--------|------|-----|
-| PSI CIB (CA nail technology) | Free | Official exam content outline -- what topics are tested |
-| Milady Standard Nail Technology, 8th Ed | ~$100-150 | THE textbook 90%+ of nail schools use. PSI exam topics based on this. Source of truth for Topics 1-7 |
-| BBC Laws & Regulations (barbercosmo.ca.gov/laws_regs/) | Free | Source of truth for Topic 8 (Business Skills & CA State Law) |
+| Source                                                 | Cost      | Use                                                                                                  |
+| ------------------------------------------------------ | --------- | ---------------------------------------------------------------------------------------------------- |
+| PSI CIB (CA nail technology)                           | Free      | Official exam content outline -- what topics are tested                                              |
+| Milady Standard Nail Technology, 8th Ed                | ~$100-150 | THE textbook 90%+ of nail schools use. PSI exam topics based on this. Source of truth for Topics 1-7 |
+| BBC Laws & Regulations (barbercosmo.ca.gov/laws_regs/) | Free      | Source of truth for Topic 8 (Business Skills & CA State Law)                                         |
 
 ### Secondary Sources
 
-| Source | Cost | Use |
-|--------|------|-----|
-| Milady's Standard Foundations | ~$80 | General science overlap (skin, infection control, chemistry). Optional -- mostly covered in nail tech book |
-| PSI Vietnamese Study-Pack (700+ q) | Free | Community reference, validate Vietnamese translations |
-| LamGiauKieuMy.com | Free | Vietnamese practice questions (accuracy unverified) |
-| NguoiVietUSA.net | Free | CA theory in Vietnamese (accuracy unverified) |
+| Source                             | Cost | Use                                                                                                        |
+| ---------------------------------- | ---- | ---------------------------------------------------------------------------------------------------------- |
+| Milady's Standard Foundations      | ~$80 | General science overlap (skin, infection control, chemistry). Optional -- mostly covered in nail tech book |
+| PSI Vietnamese Study-Pack (700+ q) | Free | Community reference, validate Vietnamese translations                                                      |
+| LamGiauKieuMy.com                  | Free | Vietnamese practice questions (accuracy unverified)                                                        |
+| NguoiVietUSA.net                   | Free | CA theory in Vietnamese (accuracy unverified)                                                              |
 
 ### Recommendation
 
@@ -92,17 +92,17 @@ We are NOT selling "real exam questions" (illegal and impossible). We are sellin
 
 ## 8 Study Topics & Question Targets
 
-| # | Topic | Target Qs |
-|---|-------|:---------:|
-| 1 | Infection Control & Safety | 75 |
-| 2 | Nail Structure & Growth | 50 |
-| 3 | Skin Structure & Disorders | 50 |
-| 4 | Nail Disorders & Diseases | 60 |
-| 5 | Manicuring & Pedicuring | 90 |
-| 6 | Nail Tips, Wraps & No-Light Gels | 50 |
-| 7 | UV/LED Gels & Acrylic Nails | 75 |
-| 8 | Business Skills & CA State Law | 50 |
-| | **Total** | **500** |
+| #   | Topic                            | Target Qs |
+| --- | -------------------------------- | :-------: |
+| 1   | Infection Control & Safety       |    75     |
+| 2   | Nail Structure & Growth          |    50     |
+| 3   | Skin Structure & Disorders       |    50     |
+| 4   | Nail Disorders & Diseases        |    60     |
+| 5   | Manicuring & Pedicuring          |    90     |
+| 6   | Nail Tips, Wraps & No-Light Gels |    50     |
+| 7   | UV/LED Gels & Acrylic Nails      |    75     |
+| 8   | Business Skills & CA State Law   |    50     |
+|     | **Total**                        |  **500**  |
 
 ## Files
 

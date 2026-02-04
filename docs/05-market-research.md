@@ -4,19 +4,21 @@
 
 ### Nail Technicians in the US
 
-| Metric | Number |
-|--------|--------|
-| Currently employed nail technicians | ~119,301-125,000 |
-| Total licensed nail technicians | 250,000+ (as of 2022) |
-| Number of nail salons in the US | 24,000+ |
+| Metric                              | Number                |
+| ----------------------------------- | --------------------- |
+| Currently employed nail technicians | ~119,301-125,000      |
+| Total licensed nail technicians     | 250,000+ (as of 2022) |
+| Number of nail salons in the US     | 24,000+               |
 
 ### Nail Salon / Nail Care Market Value
 
 **US Market:**
+
 - US nail care market: **$3.58 billion** (2023), projected to reach **$6.10 billion by 2030** (CAGR: 6.89%)
 - North America held **31% market share** in 2024, valued at **$4.06 billion**
 
 **Global Market:**
+
 - IMARC Group: **$13.5 billion** (2024), projected **$25.1 billion by 2033** (CAGR: 6.54%)
 - Grand View Research: **$11.96 billion** (2023), projected **$20.30 billion by 2030** (CAGR: 7.9%)
 - Technavio: Market growth of **$9,477.8 million** during 2025-2029 (CAGR: 10.7%)
@@ -40,14 +42,14 @@
 
 ## Demographics
 
-| Demographic | Percentage |
-|-------------|-----------|
-| Women | 84.0% |
-| Men | 16.0% |
-| Asian | 51.7% (most common ethnicity) |
-| White | 30.9% |
-| Hispanic or Latino | 12.7% |
-| Black or African American | 2.4% |
+| Demographic               | Percentage                    |
+| ------------------------- | ----------------------------- |
+| Women                     | 84.0%                         |
+| Men                       | 16.0%                         |
+| Asian                     | 51.7% (most common ethnicity) |
+| White                     | 30.9%                         |
+| Hispanic or Latino        | 12.7%                         |
+| Black or African American | 2.4%                          |
 
 - **Average age:** 43 years old
 - The Vietnamese community represents a large portion of the Asian demographic
@@ -69,36 +71,38 @@
 The licensing exam is a **one-time requirement** for initial licensure. **No US state requires nail technicians to retake a full board exam for routine renewal.**
 
 Renewal involves:
+
 - Paying a renewal fee
 - In some states, completing continuing education hours
 - Renewal periods vary: every 1-4 years depending on the state
 
 ### Renewal Periods by State (Examples)
 
-| State | Renewal Period | Fee | Notes |
-|-------|---------------|-----|-------|
-| California | Every 2 years | $50 | Online via BreEZe |
-| Pennsylvania | Every 2 years | $67 | Online via PALS |
-| New York | Every 4 years | -- | Online via NYSDOS |
-| Georgia | Every 2 years | -- | By August 31 of odd-numbered years |
-| Oregon | Every 2 years | -- | Must renew before inactive date |
+| State        | Renewal Period | Fee | Notes                              |
+| ------------ | -------------- | --- | ---------------------------------- |
+| California   | Every 2 years  | $50 | Online via BreEZe                  |
+| Pennsylvania | Every 2 years  | $67 | Online via PALS                    |
+| New York     | Every 4 years  | --  | Online via NYSDOS                  |
+| Georgia      | Every 2 years  | --  | By August 31 of odd-numbered years |
+| Oregon       | Every 2 years  | --  | Must renew before inactive date    |
 
 ### Lapsed License Exceptions
 
 If a license is inactive for an extended period, some states require re-examination:
+
 - **Oregon:** Inactive 3+ years requires retaking both practical and written exams
 - **Virginia:** Past reinstatement period (2+ years expired), re-examination may be required
 
 ## NIC Exam Structure
 
-| Detail | Value |
-|--------|-------|
-| States using NIC exam | 33 |
-| Total items | 110 |
-| Time limit | 90 minutes |
-| Sections | Scientific Concepts + Nail Technology Procedures |
-| Multiple-choice in Scientific Concepts | 44 questions |
-| Passing score | 75% |
+| Detail                                 | Value                                            |
+| -------------------------------------- | ------------------------------------------------ |
+| States using NIC exam                  | 33                                               |
+| Total items                            | 110                                              |
+| Time limit                             | 90 minutes                                       |
+| Sections                               | Scientific Concepts + Nail Technology Procedures |
+| Multiple-choice in Scientific Concepts | 44 questions                                     |
+| Passing score                          | 75%                                              |
 
 ### Special Cases
 
@@ -111,14 +115,14 @@ Roughly **half of US states** require continuing education credits to renew a li
 
 ### State-Specific CE Requirements
 
-| State | CE Hours Required | Notes |
-|-------|------------------|-------|
-| Maryland | 6 hours | Approved CE per renewal cycle |
-| Illinois | 10 hours | At least 5 "Instructor-Led," other 5 can be "Distance Learning" |
-| South Carolina | 4 contact hours | Board-approved CE |
-| Texas | 4 hours | Must include sanitation and disease control |
-| Georgia | 5 hours | Training per renewal |
-| Pennsylvania | None | No CE requirement |
+| State          | CE Hours Required | Notes                                                           |
+| -------------- | ----------------- | --------------------------------------------------------------- |
+| Maryland       | 6 hours           | Approved CE per renewal cycle                                   |
+| Illinois       | 10 hours          | At least 5 "Instructor-Led," other 5 can be "Distance Learning" |
+| South Carolina | 4 contact hours   | Board-approved CE                                               |
+| Texas          | 4 hours           | Must include sanitation and disease control                     |
+| Georgia        | 5 hours           | Training per renewal                                            |
+| Pennsylvania   | None              | No CE requirement                                               |
 
 ## Key User Behavior Insight
 

@@ -2,12 +2,12 @@
 
 ## Total Addressable Market
 
-| Metric | Value | Source |
-|--------|-------|--------|
-| CA annual exam attempts | 7,000-9,000 | Doc 10 (BBC data) |
-| Unique exam-takers (est.) | ~6,000-7,000 | Deduplicating retakes |
-| National fail rate | 40-45% | Doc 05 (NIC data) |
-| CA retakers (est.) | ~2,800-4,000 | Fail rate applied to CA attempts |
+| Metric                               | Value        | Source                           |
+| ------------------------------------ | ------------ | -------------------------------- |
+| CA annual exam attempts              | 7,000-9,000  | Doc 10 (BBC data)                |
+| Unique exam-takers (est.)            | ~6,000-7,000 | Deduplicating retakes            |
+| National fail rate                   | 40-45%       | Doc 05 (NIC data)                |
+| CA retakers (est.)                   | ~2,800-4,000 | Fail rate applied to CA attempts |
 | Hard ceiling (unique individuals/yr) | ~6,000-7,000 | This is the max reachable market |
 
 California represents 20-25% of national exam volume. The market is fixed -- it does not grow with ad spend. Every user who passes stops using the app.
@@ -26,16 +26,16 @@ California represents 20-25% of national exam volume. The market is fixed -- it 
 
 ### Projection Table
 
-| Metric | Conservative | Moderate | Optimistic |
-|--------|-------------|----------|------------|
-| **Blended CPI** | $2.00 | $1.50 | $1.00 |
-| **Paid installs (Year 1)** | 3,000 | 4,000 | 6,000 |
-| **Organic installs** | 1,000 | 1,500 | 2,500 |
-| **Total downloads** | 4,000 | 5,500 | 8,500 |
-| **Free-to-paid conversion** | 10% | 15% | 20% |
-| **Paying subscribers (cumulative)** | 400 | 825 | 1,700 |
-| **Avg months subscribed** | 2.5 | 3 | 3 |
-| **Monthly active paying users (avg)** | ~85 | ~205 | ~425 |
+| Metric                                | Conservative | Moderate | Optimistic |
+| ------------------------------------- | ------------ | -------- | ---------- |
+| **Blended CPI**                       | $2.00        | $1.50    | $1.00      |
+| **Paid installs (Year 1)**            | 3,000        | 4,000    | 6,000      |
+| **Organic installs**                  | 1,000        | 1,500    | 2,500      |
+| **Total downloads**                   | 4,000        | 5,500    | 8,500      |
+| **Free-to-paid conversion**           | 10%          | 15%      | 20%        |
+| **Paying subscribers (cumulative)**   | 400          | 825      | 1,700      |
+| **Avg months subscribed**             | 2.5          | 3        | 3          |
+| **Monthly active paying users (avg)** | ~85          | ~205     | ~425       |
 
 Note: "Monthly active paying users" is the average number of paying subscribers in any given month, accounting for the rolling churn cycle. Cumulative paying subscribers is the total unique users who ever paid during Year 1.
 
@@ -45,28 +45,28 @@ Note: "Monthly active paying users" is the average number of paying subscribers 
 
 ### Lifetime Value per Paying User
 
-| Component | Value |
-|-----------|-------|
-| Monthly price | $9.99 |
-| Avg subscription length | ~3 months |
-| LTV (gross) | ~$30 |
-| LTV after Apple's 30% cut | ~$21 |
+| Component                 | Value     |
+| ------------------------- | --------- |
+| Monthly price             | $9.99     |
+| Avg subscription length   | ~3 months |
+| LTV (gross)               | ~$30      |
+| LTV after Apple's 30% cut | ~$21      |
 
 ### Year 1 Gross Revenue
 
-| Scenario | Paying Subs | LTV | Gross Revenue | After Apple Cut (70%) |
-|----------|-------------|-----|---------------|----------------------|
-| Conservative | 400 | $30 | **$12,000** | $8,400 |
-| Moderate | 825 | $30 | **$24,750** | $17,325 |
-| Optimistic | 1,700 | $30 | **$51,000** | $35,700 |
+| Scenario     | Paying Subs | LTV | Gross Revenue | After Apple Cut (70%) |
+| ------------ | ----------- | --- | ------------- | --------------------- |
+| Conservative | 400         | $30 | **$12,000**   | $8,400                |
+| Moderate     | 825         | $30 | **$24,750**   | $17,325               |
+| Optimistic   | 1,700       | $30 | **$51,000**   | $35,700               |
 
 ### Year 1 Net (After Ad Spend)
 
-| Scenario | After Apple Cut | Ad Spend | Net Revenue |
-|----------|----------------|----------|-------------|
-| Conservative | $8,400 | $6,000 | **$2,400** |
-| Moderate | $17,325 | $6,000 | **$11,325** |
-| Optimistic | $35,700 | $6,000 | **$29,700** |
+| Scenario     | After Apple Cut | Ad Spend | Net Revenue |
+| ------------ | --------------- | -------- | ----------- |
+| Conservative | $8,400          | $6,000   | **$2,400**  |
+| Moderate     | $17,325         | $6,000   | **$11,325** |
+| Optimistic   | $35,700         | $6,000   | **$29,700** |
 
 Note: Apple reduces its cut to 15% after the first year for developers earning under $1M (App Store Small Business Program). This does not apply in Year 1 since the 30% rate applies for the first 12 months of each subscription.
 
@@ -90,14 +90,14 @@ Note: Apple reduces its cut to 15% after the first year for developers earning u
 
 ## Risks
 
-| Risk | Impact | Mitigation |
-|------|--------|------------|
-| **Content quality** | Poor questions = bad reviews = dead app | Expert review by licensed CA nail tech educator before launch |
-| **Competitor response** | Existing apps add Vietnamese/AI features | First-mover advantage in Vietnamese AI tutoring; competitors are slow-moving |
-| **Fixed market size** | 6-7K unique exam-takers/yr is the ceiling | CA is validation only; expansion to TX, NIC states unlocks 25K-40K/yr nationally |
-| **Higher-than-expected CPI** | $500/mo buys fewer installs | Vietnamese keyword targeting keeps floor low; optimize or pause if CPI exceeds $3.00 |
-| **Lower-than-expected conversion** | Lots of downloads, few subscribers | A/B test paywall, trial length, and pricing; add social proof (pass rate stats) |
-| **Apple review delays** | Launch timing affected | Submit early; have TestFlight beta running before App Store submission |
+| Risk                               | Impact                                    | Mitigation                                                                           |
+| ---------------------------------- | ----------------------------------------- | ------------------------------------------------------------------------------------ |
+| **Content quality**                | Poor questions = bad reviews = dead app   | Expert review by licensed CA nail tech educator before launch                        |
+| **Competitor response**            | Existing apps add Vietnamese/AI features  | First-mover advantage in Vietnamese AI tutoring; competitors are slow-moving         |
+| **Fixed market size**              | 6-7K unique exam-takers/yr is the ceiling | CA is validation only; expansion to TX, NIC states unlocks 25K-40K/yr nationally     |
+| **Higher-than-expected CPI**       | $500/mo buys fewer installs               | Vietnamese keyword targeting keeps floor low; optimize or pause if CPI exceeds $3.00 |
+| **Lower-than-expected conversion** | Lots of downloads, few subscribers        | A/B test paywall, trial length, and pricing; add social proof (pass rate stats)      |
+| **Apple review delays**            | Launch timing affected                    | Submit early; have TestFlight beta running before App Store submission               |
 
 ---
 
@@ -105,20 +105,22 @@ Note: Apple reduces its cut to 15% after the first year for developers earning u
 
 This is a **validation play**, not a venture-scale business in Year 1.
 
-| Metric | Range |
-|--------|-------|
-| Total downloads | 4,000 - 8,500 |
-| Paying subscribers | 400 - 1,700 |
-| Gross revenue | $12,000 - $51,000 |
-| Net revenue (after Apple + ads) | $2,400 - $29,700 |
-| Ad budget | $6,000/yr ($500/mo) |
+| Metric                          | Range               |
+| ------------------------------- | ------------------- |
+| Total downloads                 | 4,000 - 8,500       |
+| Paying subscribers              | 400 - 1,700         |
+| Gross revenue                   | $12,000 - $51,000   |
+| Net revenue (after Apple + ads) | $2,400 - $29,700    |
+| Ad budget                       | $6,000/yr ($500/mo) |
 
 **What success looks like:**
+
 - 400+ paying subscribers proves product-market fit in the Vietnamese nail tech community
 - CPI under $2.00 confirms the Vietnamese keyword advantage is real
 - Free-to-paid conversion above 10% validates the AI tutor as a conversion lever
 
 **What it unlocks:**
+
 - Phase 2 languages (Korean, Spanish, Chinese) within the CA market
 - Phase 3 expansion to Texas (2nd largest market, state-specific exam)
 - Phase 4 expansion to 25+ NIC states with shared content
