@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Typography } from '@/components/ui/Typography';
 import { Colors, Radius, Spacing } from '@/constants/theme';
+import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { ScrollView, StyleSheet, useColorScheme, View } from 'react-native';
@@ -10,6 +11,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function DashboardScreen() {
   const router = useRouter();
+  const { user, signOut } = useAuth();
   const colorScheme = useColorScheme() ?? 'light';
   const theme = Colors[colorScheme];
   const [selectedOpt, setSelectedOpt] = useState<string | null>(null);
@@ -53,11 +55,19 @@ export default function DashboardScreen() {
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.header}>
           <Typography variant="display" color="primary" style={{ marginBottom: 4 }}>
-            Hello, Student!
+            Hello, {user?.fullName?.givenName || 'Student'}!
           </Typography>
           <Typography variant="body" color="muted">
             Ready to ace your Nail Tech Exam?
           </Typography>
+          {user && (
+            <Button
+              label="Sign Out"
+              variant="outline"
+              style={{ marginTop: 16 }}
+              onPress={signOut}
+            />
+          )}
         </View>
 
         {/* Quick Stats Card */}
