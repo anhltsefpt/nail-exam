@@ -18,13 +18,13 @@ Each file in `raw/` follows the `CrawlResult` interface:
 
 ## Sources
 
-| Source | File | Est. Questions |
-|--------|------|----------------|
-| LamGiauKieuMy.com | `lamgiaukieumy.json` | ~900 |
-| NailJobsUSA.com | `nailjobsusa.json` | ~2,600+ |
-| NailsTest.com | `nailstest.json` | ~900 |
-| NguoiVietUSA.net | `nguoivietusa.json` | ~100-200 |
-| Tittac.com | `tittac.json` | ~900 |
+| Source            | File                 | Est. Questions |
+| ----------------- | -------------------- | -------------- |
+| LamGiauKieuMy.com | `lamgiaukieumy.json` | ~900           |
+| NailJobsUSA.com   | `nailjobsusa.json`   | ~2,600+        |
+| NailsTest.com     | `nailstest.json`     | ~900           |
+| NguoiVietUSA.net  | `nguoivietusa.json`  | ~100-200       |
+| Tittac.com        | `tittac.json`        | ~900           |
 
 ## Usage
 
