@@ -9,7 +9,9 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.anonymous.nail-exam",
+      "appleTeamId": "96RA45HRW5"
     },
     "android": {
       "adaptiveIcon": {

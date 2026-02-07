@@ -22,9 +22,9 @@ function useProtectedRoute(user: any) {
     ) {
       // Redirect to the sign-in page.
       // Use setTimeout to avoid 'Attempted to navigate before mounting' error
-      setTimeout(() => {
+      /* setTimeout(() => {
         router.replace('/login');
-      }, 0);
+      }, 0); */
     } else if (user && !inAuthGroup) {
       // Redirect away from the sign-in page.
       setTimeout(() => {
@@ -34,8 +34,16 @@ function useProtectedRoute(user: any) {
   }, [user, segments, navigationState?.key]);
 }
 
+
 export default function RootLayout() {
   const colorScheme = useColorScheme();
+
+  useEffect(() => {
+    // if (process.env.EXPO_PUBLIC_RC_API_KEY) {
+    //   Purchases.setLogLevel(Purchases.LOG_LEVEL.DEBUG);
+    //   Purchases.configure({ apiKey: process.env.EXPO_PUBLIC_RC_API_KEY });
+    // }
+  }, []);
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
@@ -56,6 +64,8 @@ function RootLayoutNav() {
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="+not-found" />
         <Stack.Screen name="login" options={{ presentation: 'fullScreenModal', headerShown: false, gestureEnabled: false }} />
+        <Stack.Screen name="learning-path" options={{ headerShown: false }} />
+        <Stack.Screen name="paywall" options={{ presentation: 'modal' }} />
       </Stack>
       <StatusBar style="auto" />
     </>

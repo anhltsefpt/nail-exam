@@ -1,9 +1,11 @@
+import { EdgeFunctionDemo } from '@/components/EdgeFunctionDemo';
 import { MultipleChoiceQuestion } from '@/components/quiz/MultipleChoiceQuestion';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Typography } from '@/components/ui/Typography';
 import { Colors, Radius, Spacing } from '@/constants/theme';
 import { useAuth } from '@/context/AuthContext';
+import { useRevenueCat } from '@/hooks/useRevenueCat';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { ScrollView, StyleSheet, useColorScheme, View } from 'react-native';
@@ -12,6 +14,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 export default function DashboardScreen() {
   const router = useRouter();
   const { user, signOut } = useAuth();
+  const { isPro } = useRevenueCat();
   const colorScheme = useColorScheme() ?? 'light';
   const theme = Colors[colorScheme];
   const [selectedOpt, setSelectedOpt] = useState<string | null>(null);
@@ -55,7 +58,7 @@ export default function DashboardScreen() {
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.header}>
           <Typography variant="display" color="primary" style={{ marginBottom: 4 }}>
-            Hello, {user?.fullName?.givenName || 'Student'}!
+            Hello, {user?.user_metadata?.full_name || 'Student'}!
           </Typography>
           <Typography variant="body" color="muted">
             Ready to ace your Nail Tech Exam?
@@ -85,7 +88,12 @@ export default function DashboardScreen() {
               </Typography>
             </View>
           </View>
-          <Button label="Continue Studying" fullWidth icon="book" />
+          <Button
+            label="Continue Studying"
+            fullWidth
+            icon="book"
+            onPress={() => router.push('/learning-path')}
+          />
           <View style={{ height: 16 }} />
           <Button
             label="View Design System"
@@ -94,6 +102,18 @@ export default function DashboardScreen() {
             icon="color-palette"
             onPress={() => router.push('/design-system')}
           />
+          {!isPro && (
+            <>
+              <View style={{ height: 16 }} />
+              <Button
+                label="Unlock Premium"
+                variant="primary"
+                fullWidth
+                icon="lock-closed"
+                onPress={() => router.push('/paywall')}
+              />
+            </>
+          )}
         </Card>
 
         {/* Daily Question */}
@@ -117,6 +137,9 @@ export default function DashboardScreen() {
             />
           </Card>
         </View>
+
+        {/* Edge Function Demo */}
+        {user && <EdgeFunctionDemo />}
       </ScrollView>
     </SafeAreaView>
   );

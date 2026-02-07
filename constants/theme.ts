@@ -2,24 +2,25 @@
  * SaaS Design System - 'Vibrant Premium' Theme
  *
  * Features:
- * - Primary Brand: Vibrant Violet (#7F57F1)
+ * - Primary Brand: Vibrant Premium (#F880FA)
  * - Dark Mode: Deep Sleek (#121212)
  * - 4px Grid System for Spacing
  */
 
 const palette = {
   // Brand
+  // Brand
   primary: {
-    50: '#F5F3FF',
-    100: '#EDE9FE',
-    200: '#DDD6FE',
-    300: '#C4B5FD',
-    400: '#A78BFA',
-    500: '#8B5CF6',
-    600: '#7F57F1', // Main Brand
-    700: '#6D28D9',
-    800: '#5B21B6',
-    900: '#4C1D95',
+    50: '#FEF2FF',
+    100: '#FDE6FE',
+    200: '#FCCCFD',
+    300: '#FAB3FC',
+    400: '#F999FB',
+    500: '#F880FA', // Main Brand
+    600: '#D960DB',
+    700: '#BA40BC',
+    800: '#9B209D',
+    900: '#7C007E',
   },
   // Accent (Pink/Rose) - for 'Wow' factors
   secondary: {
@@ -60,7 +61,7 @@ export const Colors = {
     background: palette.white,
     backgroundSubtle: palette.slate[50],
 
-    primary: palette.primary[600],
+    primary: palette.primary[500],
     primaryForeground: palette.white,
     primaryLight: palette.primary[100],
 
@@ -77,9 +78,9 @@ export const Colors = {
     warning: palette.warning,
     error: palette.error,
 
-    tint: palette.primary[600],
+    tint: palette.primary[500],
     tabIconDefault: palette.slate[400],
-    tabIconSelected: palette.primary[600],
+    tabIconSelected: palette.primary[500],
   },
   dark: {
     text: palette.slate[50],
@@ -91,7 +92,7 @@ export const Colors = {
 
     primary: palette.primary[500], // Slightly lighter for dark mode visibility
     primaryForeground: palette.white,
-    primaryLight: 'rgba(127, 87, 241, 0.2)', // Glass effect
+    primaryLight: 'rgba(248, 128, 250, 0.2)', // Glass effect
 
     secondary: palette.secondary.light,
 

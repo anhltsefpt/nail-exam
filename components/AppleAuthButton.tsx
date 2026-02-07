@@ -8,7 +8,7 @@ interface AppleAuthButtonProps {
 }
 
 export function AppleAuthButton({ style }: AppleAuthButtonProps) {
-    const { signIn } = useAuth();
+    const { signInWithApple } = useAuth();
 
     return (
         <AppleAuthentication.AppleAuthenticationButton
@@ -24,9 +24,16 @@ export function AppleAuthButton({ style }: AppleAuthButtonProps) {
                             AppleAuthentication.AppleAuthenticationScope.EMAIL,
                         ],
                     });
-                    // signed in
-                    signIn(credential);
-                    console.log(credential);
+
+                    if (credential.identityToken) {
+                        const fullName = credential.fullName?.givenName
+                            ? `${credential.fullName.givenName} ${credential.fullName.familyName || ''}`.trim()
+                            : undefined;
+
+                        await signInWithApple(credential.identityToken, 'nonce', fullName); // 'nonce' should ideally be generated securely
+                    } else {
+                        throw new Error('No identityToken received from Apple');
+                    }
                 } catch (e: any) {
                     if (e.code === 'ERR_CANCELED') {
                         // handle that the user canceled the sign-in flow
