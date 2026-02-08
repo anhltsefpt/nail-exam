@@ -121,7 +121,7 @@ export default function DashboardScreen() {
                 <Typography variant="caption" weight="bold" style={{ marginRight: 4, color: '#D97706' }}>{gems}</Typography>
                 <Gem size={12} color="#D97706" fill="#FCD34D" />
               </View>
-              <TouchableOpacity style={{ marginLeft: 12 }} onPress={() => { }}>
+              <TouchableOpacity style={{ marginLeft: 12 }} onPress={() => router.push('/menu')}>
                 <Menu size={20} color={theme.text} />
               </TouchableOpacity>
             </View>

@@ -67,6 +67,7 @@ function RootLayoutNav() {
         <Stack.Screen name="learning-path" options={{ headerShown: false }} />
         <Stack.Screen name="paywall" options={{ presentation: 'modal' }} />
         <Stack.Screen name="ai-chat" options={{ presentation: 'modal', headerShown: false }} />
+        <Stack.Screen name="menu" options={{ headerShown: false }} />
       </Stack>
       <StatusBar style="auto" />
     </>
