@@ -21,13 +21,16 @@ export interface UserState {
     lastLoginDate: string | null;
 
     // Study Progress
-    courseProgress: number; // 0-100
+    courseProgress: number; // 0-100 (Overall)
+    nodeProgress: Record<number, number>; // nodeId -> % correct
     nodeStatus: Record<number, NodeStatus>;
     completedLessons: string[]; // IDs of lessons
 
     // Question Bank
     questionHistory: Record<string, QuestionRecord>; // QuestionID -> Record
     savedQuestions: string[]; // IDs
+    likedQuestions: string[]; // IDs
+    dislikedQuestions: string[]; // IDs
     mistakes: string[]; // IDs
 
     // Settings
@@ -35,15 +38,20 @@ export interface UserState {
     notificationsEnabled: boolean;
     soundEnabled: boolean;
     hapticsEnabled: boolean;
+    fontScale: number; // 0.8 to 1.4
 
     // Actions
     setName: (name: string) => void;
     addXp: (amount: number) => void;
     unlockNode: (nodeId: number) => void;
+    updateNodeProgress: (nodeId: number, percentage: number) => void;
     completeNode: (nodeId: number) => void;
     toggleSavedQuestion: (questionId: string) => void;
+    likeQuestion: (questionId: string) => void;
+    dislikeQuestion: (questionId: string) => void;
     recordAnswer: (questionId: string, correct: boolean, selectedOption: string) => void;
     resetProgress: () => void;
+    setFontScale: (scale: number) => void;
 }
 
 // --- Initial State ---
@@ -65,15 +73,19 @@ const INITIAL_STATE = {
     gems: 0,
     lastLoginDate: new Date().toISOString(),
     courseProgress: 0,
+    nodeProgress: {},
     nodeStatus: INITIAL_NODE_STATUS,
     completedLessons: [],
     questionHistory: {},
     savedQuestions: [],
+    likedQuestions: [],
+    dislikedQuestions: [],
     mistakes: [],
     isDarkMode: false,
     notificationsEnabled: true,
     soundEnabled: true,
     hapticsEnabled: true,
+    fontScale: 1.0,
 };
 
 // --- Store ---
@@ -92,6 +104,14 @@ export const useUserStore = create<UserState>()(
                     nodeStatus: {
                         ...state.nodeStatus,
                         [nodeId]: 'active',
+                    },
+                })),
+
+            updateNodeProgress: (nodeId, percentage) =>
+                set((state) => ({
+                    nodeProgress: {
+                        ...state.nodeProgress,
+                        [nodeId]: percentage,
                     },
                 })),
 
@@ -127,6 +147,34 @@ export const useUserStore = create<UserState>()(
                     };
                 }),
 
+            likeQuestion: (questionId) =>
+                set((state) => {
+                    // Remove from disliked if present
+                    const newDisliked = state.dislikedQuestions.filter((id) => id !== questionId);
+                    // Toggle like
+                    const isLiked = state.likedQuestions.includes(questionId);
+                    return {
+                        likedQuestions: isLiked
+                            ? state.likedQuestions.filter((id) => id !== questionId)
+                            : [...state.likedQuestions, questionId],
+                        dislikedQuestions: newDisliked,
+                    };
+                }),
+
+            dislikeQuestion: (questionId) =>
+                set((state) => {
+                    // Remove from liked if present
+                    const newLiked = state.likedQuestions.filter((id) => id !== questionId);
+                    // Toggle dislike
+                    const isDisliked = state.dislikedQuestions.includes(questionId);
+                    return {
+                        dislikedQuestions: isDisliked
+                            ? state.dislikedQuestions.filter((id) => id !== questionId)
+                            : [...state.dislikedQuestions, questionId],
+                        likedQuestions: newLiked,
+                    };
+                }),
+
             recordAnswer: (questionId, correct, selectedOption) =>
                 set((state) => {
                     const newHistory = {
@@ -155,6 +203,8 @@ export const useUserStore = create<UserState>()(
                 }),
 
             resetProgress: () => set(INITIAL_STATE),
+
+            setFontScale: (scale) => set({ fontScale: scale }),
         }),
         {
             name: 'user-storage',

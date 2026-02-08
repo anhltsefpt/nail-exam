@@ -1,7 +1,7 @@
 import { Colors } from '@/constants/theme';
 import { useUserStore } from '@/store/useUserStore';
 import { useRouter } from 'expo-router';
-import { BookOpen, Brain, Building2, Factory, Lock, Truck } from 'lucide-react-native';
+import { ArrowLeft, BookOpen, Brain, Building2, Factory, Lock, Truck } from 'lucide-react-native';
 import React, { useEffect } from 'react';
 import {
     Dimensions,
@@ -15,12 +15,14 @@ import {
 } from 'react-native';
 import Animated, {
     Easing,
+    interpolate,
     useAnimatedProps,
     useAnimatedStyle,
     useSharedValue,
     withDelay,
+    withRepeat,
     withSpring,
-    withTiming,
+    withTiming
 } from 'react-native-reanimated';
 import Svg, { Defs, LinearGradient, Path, Stop } from 'react-native-svg';
 
@@ -42,11 +44,13 @@ const X_MAX = width - X_MARGIN;
 // Pattern: Row 0 = 1 node, Row 1 = 2 nodes, Row 2 = 1 node, Row 3 = 2 nodes, Row 4 = 1 node
 const LEVELS_CONFIG = [
     { id: 1, label: 'Core 1', layout: 0, row: 0 }, // Row 0: 1 node (center)
-    { id: 2, label: 'Core 2', layout: -1, row: 1 }, // Row 1: 2 nodes
-    { id: 3, label: 'Core 3', layout: 1, row: 1 }, // Row 1: 2 nodes
+    // Row 1: Swap order so higher ID is on Left (-1)
+    { id: 2, label: 'Core 2', layout: 1, row: 1 },  // Right
+    { id: 3, label: 'Core 3', layout: -1, row: 1 }, // Left
     { id: 4, label: 'Core 4', layout: 0, row: 2 }, // Row 2: 1 node (center)
-    { id: 5, label: 'Core 5', layout: -1, row: 3 }, // Row 3: 2 nodes
-    { id: 6, label: 'Core 6', layout: 1, row: 3 }, // Row 3: 2 nodes
+    // Row 3: Swap order
+    { id: 5, label: 'Core 5', layout: 1, row: 3 },  // Right
+    { id: 6, label: 'Core 6', layout: -1, row: 3 }, // Left
     { id: 7, label: 'Final', layout: 0, row: 4 }, // Row 4: 1 node (center)
 ];
 
@@ -60,6 +64,7 @@ export default function LearningPathScreen() {
 
     // Get store state
     const nodeStatus = useUserStore((state) => state.nodeStatus);
+    const nodeProgress = useUserStore((state) => state.nodeProgress);
     const courseProgress = useUserStore((state) => state.courseProgress);
 
     useEffect(() => {
@@ -81,14 +86,14 @@ export default function LearningPathScreen() {
             x,
             y,
             ...level,
-            status: nodeStatus[level.id] || 'locked' // Use status from store
+            status: nodeStatus[level.id] || 'locked',
+            progress: nodeProgress[level.id] || 0
         };
     });
 
     // Generate the "Snake" Path that ends at the final node
     const generateSnakePath = () => {
         const firstRowY = START_Y;
-        const lastRowY = START_Y + (TOTAL_ROWS - 1) * ROW_HEIGHT;
 
         // Start at center of first row
         let d = `M ${CENTER} ${firstRowY}`;
@@ -147,9 +152,18 @@ export default function LearningPathScreen() {
     const completeNode = useUserStore((state) => state.completeNode);
 
     const handleNodePress = (nodeId: number, status: string) => {
-        if (status === 'active') {
-            // Demo: Completing a node unlocks the next one
-            completeNode(nodeId);
+        if (status === 'active' || status === 'completed') {
+            // Navigate to Quiz page
+            router.push(`/quiz/${nodeId}`);
+        }
+    };
+
+    // Determine current active node for "Continue" button
+    const activeNode = nodePoints.find((n) => n.status === 'active') || nodePoints[nodePoints.length - 1]; // Fallback if all completed?
+
+    const handleContinue = () => {
+        if (activeNode) {
+            handleNodePress(activeNode.id, activeNode.status);
         }
     };
 
@@ -159,7 +173,10 @@ export default function LearningPathScreen() {
 
             {/* Header */}
             <View style={styles.header}>
-                <View>
+                <TouchableOpacity onPress={() => router.back()} style={{ marginRight: 16 }}>
+                    <ArrowLeft size={24} color={Colors.light.text} />
+                </TouchableOpacity>
+                <View style={{ flex: 1 }}>
                     <Text style={styles.headerTitle}>General Knowledge</Text>
                     <Text style={styles.headerSubtitle}>{courseProgress}% Completed</Text>
                 </View>
@@ -240,8 +257,8 @@ export default function LearningPathScreen() {
 
             {/* Bottom Button */}
             <View style={styles.footer}>
-                <TouchableOpacity style={styles.button} onPress={() => router.back()}>
-                    <Text style={styles.buttonText}>Back to Home</Text>
+                <TouchableOpacity style={styles.continueButton} onPress={handleContinue}>
+                    <Text style={styles.continueButtonText}>Continue</Text>
                 </TouchableOpacity>
             </View>
         </SafeAreaView>
@@ -258,6 +275,7 @@ interface NodeProps {
         layout: number;
         row: number;
         status: string;
+        progress: number;
     };
     index: number;
     total: number;
@@ -266,46 +284,75 @@ interface NodeProps {
 
 const NodeItem = ({ node, index, onPress }: NodeProps) => {
     const scale = useSharedValue(0);
+    const pulse = useSharedValue(1);
     const opacity = useSharedValue(0);
-
-    useEffect(() => {
-        const delay = 300 + node.row * 600; // Delay based on row, not index
-        scale.value = withDelay(delay, withSpring(1, { damping: 12, stiffness: 100 }));
-        opacity.value = withDelay(delay, withTiming(1, { duration: 500 }));
-    }, []);
-
-    const rStyle = useAnimatedStyle(() => {
-        return {
-            transform: [{ scale: scale.value }],
-            opacity: opacity.value,
-            left: node.x - 40,
-            top: node.y - 50,
-        };
-    });
+    const ripple = useSharedValue(1);
 
     const isActive = node.status === 'active';
     const isCompleted = node.status === 'completed';
     const isLocked = node.status === 'locked';
 
+    useEffect(() => {
+        const delay = 300 + node.row * 600; // Delay based on row, not index
+        scale.value = withDelay(delay, withSpring(1, { damping: 12, stiffness: 100 }));
+        opacity.value = withDelay(delay, withTiming(1, { duration: 500 }));
+
+        if (isActive) {
+            pulse.value = withRepeat(
+                withTiming(1.1, { duration: 1000, easing: Easing.inOut(Easing.ease) }),
+                -1,
+                true
+            );
+            ripple.value = withRepeat(
+                withTiming(1.6, { duration: 1500, easing: Easing.out(Easing.ease) }),
+                -1,
+                false
+            );
+        }
+    }, [isActive]);
+
+    const rPositionStyle = useAnimatedStyle(() => {
+        return {
+            opacity: opacity.value,
+            left: node.x - 60,
+            top: node.y - 50,
+        };
+    });
+
+    const rScaleStyle = useAnimatedStyle(() => {
+        return {
+            transform: [{ scale: isActive ? scale.value * pulse.value : scale.value }],
+        };
+    });
+
+    const rRippleStyle = useAnimatedStyle(() => {
+        return {
+            transform: [{ scale: ripple.value }],
+            opacity: interpolate(ripple.value, [1, 1.6], [0.6, 0]),
+        };
+    });
+
     return (
-        <Animated.View style={[styles.nodeWrapper, rStyle]}>
-            <TouchableOpacity activeOpacity={0.8} onPress={onPress}>
-                <View style={[
-                    styles.circle,
-                    isActive ? styles.activeCircle : (isCompleted ? styles.completedCircle : styles.lockedCircle)
-                ]}>
-                    {isActive && <View style={styles.activeRing} />}
-                    {isActive || isCompleted ? (
-                        <Brain size={32} color={isCompleted ? "#FFF" : "#FFF"} />
-                    ) : (
-                        <View style={styles.lockedContent}>
-                            <Brain size={24} color="#aaa" />
-                            <View style={styles.lockBadge}>
-                                <Lock size={12} color="#FFF" />
+        <Animated.View style={[styles.nodeWrapper, rPositionStyle]}>
+            <TouchableOpacity activeOpacity={0.8} onPress={onPress} style={styles.touchableArea}>
+                <Animated.View style={[styles.nodeInner, rScaleStyle]}>
+                    {isActive && <Animated.View style={[styles.rippleRing, rRippleStyle]} />}
+                    <View style={[
+                        styles.circle,
+                        isActive ? styles.activeCircle : (isCompleted ? styles.completedCircle : styles.lockedCircle)
+                    ]}>
+                        {isActive || isCompleted ? (
+                            <Text style={styles.percentageText}>{node.progress}%</Text>
+                        ) : (
+                            <View style={styles.lockedContent}>
+                                <Brain size={24} color="#aaa" />
+                                <View style={styles.lockBadge}>
+                                    <Lock size={12} color="#FFF" />
+                                </View>
                             </View>
-                        </View>
-                    )}
-                </View>
+                        )}
+                    </View>
+                </Animated.View>
                 <Text style={[styles.label, isActive || isCompleted ? styles.activeLabel : styles.lockedLabel]}>
                     {node.label}
                 </Text>
@@ -315,6 +362,7 @@ const NodeItem = ({ node, index, onPress }: NodeProps) => {
 };
 
 const styles = StyleSheet.create({
+    // ... existing styles ...
     container: {
         flex: 1,
         backgroundColor: '#FEF2FF',
@@ -322,7 +370,7 @@ const styles = StyleSheet.create({
     contentContainer: {
         flex: 1,
         position: 'relative',
-        marginTop: 20,
+        marginTop: 8,
     },
     header: {
         paddingHorizontal: 20,
@@ -391,11 +439,28 @@ const styles = StyleSheet.create({
     },
     nodeWrapper: {
         position: 'absolute',
-        width: 80,
-        height: 100,
+        width: 120, // Increased width to ensure text fits
+        height: 120, // Increased height
         alignItems: 'center',
         justifyContent: 'center',
         zIndex: 10,
+    },
+    nodeInner: {
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    rippleRing: {
+        position: 'absolute',
+        width: 100,
+        height: 100,
+        borderRadius: 50,
+        backgroundColor: 'rgba(248, 128, 250, 0.4)',
+        zIndex: -1,
+    },
+    touchableArea: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: '100%',
     },
     circle: {
         width: 80,
@@ -415,15 +480,10 @@ const styles = StyleSheet.create({
     activeCircle: {
         backgroundColor: '#F880FA',
         borderColor: '#F999FB',
-    },
-    activeRing: {
-        position: 'absolute',
-        width: 94,
-        height: 94,
-        borderRadius: 47,
-        borderWidth: 2,
-        borderColor: '#F880FA',
-        opacity: 0.3,
+        shadowColor: '#F880FA',
+        shadowOpacity: 0.5,
+        shadowRadius: 10,
+        elevation: 12,
     },
     completedCircle: {
         backgroundColor: '#F880FA', // Solid pink for completed
@@ -455,32 +515,39 @@ const styles = StyleSheet.create({
         fontSize: 14,
         fontWeight: '700',
         letterSpacing: 0.5,
+        textAlign: 'center', // Ensure text is centered
     },
     activeLabel: {
-        color: '#333',
+        color: '#F880FA',
+        fontWeight: '800',
     },
     lockedLabel: {
         color: '#999',
     },
     footer: {
         padding: 20,
-        paddingBottom: 30,
+        paddingBottom: 20, // Closer to bottom edge
         backgroundColor: 'transparent',
     },
-    button: {
+    continueButton: {
         backgroundColor: '#F880FA',
-        paddingVertical: 18,
+        paddingVertical: 14, // Smaller height
         borderRadius: 30,
         alignItems: 'center',
         shadowColor: '#F880FA',
-        shadowOffset: { width: 0, height: 8 },
-        shadowOpacity: 0.4,
-        shadowRadius: 12,
-        elevation: 10,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
+        elevation: 6,
     },
-    buttonText: {
+    continueButtonText: {
         color: 'white',
-        fontSize: 20,
+        fontSize: 18, // Slightly smaller font
         fontWeight: '800',
+    },
+    percentageText: {
+        color: 'white',
+        fontSize: 16,
+        fontWeight: 'bold',
     },
 });

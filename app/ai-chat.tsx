@@ -2,7 +2,7 @@ import { AICharacter } from '@/components/AICharacter';
 import { ChatBubble } from '@/components/ui/ChatBubble';
 import { QuickActionChip } from '@/components/ui/QuickActionChip';
 import { Colors, Radius, Spacing } from '@/constants/theme';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { BarChart3, BookOpen, ChevronDown, Download, Send, X } from 'lucide-react-native';
 import React, { useState } from 'react';
 import {
@@ -35,7 +35,50 @@ const INITIAL_MESSAGES: Message[] = [
 
 export default function AIChatScreen() {
     const router = useRouter();
-    const [messages, setMessages] = useState<Message[]>(INITIAL_MESSAGES);
+    const { context, initialPrompt } = useLocalSearchParams<{ context?: string; initialPrompt?: string }>();
+
+    // Build initial messages based on context
+    const buildInitialMessages = (): Message[] => {
+        const messages: Message[] = [...INITIAL_MESSAGES];
+
+        if (context) {
+            messages.push({
+                id: 'context',
+                variant: 'ai',
+                message: `I see you're working on:\n\n📝 ${context}\n\nHow can I help you with this question?`,
+            });
+        }
+
+        if (initialPrompt) {
+            messages.push({
+                id: 'user-prompt',
+                variant: 'user',
+                message: initialPrompt,
+            });
+            messages.push({
+                id: 'ai-response',
+                variant: 'ai',
+                message: getAIResponseForPrompt(initialPrompt),
+            });
+        }
+
+        return messages;
+    };
+
+    const getAIResponseForPrompt = (prompt: string): string => {
+        if (prompt.toLowerCase().includes('hint')) {
+            return "💡 **Hint**: Think about which items can be properly sanitized and reused versus those that must be discarded after single use. Consider the material and porous nature of each option.";
+        }
+        if (prompt.toLowerCase().includes('break') || prompt.toLowerCase().includes('down')) {
+            return "📚 **Let's break this down**:\n\n1. **Wooden Pusher** - Made of porous wood, cannot be properly disinfected\n2. **Cotton Ball** - Absorbent material, single-use only\n3. **Metal Pusher** - Non-porous metal, can be sanitized and reused\n4. **Paper Towel** - Disposable by design\n\nWhich of these stands out as different?";
+        }
+        if (prompt.toLowerCase().includes('explain')) {
+            return "📖 **Single-Use vs Reusable Items**:\n\nIn nail tech practice, items are classified by their material:\n\n• **Porous materials** (wood, paper, cotton) absorb liquids and cannot be fully disinfected\n• **Non-porous materials** (metal, glass) can be properly sanitized for reuse\n\nThis is a key concept for the state board exam!";
+        }
+        return "Let me help you with that question. What specifically would you like me to explain?";
+    };
+
+    const [messages, setMessages] = useState<Message[]>(buildInitialMessages);
     const [inputText, setInputText] = useState('');
 
     const handleSend = () => {

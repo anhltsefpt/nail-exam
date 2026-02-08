@@ -1,7 +1,9 @@
 import { AICharacter } from '@/components/AICharacter';
+import { CategoryCard } from '@/components/course/CategoryCard';
+import { DashboardActionButtons } from '@/components/dashboard/DashboardActionButtons';
+import { ProbabilityCard } from '@/components/dashboard/ProbabilityCard';
 import { EdgeFunctionDemo } from '@/components/EdgeFunctionDemo';
 import { MultipleChoiceQuestion } from '@/components/quiz/MultipleChoiceQuestion';
-import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Typography } from '@/components/ui/Typography';
 import { Colors, Radius, Shadows, Spacing } from '@/constants/theme';
@@ -9,6 +11,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useRevenueCat } from '@/hooks/useRevenueCat';
 import { useUserStore } from '@/store/useUserStore';
 import { useRouter } from 'expo-router';
+import { AlertTriangle, BookOpen, FlaskConical, Gem, Menu, ShieldCheck, User } from 'lucide-react-native';
 import { useState } from 'react';
 import { ScrollView, StyleSheet, TouchableOpacity, useColorScheme, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -24,6 +27,7 @@ export default function DashboardScreen() {
   const name = useUserStore((state) => state.name);
   const courseProgress = useUserStore((state) => state.courseProgress);
   const streak = useUserStore((state) => state.streak);
+  const gems = useUserStore((state) => state.gems);
   const recordAnswer = useUserStore((state) => state.recordAnswer);
   const addXp = useUserStore((state) => state.addXp);
 
@@ -43,113 +47,153 @@ export default function DashboardScreen() {
       flex: 1,
       backgroundColor: theme.background,
     },
+    stickyHeader: {
+      backgroundColor: theme.background,
+      paddingHorizontal: Spacing.l, // 16px
+      paddingTop: 4, // Ultra compact
+      borderBottomWidth: 1,
+      borderBottomColor: theme.border,
+      paddingBottom: 4, // Ultra compact
+      zIndex: 10,
+    },
     scrollContent: {
       padding: Spacing.l,
+      paddingTop: Spacing.m,
     },
     header: {
-      marginBottom: Spacing.xl,
+      marginBottom: Spacing.s, // 8px
     },
-    statsCard: {
-      marginBottom: Spacing.xl,
-      padding: Spacing.m,
-    },
-    statsRow: {
+    headerRow: {
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'center',
-      marginBottom: Spacing.m,
     },
-    progressCircle: {
-      height: 48,
-      width: 48,
-      borderRadius: Radius.full,
-      backgroundColor: theme.primaryLight,
+    logoBox: {
+      width: 28, // Reduced from 32
+      height: 28,
+      backgroundColor: '#0F172A',
+      borderRadius: Radius.m,
       alignItems: 'center',
       justifyContent: 'center',
     },
+    gemBadge: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: '#FFFBEB', // Amber-50
+      paddingHorizontal: 8,
+      paddingVertical: 2,
+      borderRadius: Radius.full,
+      borderWidth: 1,
+      borderColor: '#FEF3C7',
+    },
     dailyQuestion: {
+      marginTop: Spacing.l,
       marginBottom: Spacing.xl,
     },
     fab: {
       position: 'absolute',
       bottom: Spacing.xl,
       right: Spacing.l,
-      // Removed fixed width/height/bgcolor to let character define it
       alignItems: 'center',
       justifyContent: 'center',
       ...Shadows[colorScheme].l,
-      // shadowColor handled by character or we can keep it here
-      shadowColor: theme.secondary, // Make shadow pink
+      shadowColor: theme.secondary,
     },
   });
 
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
+      {/* Sticky Header Section */}
+      <View style={styles.stickyHeader}>
         <View style={styles.header}>
-          <Typography variant="display" color="primary" style={{ marginBottom: 4 }}>
-            Hello, {name}!
-          </Typography>
-          <Typography variant="body" color="muted">
-            Ready to ace your Nail Tech Exam?
-          </Typography>
-          {user && (
-            <Button
-              label="Sign Out"
-              variant="outline"
-              style={{ marginTop: 16 }}
-              onPress={signOut}
-            />
-          )}
-        </View>
-
-        {/* Quick Stats Card */}
-        <Card style={styles.statsCard}>
-          <View style={styles.statsRow}>
-            <View>
-              <Typography variant="title">Daily Goal</Typography>
-              <Typography variant="caption" color="muted">
-                Streak: {streak} days
-              </Typography>
+          <View style={styles.headerRow}>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <View style={styles.logoBox}>
+                <FlaskConical size={16} color="white" />
+              </View>
+              <View style={{ marginLeft: 8 }}>
+                <Typography variant="caption" color="muted" style={{ fontSize: 10, lineHeight: 12 }}>Nail Exam</Typography>
+                <Typography variant="body" weight="bold" style={{ fontSize: 14, lineHeight: 20 }}>Study By Topics</Typography>
+              </View>
             </View>
-            <View style={styles.progressCircle}>
-              <Typography variant="small" weight="bold" color="primary">
-                {courseProgress}%
-              </Typography>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <View style={styles.gemBadge}>
+                <Typography variant="caption" weight="bold" style={{ marginRight: 4, color: '#D97706' }}>{gems}</Typography>
+                <Gem size={12} color="#D97706" fill="#FCD34D" />
+              </View>
+              <TouchableOpacity style={{ marginLeft: 12 }} onPress={() => { }}>
+                <Menu size={20} color={theme.text} />
+              </TouchableOpacity>
             </View>
           </View>
-          <Button
-            label="Continue Studying"
-            fullWidth
-            icon="book"
+        </View>
+
+        {/* Probability Card (Ultra Compact) */}
+        <ProbabilityCard probability={0.0} onImprove={() => { }} />
+
+        {/* Action Buttons (Ultra Compact) */}
+        <DashboardActionButtons
+          onDailyChallengePress={() => { }}
+          onGetProPress={() => router.push('/paywall')}
+        />
+      </View>
+
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        {/* Categories List */}
+        <View style={{ marginBottom: 100 }}>
+          <Typography variant="heading" style={{ marginBottom: 12 }}>
+            My Courses
+          </Typography>
+
+          <CategoryCard
+            title="General Knowledge"
+            subtitle="Theory, Ethics, Laws"
+            progress={courseProgress}
+            icon={<BookOpen size={24} color={theme.primary} />}
             onPress={() => router.push('/learning-path')}
           />
-          <View style={{ height: 16 }} />
-          <Button
-            label="View Design System"
-            variant="outline"
-            fullWidth
-            icon="color-palette"
-            onPress={() => router.push('/design-system')}
+
+          <CategoryCard
+            title="Salon Ecology"
+            subtitle="Sanitation & Safety"
+            progress={0}
+            icon={<ShieldCheck size={24} color={theme.primary} />}
+            locked
+            onPress={() => { }}
           />
-          {!isPro && (
-            <>
-              <View style={{ height: 16 }} />
-              <Button
-                label="Unlock Premium"
-                variant="primary"
-                fullWidth
-                icon="lock-closed"
-                onPress={() => router.push('/paywall')}
-              />
-            </>
-          )}
-        </Card>
+
+          <CategoryCard
+            title="Anatomy & Physiology"
+            subtitle="Structure & Function"
+            progress={0}
+            icon={<User size={24} color={theme.primary} />}
+            locked
+            onPress={() => { }}
+          />
+
+          <CategoryCard
+            title="Nail & Skin Disorders"
+            subtitle="Pathology"
+            progress={0}
+            icon={<AlertTriangle size={24} color={theme.primary} />}
+            locked
+            onPress={() => { }}
+          />
+
+          <CategoryCard
+            title="Chemistry"
+            subtitle="Product Knowledge"
+            progress={0}
+            icon={<FlaskConical size={24} color={theme.primary} />}
+            locked
+            onPress={() => { }}
+          />
+        </View>
 
         {/* Daily Question */}
         <View style={styles.dailyQuestion}>
           <Typography variant="heading" style={{ marginBottom: 12 }}>
-            Daily Question
+            Today's Question
           </Typography>
           <Card variant="outlined">
             <MultipleChoiceQuestion
