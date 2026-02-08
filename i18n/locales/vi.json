@@ -43,7 +43,32 @@
             "interfaceEvaluation": "Đánh giá giao diện",
             "reportBug": "Báo cáo lỗi"
         },
-        "resetConfirmMessage": "Bạn có chắc chắn muốn đặt lại toàn bộ tiến độ? Hành động này không thể hoàn tác."
+        "resetConfirmMessage": "Bạn có chắc chắn muốn đặt lại toàn bộ tiến độ? Hành động này không thể hoàn tác.",
+        "feedback": {
+            "title": "Bạn có thích ứng dụng không?",
+            "subtitle": "Chạm vào ngôi sao để đánh giá trên App Store.",
+            "submit": "Gửi",
+            "notNow": "Để sau",
+            "thankYou": "Cảm ơn phản hồi của bạn!",
+            "storePrompt": "Bạn có muốn đánh giá chúng tôi trên App Store không?",
+            "rateOnStore": "Đánh giá trên Store",
+            "alreadyRated": "Bạn đã đánh giá ứng dụng. Cảm ơn bạn!"
+        }
+    },
+    "bugReport": {
+        "title": "Báo cáo lỗi",
+        "subtitle": "Bạn gặp vấn đề? Hãy báo cho chúng tôi để sửa lỗi.",
+        "categories": {
+            "quizIssue": "Lỗi Quiz / Bài thi",
+            "contentError": "Lỗi nội dung / Câu hỏi",
+            "uiIssue": "Lỗi giao diện / Layout",
+            "performance": "Hiệu năng / Tải chậm",
+            "other": "Khác"
+        },
+        "describeIssue": "Vui lòng mô tả chi tiết vấn đề...",
+        "submitReport": "Gửi báo cáo",
+        "successMessage": "Đã gửi báo cáo lỗi thành công. Cảm ơn bạn!",
+        "validationError": "Vui lòng chọn danh mục và mô tả vấn đề."
     },
     "dashboard": {
         "title": "Nail Exam",

@@ -1,3 +1,5 @@
+import { BugReportModal } from '@/components/BugReportModal';
+import { FeedbackModal } from '@/components/FeedbackModal';
 import { Typography } from '@/components/ui/Typography';
 import { Colors, Radius, Spacing } from '@/constants/theme';
 import { useAuth } from '@/context/AuthContext';
@@ -76,6 +78,8 @@ export default function MenuScreen() {
     // Local state for UI
     const [languageModalVisible, setLanguageModalVisible] = useState(false);
     const [resetModalVisible, setResetModalVisible] = useState(false);
+    const [feedbackModalVisible, setFeedbackModalVisible] = useState(false);
+    const [bugReportModalVisible, setBugReportModalVisible] = useState(false);
     const [showTimePicker, setShowTimePicker] = useState(false);
 
     const appVersion = Constants.expoConfig?.version ?? '1.0.0';
@@ -601,12 +605,12 @@ export default function MenuScreen() {
                     <MenuItem
                         icon={MessageSquare}
                         label={t('menu.items.interfaceEvaluation')}
-                        onPress={() => { }}
+                        onPress={() => setFeedbackModalVisible(true)}
                     />
                     <MenuItem
                         icon={Bug}
                         label={t('menu.items.reportBug')}
-                        onPress={() => { }}
+                        onPress={() => setBugReportModalVisible(true)}
                         isLast
                     />
                 </View>
@@ -732,6 +736,16 @@ export default function MenuScreen() {
                     />
                 )
             )}
+
+            <FeedbackModal
+                visible={feedbackModalVisible}
+                onClose={() => setFeedbackModalVisible(false)}
+            />
+
+            <BugReportModal
+                visible={bugReportModalVisible}
+                onClose={() => setBugReportModalVisible(false)}
+            />
         </SafeAreaView>
     );
 }

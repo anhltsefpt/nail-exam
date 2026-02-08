@@ -43,7 +43,32 @@
             "interfaceEvaluation": "Interface Evaluation",
             "reportBug": "Report Bug"
         },
-        "resetConfirmMessage": "Are you sure you want to reset all progress? This action cannot be undone."
+        "resetConfirmMessage": "Are you sure you want to reset all progress? This action cannot be undone.",
+        "feedback": {
+            "title": "Enjoying the app?",
+            "subtitle": "Tap a star to rate it on the App Store.",
+            "submit": "Submit",
+            "notNow": "Not now",
+            "thankYou": "Thank you for your feedback!",
+            "storePrompt": "Would you like to rate us on the App Store?",
+            "rateOnStore": "Rate on Store",
+            "alreadyRated": "You have already rated this app. Thank you!"
+        }
+    },
+    "bugReport": {
+        "title": "Report a Bug",
+        "subtitle": "Found an issue? Let us know so we can fix it.",
+        "categories": {
+            "quizIssue": "Quiz / Exam Issue",
+            "contentError": "Content / Question Error",
+            "uiIssue": "UI / Layout Issue",
+            "performance": "Performance / Loading",
+            "other": "Other"
+        },
+        "describeIssue": "Please describe the issue in detail...",
+        "submitReport": "Submit Report",
+        "successMessage": "Bug report submitted successfully. Thank you!",
+        "validationError": "Please select a category and describe the issue."
     },
     "dashboard": {
         "title": "Nail Exam",

@@ -41,6 +41,7 @@ export interface UserState {
     fontScale: number; // 0.8 to 1.4
     language: 'en' | 'ko' | 'vi';
     reminderTime: string; // HH:mm format
+    feedbackRating: number | null; // 1-5 or null
 
     // Actions
     setName: (name: string) => void;
@@ -56,6 +57,7 @@ export interface UserState {
     setFontScale: (scale: number) => void;
     setLanguage: (lang: 'en' | 'ko' | 'vi') => void;
     setReminderTime: (time: string) => void;
+    setFeedbackRating: (rating: number) => void;
 }
 
 // --- Initial State ---
@@ -92,6 +94,7 @@ const INITIAL_STATE = {
     fontScale: 1.0,
     language: 'en' as const,
     reminderTime: '09:00',
+    feedbackRating: null,
 };
 
 // --- Store ---
@@ -225,6 +228,7 @@ export const useUserStore = create<UserState>()(
             setFontScale: (scale) => set({ fontScale: scale }),
             setLanguage: (lang) => set({ language: lang }),
             setReminderTime: (time) => set({ reminderTime: time }),
+            setFeedbackRating: (rating) => set({ feedbackRating: rating }),
         }),
         {
             name: 'user-storage',
