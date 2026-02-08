@@ -3,7 +3,10 @@ import { Colors, Radius, Spacing } from '@/constants/theme';
 import { useAuth } from '@/context/AuthContext';
 import { useRevenueCat } from '@/hooks/useRevenueCat';
 import { useUserStore } from '@/store/useUserStore';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import Constants from 'expo-constants';
 import { LinearGradient } from 'expo-linear-gradient';
+import * as Notifications from 'expo-notifications';
 import { useRouter } from 'expo-router';
 import {
     AlertCircle,
@@ -28,7 +31,9 @@ import {
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
+    Alert,
     Modal,
+    Platform,
     SafeAreaView,
     ScrollView,
     StyleSheet,
@@ -52,11 +57,28 @@ export default function MenuScreen() {
     const gems = useUserStore((state) => state.gems);
     const streak = useUserStore((state) => state.streak);
     const language = useUserStore((state) => state.language);
-    const setLanguage = useUserStore((state) => state.setLanguage);
+    const reminderTime = useUserStore((state) => state.reminderTime);
+    const notificationsEnabled = useUserStore((state) => state.notificationsEnabled); // from store
 
-    // Local state for toggles
-    const [notificationsEnabled, setNotificationsEnabled] = useState(false);
+    // Actions
+    const setLanguage = useUserStore((state) => state.setLanguage);
+    const setReminderTime = useUserStore((state) => state.setReminderTime);
+    const _setNotificationsEnabled = useUserStore.setState; // Direct access or add action? 
+    // Actually we should add an action for toggling notifications to be clean, but for now we can use setState 
+    // or just assume we need to update the store value manually.
+    // Let's use the property from store directly. Wait, 'notificationsEnabled' is in store but we don't have a specific setter action exposed in interface?
+    // UserState interface has `notificationsEnabled` boolean but no `setNotificationsEnabled` action. 
+    // I should probably add it or just use `useUserStore.setState({ notificationsEnabled: val })`.
+    // I will use `useUserStore.setState` for now as it's cleaner than modifying store again.
+
+    const resetProgress = useUserStore((state) => state.resetProgress);
+
+    // Local state for UI
     const [languageModalVisible, setLanguageModalVisible] = useState(false);
+    const [resetModalVisible, setResetModalVisible] = useState(false);
+    const [showTimePicker, setShowTimePicker] = useState(false);
+
+    const appVersion = Constants.expoConfig?.version ?? '1.0.0';
 
     const LANGUAGES = [
         { code: 'en', label: 'English', flag: '🇬🇧' },
@@ -72,6 +94,71 @@ export default function MenuScreen() {
         setLanguage(langCode as any);
         i18n.changeLanguage(langCode);
         setLanguageModalVisible(false);
+    };
+
+    const scheduleDailyNotification = async (time: string) => {
+        try {
+            await Notifications.cancelAllScheduledNotificationsAsync();
+
+            const [hours, minutes] = time.split(':').map(Number);
+
+            await Notifications.scheduleNotificationAsync({
+                content: {
+                    title: "Time to study! 💅",
+                    body: "Keep up your streak and master your nail exam!",
+                    sound: true,
+                },
+                trigger: {
+                    type: Notifications.SchedulableTriggerInputTypes.DAILY,
+                    hour: hours,
+                    minute: minutes,
+                },
+            });
+        } catch (error) {
+            console.error("Error scheduling notification:", error);
+        }
+    };
+
+    const toggleNotifications = async (value: boolean) => {
+        if (value) {
+            const { status } = await Notifications.requestPermissionsAsync();
+            if (status === 'granted') {
+                useUserStore.setState({ notificationsEnabled: true });
+                scheduleDailyNotification(reminderTime);
+            } else {
+                Alert.alert(t('common.error'), "Permission denied. Please enable notifications in settings.");
+                useUserStore.setState({ notificationsEnabled: false });
+            }
+        } else {
+            useUserStore.setState({ notificationsEnabled: false });
+            await Notifications.cancelAllScheduledNotificationsAsync();
+        }
+    };
+
+    const onTimeChange = (event: any, selectedDate?: Date) => {
+        setShowTimePicker(Platform.OS === 'ios'); // Keep open on iOS until manually closed if desired, or close.
+        // Actually for iOS usually we keep it in a modal. For Android it closes auto.
+        if (Platform.OS === 'android') setShowTimePicker(false);
+
+        if (selectedDate) {
+            const hours = selectedDate.getHours().toString().padStart(2, '0');
+            const minutes = selectedDate.getMinutes().toString().padStart(2, '0');
+            const newTime = `${hours}:${minutes}`;
+
+            setReminderTime(newTime);
+            if (notificationsEnabled) {
+                scheduleDailyNotification(newTime);
+            }
+        }
+    };
+
+    const confirmResetProgress = () => {
+        setResetModalVisible(true);
+    };
+
+    const handleResetProgress = () => {
+        resetProgress();
+        setResetModalVisible(false);
     };
 
     const styles = StyleSheet.create({
@@ -208,14 +295,23 @@ export default function MenuScreen() {
         modalOverlay: {
             flex: 1,
             backgroundColor: 'rgba(0,0,0,0.5)',
-            justifyContent: 'flex-end',
+            justifyContent: 'center', // Changed to center for general modals
+            alignItems: 'center',    // added alignment
         },
         modalContent: {
+            backgroundColor: theme.background,
+            borderRadius: Radius.l,
+            padding: Spacing.xl,
+            width: '85%',
+            alignItems: 'center',
+        },
+        languageModalContent: {
             backgroundColor: theme.background,
             borderTopLeftRadius: Radius.xl,
             borderTopRightRadius: Radius.xl,
             padding: Spacing.l,
             paddingBottom: Spacing.xxxl,
+            width: '100%',
         },
         modalHeader: {
             flexDirection: 'row',
@@ -231,6 +327,37 @@ export default function MenuScreen() {
             borderBottomWidth: 1,
             borderBottomColor: theme.border,
         },
+        disabledItem: {
+            opacity: 0.5,
+        },
+        resetIconContainer: {
+            width: 64,
+            height: 64,
+            borderRadius: 32,
+            backgroundColor: '#FEF2F2', // Red-50
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginBottom: Spacing.l,
+        },
+        modalButtons: {
+            flexDirection: 'row',
+            gap: Spacing.m,
+            marginTop: Spacing.xl,
+            width: '100%',
+        },
+        modalButton: {
+            flex: 1,
+            paddingVertical: Spacing.m,
+            borderRadius: Radius.l,
+            alignItems: 'center',
+            justifyContent: 'center',
+        },
+        cancelButton: {
+            backgroundColor: theme.input,
+        },
+        resetButton: {
+            backgroundColor: '#EF4444',
+        }
     });
 
     const MenuItem = ({
@@ -240,12 +367,14 @@ export default function MenuScreen() {
         onPress,
         isLast,
         badge,
-        rightElement
+        rightElement,
+        disabled
     }: any) => (
         <TouchableOpacity
-            style={[styles.menuItem, !isLast && styles.menuItemBorder]}
+            style={[styles.menuItem, !isLast && styles.menuItemBorder, disabled && styles.disabledItem]}
             onPress={onPress}
             activeOpacity={0.7}
+            disabled={disabled}
         >
             <View style={styles.menuItemLeft}>
                 <Icon size={22} color={theme.text} strokeWidth={1.5} />
@@ -264,6 +393,12 @@ export default function MenuScreen() {
             </View>
         </TouchableOpacity>
     );
+
+    // Parse reminderTime to Date object for picker
+    const [hours, minutes] = reminderTime.split(':').map(Number);
+    const date = new Date();
+    date.setHours(hours || 9);
+    date.setMinutes(minutes || 0);
 
     return (
         <SafeAreaView style={styles.container}>
@@ -400,11 +535,11 @@ export default function MenuScreen() {
                     <MenuItem
                         icon={Bell}
                         label={t('menu.items.notification')}
-                        onPress={() => setNotificationsEnabled(!notificationsEnabled)}
+                        onPress={() => toggleNotifications(!notificationsEnabled)}
                         rightElement={
                             <Switch
                                 value={notificationsEnabled}
-                                onValueChange={setNotificationsEnabled}
+                                onValueChange={toggleNotifications}
                                 trackColor={{ false: theme.input, true: theme.primary }}
                                 thumbColor={'white'}
                                 ios_backgroundColor={theme.input}
@@ -414,15 +549,16 @@ export default function MenuScreen() {
                     <MenuItem
                         icon={Clock}
                         label={t('menu.items.remindMeAt')}
-                        onPress={() => { }}
-                        value="00:00"
+                        onPress={() => setShowTimePicker(true)}
+                        value={reminderTime}
+                        disabled={!notificationsEnabled}
                         isLast={false}
                     />
 
                     <MenuItem
                         icon={RotateCcw}
                         label={t('menu.items.resetProgress')}
-                        onPress={() => { }}
+                        onPress={confirmResetProgress}
                     />
                 </View>
 
@@ -442,7 +578,7 @@ export default function MenuScreen() {
                     <MenuItem
                         icon={AlertCircle}
                         label={t('menu.items.appVersion')}
-                        value="4.4.8(10)"
+                        value={appVersion}
                         onPress={() => { }}
                         rightElement={<View />} // Empty view to remove chevron
                     />
@@ -487,7 +623,7 @@ export default function MenuScreen() {
                 <TouchableWithoutFeedback onPress={() => setLanguageModalVisible(false)}>
                     <View style={styles.modalOverlay}>
                         <TouchableWithoutFeedback>
-                            <View style={styles.modalContent}>
+                            <View style={styles.languageModalContent}>
                                 <View style={styles.modalHeader}>
                                     <Typography variant="heading" style={{ fontSize: 18 }} tx="common.selectLanguage">Select Language</Typography>
                                     <TouchableOpacity onPress={() => setLanguageModalVisible(false)}>
@@ -514,6 +650,88 @@ export default function MenuScreen() {
                     </View>
                 </TouchableWithoutFeedback>
             </Modal>
+
+            {/* Custom Reset Progress Modal */}
+            <Modal
+                visible={resetModalVisible}
+                transparent
+                animationType="fade"
+                onRequestClose={() => setResetModalVisible(false)}
+            >
+                <View style={styles.modalOverlay}>
+                    <View style={styles.modalContent}>
+                        <View style={styles.resetIconContainer}>
+                            <AlertCircle size={32} color="#EF4444" fill="#FEE2E2" />
+                        </View>
+
+                        <Typography variant="heading" style={{ fontSize: 20, marginBottom: 8, textAlign: 'center' }}>
+                            {t('menu.items.resetProgress')}?
+                        </Typography>
+
+                        <Typography variant="body" color="muted" style={{ textAlign: 'center', lineHeight: 22 }} tx="menu.resetConfirmMessage" />
+
+                        <View style={styles.modalButtons}>
+                            <TouchableOpacity
+                                style={[styles.modalButton, styles.cancelButton]}
+                                onPress={() => setResetModalVisible(false)}
+                            >
+                                <Typography variant="body" weight="medium" tx="common.cancel" />
+                            </TouchableOpacity>
+
+                            <TouchableOpacity
+                                style={[styles.modalButton, styles.resetButton]}
+                                onPress={handleResetProgress}
+                            >
+                                <Typography variant="body" weight="bold" color="inverted" tx="common.reset" />
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </View>
+            </Modal>
+
+            {/* Time Picker Modal for iOS/Android */}
+            {showTimePicker && (
+                Platform.OS === 'ios' ? (
+                    <Modal
+                        transparent
+                        animationType="fade"
+                        visible={showTimePicker}
+                        onRequestClose={() => setShowTimePicker(false)}
+                    >
+                        <TouchableWithoutFeedback onPress={() => setShowTimePicker(false)}>
+                            <View style={styles.modalOverlay}>
+                                <TouchableWithoutFeedback>
+                                    <View style={styles.modalContent}>
+                                        <View style={styles.modalHeader}>
+                                            <Typography variant="heading">Select Reminder Time</Typography>
+                                            <TouchableOpacity onPress={() => setShowTimePicker(false)}>
+                                                <Text style={{ color: theme.primary, fontWeight: 'bold' }}>Done</Text>
+                                            </TouchableOpacity>
+                                        </View>
+                                        <View style={{ alignItems: 'center', paddingBottom: 20 }}>
+                                            <DateTimePicker
+                                                value={date}
+                                                mode="time"
+                                                display="spinner"
+                                                onChange={onTimeChange}
+                                                textColor={theme.text}
+                                            />
+                                        </View>
+                                    </View>
+                                </TouchableWithoutFeedback>
+                            </View>
+                        </TouchableWithoutFeedback>
+                    </Modal>
+                ) : (
+                    <DateTimePicker
+                        value={date}
+                        mode="time"
+                        is24Hour={true}
+                        display="default"
+                        onChange={onTimeChange}
+                    />
+                )
+            )}
         </SafeAreaView>
     );
 }

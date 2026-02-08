@@ -6,7 +6,8 @@
         "save": "Save",
         "loading": "Loading...",
         "error": "An error occurred",
-        "success": "Success"
+        "success": "Success",
+        "reset": "Reset"
     },
     "menu": {
         "title": "Menu",
@@ -41,7 +42,8 @@
             "contactUs": "Contact Us",
             "interfaceEvaluation": "Interface Evaluation",
             "reportBug": "Report Bug"
-        }
+        },
+        "resetConfirmMessage": "Are you sure you want to reset all progress? This action cannot be undone."
     },
     "dashboard": {
         "title": "Nail Exam",

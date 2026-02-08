@@ -40,6 +40,7 @@ export interface UserState {
     hapticsEnabled: boolean;
     fontScale: number; // 0.8 to 1.4
     language: 'en' | 'ko' | 'vi';
+    reminderTime: string; // HH:mm format
 
     // Actions
     setName: (name: string) => void;
@@ -54,6 +55,7 @@ export interface UserState {
     resetProgress: () => void;
     setFontScale: (scale: number) => void;
     setLanguage: (lang: 'en' | 'ko' | 'vi') => void;
+    setReminderTime: (time: string) => void;
 }
 
 // --- Initial State ---
@@ -89,6 +91,7 @@ const INITIAL_STATE = {
     hapticsEnabled: true,
     fontScale: 1.0,
     language: 'en' as const,
+    reminderTime: '09:00',
 };
 
 // --- Store ---
@@ -205,10 +208,23 @@ export const useUserStore = create<UserState>()(
                     };
                 }),
 
-            resetProgress: () => set(INITIAL_STATE),
+            resetProgress: () =>
+                set((state) => ({
+                    ...INITIAL_STATE,
+                    // Preserve Settings
+                    name: state.name,
+                    language: state.language,
+                    fontScale: state.fontScale,
+                    isDarkMode: state.isDarkMode,
+                    notificationsEnabled: state.notificationsEnabled,
+                    soundEnabled: state.soundEnabled,
+                    hapticsEnabled: state.hapticsEnabled,
+                    // Preserve Pro status if we tracked it here (we don't, it's via RevenueCat)
+                })),
 
             setFontScale: (scale) => set({ fontScale: scale }),
             setLanguage: (lang) => set({ language: lang }),
+            setReminderTime: (time) => set({ reminderTime: time }),
         }),
         {
             name: 'user-storage',

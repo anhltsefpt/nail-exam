@@ -6,7 +6,8 @@
         "save": "Lưu",
         "loading": "Đang tải...",
         "error": "Đã xảy ra lỗi",
-        "success": "Thành công"
+        "success": "Thành công",
+        "reset": "Đặt lại"
     },
     "menu": {
         "title": "Menu",
@@ -41,7 +42,8 @@
             "contactUs": "Liên hệ với chúng tôi",
             "interfaceEvaluation": "Đánh giá giao diện",
             "reportBug": "Báo cáo lỗi"
-        }
+        },
+        "resetConfirmMessage": "Bạn có chắc chắn muốn đặt lại toàn bộ tiến độ? Hành động này không thể hoàn tác."
     },
     "dashboard": {
         "title": "Nail Exam",
