@@ -1,0 +1,96 @@
+{
+    "common": {
+        "language": "Language",
+        "selectLanguage": "Select Language",
+        "cancel": "Cancel",
+        "save": "Save",
+        "loading": "Loading...",
+        "error": "An error occurred",
+        "success": "Success"
+    },
+    "menu": {
+        "title": "Menu",
+        "premiumBanner": {
+            "title": "Upgrade to Premium",
+            "subtitle": "Get unlimited access to all features"
+        },
+        "progress": {
+            "locked": "Get Pro to Unlock",
+            "questionsAnswered": "Questions Answered",
+            "accuracy": "Accuracy",
+            "studyTime": "Study Time",
+            "keepPracticing": "Keep practicing to unlock more insights!"
+        },
+        "items": {
+            "referFriends": "Refer Friends",
+            "achievements": "Achievements",
+            "settingsExam": "Settings Exam",
+            "changeState": "Change State",
+            "changeEndorsements": "Change Endorsements",
+            "examDate": "Exam Date",
+            "generalSettings": "General Settings",
+            "notification": "Notification",
+            "remindMeAt": "Remind Me At",
+            "resetProgress": "Reset Progress",
+            "appInformation": "App Information",
+            "termsOfUse": "Terms Of Use",
+            "privacyPolicy": "Privacy Policy",
+            "appVersion": "App Version",
+            "faqs": "FAQs",
+            "feedbackAndSharing": "Feedback And Sharing",
+            "contactUs": "Contact Us",
+            "interfaceEvaluation": "Interface Evaluation",
+            "reportBug": "Report Bug"
+        }
+    },
+    "dashboard": {
+        "title": "Nail Exam",
+        "subtitle": "Study By Topics",
+        "myCourses": "My Courses",
+        "todaysQuestion": "Today's Question",
+        "categories": {
+            "generalKnowledge": "General Knowledge",
+            "generalKnowledgeSubtitle": "Theory, Ethics, Laws",
+            "salonEcology": "Salon Ecology",
+            "salonEcologySubtitle": "Sanitation & Safety",
+            "anatomyPhysiology": "Anatomy & Physiology",
+            "anatomyPhysiologySubtitle": "Structure & Function",
+            "nailSkinDisorders": "Nail & Skin Disorders",
+            "nailSkinDisordersSubtitle": "Pathology",
+            "chemistry": "Chemistry",
+            "chemistrySubtitle": "Product Knowledge"
+        }
+    },
+    "learningPath": {
+        "title": "General Knowledge",
+        "completed": "Completed",
+        "theory": "Theory",
+        "lessons": "Lessons",
+        "continue": "Continue"
+    },
+    "quiz": {
+        "lessonComplete": "Lesson Complete!",
+        "roundComplete": "Round Complete",
+        "masteredAll": "You've mastered all {{count}} questions!",
+        "mistakesInfo": "You got {{count}} questions wrong. Let's review them to reach 100% mastery.",
+        "totalMastery": "Total Mastery",
+        "finishLesson": "Finish Lesson",
+        "reviewMistakes": "Review {{count}} Mistakes",
+        "exit": "Exit",
+        "questionProgress": "QUESTION {{current}} OF {{total}}",
+        "lessonProgress": "Lesson Progress",
+        "checkAnswer": "Check Answer",
+        "nextQuestion": "Next Question",
+        "finishRound": "Finish Round",
+        "whyWrong": "Why is my answer wrong?",
+        "hint": "Hint",
+        "explain": "Explain"
+    },
+    "aiChat": {
+        "title": "Mentora",
+        "info": "Mentora Information",
+        "inputPlaceholder": "Enter your message here...",
+        "analyzeProgress": "Analyze my progress",
+        "studyTheory": "Study Theory"
+    }
+}

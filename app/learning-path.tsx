@@ -3,6 +3,7 @@ import { useUserStore } from '@/store/useUserStore';
 import { useRouter } from 'expo-router';
 import { ArrowLeft, BookOpen, Brain, Building2, Factory, Lock, Truck } from 'lucide-react-native';
 import React, { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
     Dimensions,
     SafeAreaView,
@@ -60,6 +61,7 @@ const AnimatedPath = Animated.createAnimatedComponent(Path);
 
 export default function LearningPathScreen() {
     const router = useRouter();
+    const { t } = useTranslation();
     const pathProgress = useSharedValue(0);
 
     // Get store state
@@ -177,16 +179,16 @@ export default function LearningPathScreen() {
                     <ArrowLeft size={24} color={Colors.light.text} />
                 </TouchableOpacity>
                 <View style={{ flex: 1 }}>
-                    <Text style={styles.headerTitle}>General Knowledge</Text>
-                    <Text style={styles.headerSubtitle}>{courseProgress}% Completed</Text>
+                    <Text style={styles.headerTitle}>{t('learningPath.title')}</Text>
+                    <Text style={styles.headerSubtitle}>{courseProgress}% {t('learningPath.completed')}</Text>
                 </View>
                 <View style={styles.headerRight}>
                     <View style={styles.pill}>
                         <BookOpen size={16} color={Colors.light.primary} />
-                        <Text style={styles.pillText}>Theory</Text>
+                        <Text style={styles.pillText}>{t('learningPath.theory')}</Text>
                     </View>
                     <Text style={styles.lessonCount}>
-                        {nodePoints.filter(n => n.status === 'completed').length}/{nodePoints.length} Lessons
+                        {nodePoints.filter(n => n.status === 'completed').length}/{nodePoints.length} {t('learningPath.lessons')}
                     </Text>
                 </View>
             </View>
@@ -258,7 +260,7 @@ export default function LearningPathScreen() {
             {/* Bottom Button */}
             <View style={styles.footer}>
                 <TouchableOpacity style={styles.continueButton} onPress={handleContinue}>
-                    <Text style={styles.continueButtonText}>Continue</Text>
+                    <Text style={styles.continueButtonText}>{t('learningPath.continue')}</Text>
                 </TouchableOpacity>
             </View>
         </SafeAreaView>

@@ -39,6 +39,7 @@ export interface UserState {
     soundEnabled: boolean;
     hapticsEnabled: boolean;
     fontScale: number; // 0.8 to 1.4
+    language: 'en' | 'ko' | 'vi';
 
     // Actions
     setName: (name: string) => void;
@@ -52,6 +53,7 @@ export interface UserState {
     recordAnswer: (questionId: string, correct: boolean, selectedOption: string) => void;
     resetProgress: () => void;
     setFontScale: (scale: number) => void;
+    setLanguage: (lang: 'en' | 'ko' | 'vi') => void;
 }
 
 // --- Initial State ---
@@ -86,6 +88,7 @@ const INITIAL_STATE = {
     soundEnabled: true,
     hapticsEnabled: true,
     fontScale: 1.0,
+    language: 'en' as const,
 };
 
 // --- Store ---
@@ -205,6 +208,7 @@ export const useUserStore = create<UserState>()(
             resetProgress: () => set(INITIAL_STATE),
 
             setFontScale: (scale) => set({ fontScale: scale }),
+            setLanguage: (lang) => set({ language: lang }),
         }),
         {
             name: 'user-storage',

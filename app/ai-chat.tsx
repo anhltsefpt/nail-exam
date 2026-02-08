@@ -5,6 +5,7 @@ import { Colors, Radius, Spacing } from '@/constants/theme';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { BarChart3, BookOpen, ChevronDown, Download, Send, X } from 'lucide-react-native';
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
     KeyboardAvoidingView,
     Platform,
@@ -35,6 +36,7 @@ const INITIAL_MESSAGES: Message[] = [
 
 export default function AIChatScreen() {
     const router = useRouter();
+    const { t } = useTranslation();
     const { context, initialPrompt } = useLocalSearchParams<{ context?: string; initialPrompt?: string }>();
 
     // Build initial messages based on context
@@ -118,7 +120,7 @@ export default function AIChatScreen() {
                 id: (Date.now() + 1).toString(),
                 variant: 'ai' as const,
                 message:
-                    action === 'Analyze my progress'
+                    action === t('aiChat.analyzeProgress')
                         ? "Based on your current progress:\n\n📊 Overall: 0% complete\n📚 Topics studied: 0/12\n✅ Practice tests: 0/5\n\nI recommend starting with the 'General Knowledge' section. Would you like me to guide you through the first lesson?"
                         : "Let's dive into some theory! Here are the key areas you should study:\n\n1. **Sanitation & Safety** - Essential for the exam\n2. **Nail Anatomy** - Understanding structure\n3. **Product Chemistry** - How products work\n\nWhich topic interests you most?",
             };
@@ -139,10 +141,10 @@ export default function AIChatScreen() {
                 <View style={styles.headerCenter}>
                     <View style={styles.headerTitleRow}>
                         <AICharacter size={28} />
-                        <Text style={styles.headerTitle}>Mentora</Text>
+                        <Text style={styles.headerTitle}>{t('aiChat.title')}</Text>
                     </View>
                     <TouchableOpacity style={styles.headerInfo}>
-                        <Text style={styles.headerInfoText}>Mentora Information</Text>
+                        <Text style={styles.headerInfoText}>{t('aiChat.info')}</Text>
                         <ChevronDown size={14} color={Colors.light.textMuted} />
                     </TouchableOpacity>
                 </View>
@@ -172,14 +174,14 @@ export default function AIChatScreen() {
             <View style={styles.quickActions}>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                     <QuickActionChip
-                        label="Analyze my progress"
+                        label={t('aiChat.analyzeProgress')}
                         icon={<BarChart3 size={16} color={Colors.light.primary} />}
-                        onPress={() => handleQuickAction('Analyze my progress')}
+                        onPress={() => handleQuickAction(t('aiChat.analyzeProgress'))}
                     />
                     <QuickActionChip
-                        label="Study Theory"
+                        label={t('aiChat.studyTheory')}
                         icon={<BookOpen size={16} color={Colors.light.primary} />}
-                        onPress={() => handleQuickAction('Study Theory')}
+                        onPress={() => handleQuickAction(t('aiChat.studyTheory'))}
                     />
                 </ScrollView>
             </View>
@@ -192,7 +194,7 @@ export default function AIChatScreen() {
                 <View style={styles.inputContainer}>
                     <TextInput
                         style={styles.input}
-                        placeholder="Enter your message here..."
+                        placeholder={t('aiChat.inputPlaceholder')}
                         placeholderTextColor={Colors.light.textMuted}
                         value={inputText}
                         onChangeText={setInputText}

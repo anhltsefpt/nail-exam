@@ -19,6 +19,7 @@ import {
     X
 } from 'lucide-react-native';
 import React, { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
     PanResponder,
     ScrollView,
@@ -32,6 +33,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function QuizScreen() {
     const router = useRouter();
+    const { t } = useTranslation();
     const { categoryId } = useLocalSearchParams<{ categoryId: string }>();
     const colorScheme = useColorScheme() ?? 'light';
     const theme = Colors[colorScheme];
@@ -212,33 +214,33 @@ export default function QuizScreen() {
                 <AICharacter size={120} animated />
 
                 <Typography variant="heading" weight="bold" align="center" style={{ marginTop: Spacing.l }}>
-                    {isPerfect ? 'Lesson Complete!' : 'Round Complete'}
+                    {isPerfect ? t('quiz.lessonComplete') : t('quiz.roundComplete')}
                 </Typography>
 
                 <Typography variant="body" color="muted" align="center" style={{ marginTop: Spacing.s, marginBottom: Spacing.xl }}>
                     {isPerfect
-                        ? `You've mastered all ${totalQuestionsCount} questions!`
-                        : `You got ${roundMistakes.length} questions wrong. Let's review them to reach 100% mastery.`}
+                        ? t('quiz.masteredAll', { count: totalQuestionsCount })
+                        : t('quiz.mistakesInfo', { count: roundMistakes.length })}
                 </Typography>
 
                 <View style={[styles.statCard, { backgroundColor: theme.card, borderColor: theme.border }]}>
                     <Typography variant="title" color="primary">{masteryPercentage}%</Typography>
-                    <Typography variant="caption" color="muted">Total Mastery</Typography>
+                    <Typography variant="caption" color="muted">{t('quiz.totalMastery')}</Typography>
                 </View>
 
                 {isPerfect ? (
                     <TouchableOpacity style={styles.summaryButton} onPress={() => router.back()}>
-                        <Typography variant="body" weight="bold" color="inverted">Finnish Lesson</Typography>
+                        <Typography variant="body" weight="bold" color="inverted">{t('quiz.finishLesson')}</Typography>
                     </TouchableOpacity>
                 ) : (
                     <TouchableOpacity style={styles.summaryButton} onPress={startNextRound}>
                         <RefreshCw size={20} color="white" style={{ marginRight: 8 }} />
-                        <Typography variant="body" weight="bold" color="inverted">Review {roundMistakes.length} Mistakes</Typography>
+                        <Typography variant="body" weight="bold" color="inverted">{t('quiz.reviewMistakes', { count: roundMistakes.length })}</Typography>
                     </TouchableOpacity>
                 )}
 
                 <TouchableOpacity style={{ marginTop: Spacing.l }} onPress={() => router.back()}>
-                    <Typography variant="body" color="muted">Exit</Typography>
+                    <Typography variant="body" color="muted">{t('quiz.exit')}</Typography>
                 </TouchableOpacity>
             </SafeAreaView>
         );
@@ -311,7 +313,7 @@ export default function QuizScreen() {
             {/* Progress Bar (Percentage) */}
             <View style={styles.progressContainer}>
                 <View style={[styles.progressBarInfo, { marginBottom: 4, flexDirection: 'row', justifyContent: 'space-between' }]}>
-                    <Typography variant="caption" color="muted">Lesson Progress</Typography>
+                    <Typography variant="caption" color="muted">{t('quiz.lessonProgress')}</Typography>
                     <Typography variant="caption" weight="bold" color="primary">{masteryPercentage}%</Typography>
                 </View>
                 <View style={[styles.progressBarTrack, { backgroundColor: theme.input }]}>
@@ -323,7 +325,7 @@ export default function QuizScreen() {
                 {/* Question Info */}
                 <View style={styles.questionHeader}>
                     <Typography variant="caption" color="muted" weight="medium">
-                        QUESTION {currentIndex + 1} OF {activeQuestions.length}
+                        {t('quiz.questionProgress', { current: currentIndex + 1, total: activeQuestions.length })}
                     </Typography>
                     <View style={styles.questionActions}>
                         <TouchableOpacity onPress={() => likeQuestion(currentQuestion.id)} style={[styles.actionButton, isLiked && styles.actionButtonActive]}>
@@ -407,16 +409,16 @@ export default function QuizScreen() {
                     {isCurrentAnswerWrong && (
                         <TouchableOpacity style={[styles.chip, styles.chipWrong]} onPress={() => handleAIChat('Why is my answer wrong?')}>
                             <HelpCircle size={16} color="#EF4444" />
-                            <Typography variant="caption" style={[styles.chipText, { color: '#EF4444' }]}>Why is this wrong?</Typography>
+                            <Typography variant="caption" style={[styles.chipText, { color: '#EF4444' }]}>{t('quiz.whyWrong')}</Typography>
                         </TouchableOpacity>
                     )}
                     <TouchableOpacity style={[styles.chip, { borderColor: theme.border }]} onPress={() => handleAIChat('Give me a hint.')}>
                         <Lightbulb size={16} color="#F59E0B" />
-                        <Typography variant="caption" style={styles.chipText}>Hint</Typography>
+                        <Typography variant="caption" style={styles.chipText}>{t('quiz.hint')}</Typography>
                     </TouchableOpacity>
                     <TouchableOpacity style={[styles.chip, { borderColor: theme.border }]} onPress={() => handleAIChat('Explain.')}>
                         <BookOpen size={16} color={theme.primary} />
-                        <Typography variant="caption" style={styles.chipText}>Explain</Typography>
+                        <Typography variant="caption" style={styles.chipText}>{t('quiz.explain')}</Typography>
                     </TouchableOpacity>
                 </ScrollView>
 
@@ -438,7 +440,9 @@ export default function QuizScreen() {
                             style={styles.continueGradient}
                         >
                             <Typography variant="body" weight="bold" color={selectedOptionId || showResult ? 'inverted' : 'muted'}>
-                                {showResult ? (currentIndex < activeQuestions.length - 1 ? 'Next Question' : 'Finish Round') : 'Check Answer'}
+                                {showResult
+                                    ? (currentIndex < activeQuestions.length - 1 ? t('quiz.nextQuestion') : t('quiz.finishRound'))
+                                    : t('quiz.checkAnswer')}
                             </Typography>
                         </LinearGradient>
                     </TouchableOpacity>

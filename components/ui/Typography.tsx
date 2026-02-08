@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Text, TextProps, useColorScheme } from 'react-native';
 import { Colors, Typography as TypeTokens } from '../../constants/theme';
 
@@ -11,6 +12,7 @@ interface TypographyProps extends TextProps {
   weight?: Weight;
   color?: TextColor;
   align?: 'auto' | 'left' | 'right' | 'center' | 'justify';
+  tx?: string;
 }
 
 export function Typography({
@@ -20,10 +22,14 @@ export function Typography({
   weight = 'regular',
   color = 'default',
   align = 'left',
+  tx,
   ...props
 }: TypographyProps) {
+  const { t } = useTranslation();
   const colorScheme = useColorScheme() ?? 'light';
   const theme = Colors[colorScheme];
+
+  const content = tx ? t(tx) : children;
 
   const getTextStyle = () => {
     // 1. Base Size & Line Height
@@ -51,7 +57,7 @@ export function Typography({
 
   return (
     <Text style={[getTextStyle(), style]} {...props}>
-      {children}
+      {content}
     </Text>
   );
 }

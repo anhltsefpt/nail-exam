@@ -13,11 +13,13 @@ import { useUserStore } from '@/store/useUserStore';
 import { useRouter } from 'expo-router';
 import { AlertTriangle, BookOpen, FlaskConical, Gem, Menu, ShieldCheck, User } from 'lucide-react-native';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ScrollView, StyleSheet, TouchableOpacity, useColorScheme, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function DashboardScreen() {
   const router = useRouter();
+  const { t } = useTranslation();
   const { user, signOut } = useAuth();
   const { isPro } = useRevenueCat();
   const colorScheme = useColorScheme() ?? 'light';
@@ -112,8 +114,8 @@ export default function DashboardScreen() {
                 <FlaskConical size={16} color="white" />
               </View>
               <View style={{ marginLeft: 8 }}>
-                <Typography variant="caption" color="muted" style={{ fontSize: 10, lineHeight: 12 }}>Nail Exam</Typography>
-                <Typography variant="body" weight="bold" style={{ fontSize: 14, lineHeight: 20 }}>Study By Topics</Typography>
+                <Typography variant="caption" color="muted" style={{ fontSize: 10, lineHeight: 12 }}>{t('dashboard.title')}</Typography>
+                <Typography variant="body" weight="bold" style={{ fontSize: 14, lineHeight: 20 }}>{t('dashboard.subtitle')}</Typography>
               </View>
             </View>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -142,20 +144,20 @@ export default function DashboardScreen() {
         {/* Categories List */}
         <View style={{ marginBottom: 100 }}>
           <Typography variant="heading" style={{ marginBottom: 12 }}>
-            My Courses
+            {t('dashboard.myCourses')}
           </Typography>
 
           <CategoryCard
-            title="General Knowledge"
-            subtitle="Theory, Ethics, Laws"
+            title={t('dashboard.categories.generalKnowledge')}
+            subtitle={t('dashboard.categories.generalKnowledgeSubtitle')}
             progress={courseProgress}
             icon={<BookOpen size={24} color={theme.primary} />}
             onPress={() => router.push('/learning-path')}
           />
 
           <CategoryCard
-            title="Salon Ecology"
-            subtitle="Sanitation & Safety"
+            title={t('dashboard.categories.salonEcology')}
+            subtitle={t('dashboard.categories.salonEcologySubtitle')}
             progress={0}
             icon={<ShieldCheck size={24} color={theme.primary} />}
             locked
@@ -163,8 +165,8 @@ export default function DashboardScreen() {
           />
 
           <CategoryCard
-            title="Anatomy & Physiology"
-            subtitle="Structure & Function"
+            title={t('dashboard.categories.anatomyPhysiology')}
+            subtitle={t('dashboard.categories.anatomyPhysiologySubtitle')}
             progress={0}
             icon={<User size={24} color={theme.primary} />}
             locked
@@ -172,8 +174,8 @@ export default function DashboardScreen() {
           />
 
           <CategoryCard
-            title="Nail & Skin Disorders"
-            subtitle="Pathology"
+            title={t('dashboard.categories.nailSkinDisorders')}
+            subtitle={t('dashboard.categories.nailSkinDisordersSubtitle')}
             progress={0}
             icon={<AlertTriangle size={24} color={theme.primary} />}
             locked
@@ -181,8 +183,8 @@ export default function DashboardScreen() {
           />
 
           <CategoryCard
-            title="Chemistry"
-            subtitle="Product Knowledge"
+            title={t('dashboard.categories.chemistry')}
+            subtitle={t('dashboard.categories.chemistrySubtitle')}
             progress={0}
             icon={<FlaskConical size={24} color={theme.primary} />}
             locked
@@ -193,7 +195,7 @@ export default function DashboardScreen() {
         {/* Daily Question */}
         <View style={styles.dailyQuestion}>
           <Typography variant="heading" style={{ marginBottom: 12 }}>
-            Today's Question
+            {t('dashboard.todaysQuestion')}
           </Typography>
           <Card variant="outlined">
             <MultipleChoiceQuestion

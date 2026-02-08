@@ -1,0 +1,96 @@
+{
+    "common": {
+        "language": "Ngôn ngữ",
+        "selectLanguage": "Chọn ngôn ngữ",
+        "cancel": "Hủy",
+        "save": "Lưu",
+        "loading": "Đang tải...",
+        "error": "Đã xảy ra lỗi",
+        "success": "Thành công"
+    },
+    "menu": {
+        "title": "Menu",
+        "premiumBanner": {
+            "title": "Nâng cấp lên Premium",
+            "subtitle": "Truy cập không giới hạn tất cả các tính năng"
+        },
+        "progress": {
+            "locked": "Mua Pro để mở khóa",
+            "questionsAnswered": "Câu hỏi đã trả lời",
+            "accuracy": "Độ chính xác",
+            "studyTime": "Thời gian học",
+            "keepPracticing": "Tiếp tục luyện tập để mở khóa thêm thông tin!"
+        },
+        "items": {
+            "referFriends": "Giới thiệu bạn bè",
+            "achievements": "Thành tích",
+            "settingsExam": "Cài đặt thi",
+            "changeState": "Đổi bang",
+            "changeEndorsements": "Đổi chứng chỉ",
+            "examDate": "Ngày thi",
+            "generalSettings": "Cài đặt chung",
+            "notification": "Thông báo",
+            "remindMeAt": "Nhắc nhở lúc",
+            "resetProgress": "Đặt lại tiến độ",
+            "appInformation": "Thông tin ứng dụng",
+            "termsOfUse": "Điều khoản sử dụng",
+            "privacyPolicy": "Chính sách bảo mật",
+            "appVersion": "Phiên bản ứng dụng",
+            "faqs": "Câu hỏi thường gặp",
+            "feedbackAndSharing": "Phản hồi & Chia sẻ",
+            "contactUs": "Liên hệ với chúng tôi",
+            "interfaceEvaluation": "Đánh giá giao diện",
+            "reportBug": "Báo cáo lỗi"
+        }
+    },
+    "dashboard": {
+        "title": "Nail Exam",
+        "subtitle": "Học theo chủ đề",
+        "myCourses": "Khóa học của tôi",
+        "todaysQuestion": "Câu hỏi hôm nay",
+        "categories": {
+            "generalKnowledge": "Kiến thức chung",
+            "generalKnowledgeSubtitle": "Lý thuyết, Đạo đức, Luật",
+            "salonEcology": "Sinh thái học Salon",
+            "salonEcologySubtitle": "Vệ sinh & An toàn",
+            "anatomyPhysiology": "Giải phẫu & Sinh lý học",
+            "anatomyPhysiologySubtitle": "Cấu trúc & Chức năng",
+            "nailSkinDisorders": "Bệnh về móng & da",
+            "nailSkinDisordersSubtitle": "Bệnh lý học",
+            "chemistry": "Hóa học",
+            "chemistrySubtitle": "Kiến thức sản phẩm"
+        }
+    },
+    "learningPath": {
+        "title": "Kiến thức chung",
+        "completed": "Đã hoàn thành",
+        "theory": "Lý thuyết",
+        "lessons": "Bài học",
+        "continue": "Tiếp tục"
+    },
+    "quiz": {
+        "lessonComplete": "Hoàn thành bài học!",
+        "roundComplete": "Hoàn thành vòng",
+        "masteredAll": "Bạn đã thành thạo tất cả {{count}} câu hỏi!",
+        "mistakesInfo": "Bạn đã sai {{count}} câu. Hãy ôn lại để đạt 100% thành thạo.",
+        "totalMastery": "Tổng độ thành thạo",
+        "finishLesson": "Kết thúc bài học",
+        "reviewMistakes": "Ôn lại {{count}} câu sai",
+        "exit": "Thoát",
+        "questionProgress": "CÂU HỎI {{current}} / {{total}}",
+        "lessonProgress": "Tiến độ bài học",
+        "checkAnswer": "Kiểm tra đáp án",
+        "nextQuestion": "Câu hỏi tiếp theo",
+        "finishRound": "Kết thúc vòng",
+        "whyWrong": "Tại sao tôi sai?",
+        "hint": "Gợi ý",
+        "explain": "Giải thích"
+    },
+    "aiChat": {
+        "title": "Mentora",
+        "info": "Thông tin Mentora",
+        "inputPlaceholder": "Nhập tin nhắn của bạn...",
+        "analyzeProgress": "Phân tích tiến độ",
+        "studyTheory": "Học lý thuyết"
+    }
+}

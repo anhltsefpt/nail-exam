@@ -2,8 +2,11 @@ import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native
 import { Stack, useRootNavigationState, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useColorScheme } from 'react-native';
 import { AuthProvider, useAuth } from '../context/AuthContext';
+import '../i18n'; // Initialize i18n
+import { useUserStore } from '../store/useUserStore';
 
 function useProtectedRoute(user: any) {
   const segments = useSegments();
@@ -56,6 +59,15 @@ export default function RootLayout() {
 
 function RootLayoutNav() {
   const { user } = useAuth();
+  const { i18n } = useTranslation();
+  const language = useUserStore((state) => state.language);
+
+  useEffect(() => {
+    if (language) {
+      i18n.changeLanguage(language);
+    }
+  }, [language, i18n]);
+
   useProtectedRoute(user);
 
   return (

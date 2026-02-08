@@ -26,6 +26,7 @@ import {
     X
 } from 'lucide-react-native';
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
     Modal,
     SafeAreaView,
@@ -41,6 +42,7 @@ import {
 
 export default function MenuScreen() {
     const router = useRouter();
+    const { t, i18n } = useTranslation();
     const { user, signOut } = useAuth();
     const { isPro } = useRevenueCat();
     const colorScheme = useColorScheme() ?? 'light';
@@ -49,17 +51,28 @@ export default function MenuScreen() {
     // Store state
     const gems = useUserStore((state) => state.gems);
     const streak = useUserStore((state) => state.streak);
+    const language = useUserStore((state) => state.language);
+    const setLanguage = useUserStore((state) => state.setLanguage);
 
     // Local state for toggles
     const [notificationsEnabled, setNotificationsEnabled] = useState(false);
     const [languageModalVisible, setLanguageModalVisible] = useState(false);
-    const [selectedLanguage, setSelectedLanguage] = useState({ code: 'EN', label: 'English', flag: '🇬🇧' });
 
     const LANGUAGES = [
-        { code: 'EN', label: 'English', flag: '🇬🇧' },
-        { code: 'KO', label: 'Korean', flag: '🇰🇷' },
-        { code: 'VI', label: 'Vietnamese', flag: '🇻🇳' },
+        { code: 'en', label: 'English', flag: '🇬🇧' },
+        { code: 'ko', label: 'Korean', flag: '🇰🇷' },
+        { code: 'vi', label: 'Vietnamese', flag: '🇻🇳' },
     ];
+
+    const getFlag = (langCode: string) => {
+        return LANGUAGES.find(l => l.code === langCode)?.flag || '🇬🇧';
+    };
+
+    const handleLanguageChange = (langCode: string) => {
+        setLanguage(langCode as any);
+        i18n.changeLanguage(langCode);
+        setLanguageModalVisible(false);
+    };
 
     const styles = StyleSheet.create({
         container: {
@@ -259,7 +272,7 @@ export default function MenuScreen() {
                 <TouchableOpacity onPress={() => router.back()} style={{ padding: 4 }}>
                     <ArrowRight size={24} color={theme.text} style={{ transform: [{ rotate: '180deg' }] }} />
                 </TouchableOpacity>
-                <Typography variant="heading" style={{ fontSize: 18 }}>Menu</Typography>
+                <Typography variant="heading" style={{ fontSize: 18 }} tx="menu.title">Menu</Typography>
                 <View style={styles.gemBadge}>
                     <Typography variant="caption" weight="bold" style={{ marginRight: 4, color: '#D97706' }}>{gems}</Typography>
                     <Gem size={12} color="#D97706" fill="#FCD34D" />
@@ -285,7 +298,7 @@ export default function MenuScreen() {
                                 }}>
                                     <Crown size={24} color="white" fill="white" />
                                 </View>
-                                <Typography variant="body" weight="bold" color="inverted" style={{ fontSize: 16 }}>
+                                <Typography variant="body" weight="bold" color="inverted" style={{ fontSize: 16 }} tx="menu.premiumBanner.title">
                                     Upgrade to the Premium
                                 </Typography>
                             </View>
@@ -300,7 +313,7 @@ export default function MenuScreen() {
                         <View style={styles.lockedOverlay}>
                             <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#000', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20 }}>
                                 <Crown size={14} color="#FCD34D" fill="#FCD34D" style={{ marginRight: 6 }} />
-                                <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 12 }}>Get Pro to Unlock</Text>
+                                <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 12 }}>{t('menu.progress.locked')}</Text>
                             </View>
                         </View>
                     )}
@@ -308,15 +321,15 @@ export default function MenuScreen() {
                     <View style={styles.progressInfo}>
                         <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 16 }}>
                             <View>
-                                <Text style={{ color: theme.textMuted, fontSize: 12, marginBottom: 4 }}>Questions Answered</Text>
+                                <Text style={{ color: theme.textMuted, fontSize: 12, marginBottom: 4 }}>{t('menu.progress.questionsAnswered')}</Text>
                                 <Text style={{ color: theme.text, fontSize: 20, fontWeight: 'bold' }}>0</Text>
                             </View>
                             <View>
-                                <Text style={{ color: theme.textMuted, fontSize: 12, marginBottom: 4 }}>Accuracy</Text>
+                                <Text style={{ color: theme.textMuted, fontSize: 12, marginBottom: 4 }}>{t('menu.progress.accuracy')}</Text>
                                 <Text style={{ color: theme.success, fontSize: 20, fontWeight: 'bold' }}>0%</Text>
                             </View>
                             <View>
-                                <Text style={{ color: theme.textMuted, fontSize: 12, marginBottom: 4 }}>Study Time</Text>
+                                <Text style={{ color: theme.textMuted, fontSize: 12, marginBottom: 4 }}>{t('menu.progress.studyTime')}</Text>
                                 <Text style={{ color: theme.text, fontSize: 20, fontWeight: 'bold' }}>0h</Text>
                             </View>
                         </View>
@@ -325,7 +338,7 @@ export default function MenuScreen() {
                             <View style={{ width: '0%', height: '100%', backgroundColor: theme.primary, borderRadius: 3 }} />
                         </View>
                         <Text style={{ color: theme.textMuted, fontSize: 10, marginTop: 6, textAlign: 'center' }}>
-                            Keep practicing to unlock more insights!
+                            {t('menu.progress.keepPracticing')}
                         </Text>
                     </View>
                 </View>
@@ -334,59 +347,59 @@ export default function MenuScreen() {
                 <View style={styles.menuGroup}>
                     <MenuItem
                         icon={Users}
-                        label="Refer Friends"
+                        label={t('menu.items.referFriends')}
                         onPress={() => { }}
                         badge="NEW"
                     />
                     <MenuItem
                         icon={Crown}
-                        label="Achievements"
+                        label={t('menu.items.achievements')}
                         onPress={() => { }}
                         isLast
                     />
                 </View>
 
                 {/* Settings Exam */}
-                <Typography variant="caption" style={styles.sectionTitle}>Settings Exam</Typography>
+                <Typography variant="caption" style={styles.sectionTitle} tx="menu.items.settingsExam">Settings Exam</Typography>
                 <View style={styles.menuGroup}>
                     <MenuItem
                         icon={Globe}
-                        label="Select Language"
+                        label={t('common.selectLanguage')}
                         onPress={() => setLanguageModalVisible(true)}
-                        value={selectedLanguage.code}
+                        value={language.toUpperCase()}
                         rightElement={
                             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                <Text style={{ fontSize: 16, marginRight: 8 }}>{selectedLanguage.flag}</Text>
+                                <Text style={{ fontSize: 16, marginRight: 8 }}>{getFlag(language)}</Text>
                                 <View style={{ backgroundColor: theme.input, paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4, marginRight: 8 }}>
-                                    <Text style={{ color: theme.textMuted, fontSize: 12 }}>{selectedLanguage.code}</Text>
+                                    <Text style={{ color: theme.textMuted, fontSize: 12 }}>{language.toUpperCase()}</Text>
                                 </View>
                             </View>
                         }
                     />
                     <MenuItem
                         icon={MapPin}
-                        label="Change state"
+                        label={t('menu.items.changeState')}
                         onPress={() => { }}
                     />
                     <MenuItem
                         icon={FileText}
-                        label="Change Endorsements"
+                        label={t('menu.items.changeEndorsements')}
                         onPress={() => { }}
                     />
                     <MenuItem
                         icon={Calendar}
-                        label="Exam Date"
+                        label={t('menu.items.examDate')}
                         onPress={() => { }}
                         isLast
                     />
                 </View>
 
                 {/* General Settings */}
-                <Typography variant="caption" style={styles.sectionTitle}>General Settings</Typography>
+                <Typography variant="caption" style={styles.sectionTitle} tx="menu.items.generalSettings">General Settings</Typography>
                 <View style={styles.menuGroup}>
                     <MenuItem
                         icon={Bell}
-                        label="Notification"
+                        label={t('menu.items.notification')}
                         onPress={() => setNotificationsEnabled(!notificationsEnabled)}
                         rightElement={
                             <Switch
@@ -400,7 +413,7 @@ export default function MenuScreen() {
                     />
                     <MenuItem
                         icon={Clock}
-                        label="Remind Me At"
+                        label={t('menu.items.remindMeAt')}
                         onPress={() => { }}
                         value="00:00"
                         isLast={false}
@@ -408,55 +421,55 @@ export default function MenuScreen() {
 
                     <MenuItem
                         icon={RotateCcw}
-                        label="Reset Progress"
+                        label={t('menu.items.resetProgress')}
                         onPress={() => { }}
                     />
                 </View>
 
                 {/* App Information */}
-                <Typography variant="caption" style={styles.sectionTitle}>App Information</Typography>
+                <Typography variant="caption" style={styles.sectionTitle} tx="menu.items.appInformation">App Information</Typography>
                 <View style={styles.menuGroup}>
                     <MenuItem
                         icon={FileText}
-                        label="Terms Of Use"
+                        label={t('menu.items.termsOfUse')}
                         onPress={() => { }}
                     />
                     <MenuItem
                         icon={ShieldCheck}
-                        label="Privacy Policy"
+                        label={t('menu.items.privacyPolicy')}
                         onPress={() => { }}
                     />
                     <MenuItem
                         icon={AlertCircle}
-                        label="App Version"
+                        label={t('menu.items.appVersion')}
                         value="4.4.8(10)"
                         onPress={() => { }}
                         rightElement={<View />} // Empty view to remove chevron
                     />
                     <MenuItem
                         icon={MessageSquare}
-                        label="FAQs"
+                        label={t('menu.items.faqs')}
                         onPress={() => { }}
                         isLast
                     />
                 </View>
 
                 {/* Feedback And Sharing */}
-                <Typography variant="caption" style={styles.sectionTitle}>Feedback And Sharing</Typography>
+                <Typography variant="caption" style={styles.sectionTitle} tx="menu.items.feedbackAndSharing">Feedback And Sharing</Typography>
                 <View style={styles.menuGroup}>
                     <MenuItem
                         icon={MessageSquare}
-                        label="Contact Us"
+                        label={t('menu.items.contactUs')}
                         onPress={() => { }}
                     />
                     <MenuItem
                         icon={MessageSquare}
-                        label="Interface Evaluation"
+                        label={t('menu.items.interfaceEvaluation')}
                         onPress={() => { }}
                     />
                     <MenuItem
                         icon={Bug}
-                        label="Report Bug"
+                        label={t('menu.items.reportBug')}
                         onPress={() => { }}
                         isLast
                     />
@@ -476,7 +489,7 @@ export default function MenuScreen() {
                         <TouchableWithoutFeedback>
                             <View style={styles.modalContent}>
                                 <View style={styles.modalHeader}>
-                                    <Typography variant="heading" style={{ fontSize: 18 }}>Select Language</Typography>
+                                    <Typography variant="heading" style={{ fontSize: 18 }} tx="common.selectLanguage">Select Language</Typography>
                                     <TouchableOpacity onPress={() => setLanguageModalVisible(false)}>
                                         <X size={24} color={theme.text} />
                                     </TouchableOpacity>
@@ -485,16 +498,13 @@ export default function MenuScreen() {
                                     <TouchableOpacity
                                         key={lang.code}
                                         style={styles.languageOption}
-                                        onPress={() => {
-                                            setSelectedLanguage(lang);
-                                            setLanguageModalVisible(false);
-                                        }}
+                                        onPress={() => handleLanguageChange(lang.code)}
                                     >
                                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                                             <Text style={{ fontSize: 24, marginRight: 12 }}>{lang.flag}</Text>
                                             <Typography variant="body" style={{ fontSize: 16 }}>{lang.label}</Typography>
                                         </View>
-                                        {selectedLanguage.code === lang.code && (
+                                        {language === lang.code && (
                                             <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: theme.primary }} />
                                         )}
                                     </TouchableOpacity>

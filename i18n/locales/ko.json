@@ -1,0 +1,96 @@
+{
+    "common": {
+        "language": "언어",
+        "selectLanguage": "언어 선택",
+        "cancel": "취소",
+        "save": "저장",
+        "loading": "로딩 중...",
+        "error": "오류가 발생했습니다",
+        "success": "성공"
+    },
+    "menu": {
+        "title": "메뉴",
+        "premiumBanner": {
+            "title": "프리미엄으로 업그레이드",
+            "subtitle": "모든 기능에 무제한 액세스"
+        },
+        "progress": {
+            "locked": "잠금 해제하려면 Pro 구매",
+            "questionsAnswered": "답변한 문제",
+            "accuracy": "정답률",
+            "studyTime": "학습 시간",
+            "keepPracticing": "더 많은 통찰력을 얻으려면 계속 연습하세요!"
+        },
+        "items": {
+            "referFriends": "친구 추천",
+            "achievements": "업적",
+            "settingsExam": "시험 설정",
+            "changeState": "주(State) 변경",
+            "changeEndorsements": "자격 변경",
+            "examDate": "시험 날짜",
+            "generalSettings": "일반 설정",
+            "notification": "알림",
+            "remindMeAt": "알림 시간",
+            "resetProgress": "진행 상황 초기화",
+            "appInformation": "앱 정보",
+            "termsOfUse": "이용 약관",
+            "privacyPolicy": "개인정보 처리방침",
+            "appVersion": "앱 버전",
+            "faqs": "자주 묻는 질문",
+            "feedbackAndSharing": "피드백 및 공유",
+            "contactUs": "문의하기",
+            "interfaceEvaluation": "인터페이스 평가",
+            "reportBug": "버그 신고"
+        }
+    },
+    "dashboard": {
+        "title": "Nail Exam",
+        "subtitle": "주제별 학습",
+        "myCourses": "내 강좌",
+        "todaysQuestion": "오늘의 질문",
+        "categories": {
+            "generalKnowledge": "일반 지식",
+            "generalKnowledgeSubtitle": "이론, 윤리, 법률",
+            "salonEcology": "살롱 생태학",
+            "salonEcologySubtitle": "위생 및 안전",
+            "anatomyPhysiology": "해부학 및 생리학",
+            "anatomyPhysiologySubtitle": "구조 및 기능",
+            "nailSkinDisorders": "손톱 및 피부 질환",
+            "nailSkinDisordersSubtitle": "병리학",
+            "chemistry": "화학",
+            "chemistrySubtitle": "제품 지식"
+        }
+    },
+    "learningPath": {
+        "title": "일반 지식",
+        "completed": "완료됨",
+        "theory": "이론",
+        "lessons": "레슨",
+        "continue": "계속하기"
+    },
+    "quiz": {
+        "lessonComplete": "레슨 완료!",
+        "roundComplete": "라운드 완료",
+        "masteredAll": "모든 {{count}} 문제를 마스터했습니다!",
+        "mistakesInfo": "{{count}} 문제를 틀렸습니다. 100% 마스터를 위해 복습합시다.",
+        "totalMastery": "총 숙련도",
+        "finishLesson": "레슨 종료",
+        "reviewMistakes": "{{count}} 오답 복습",
+        "exit": "나가기",
+        "questionProgress": "문제 {{current}} / {{total}}",
+        "lessonProgress": "레슨 진행도",
+        "checkAnswer": "정답 확인",
+        "nextQuestion": "다음 문제",
+        "finishRound": "라운드 종료",
+        "whyWrong": "왜 틀렸나요?",
+        "hint": "힌트",
+        "explain": "설명"
+    },
+    "aiChat": {
+        "title": "Mentora",
+        "info": "Mentora 정보",
+        "inputPlaceholder": "메시지를 입력하세요...",
+        "analyzeProgress": "내 진도 분석",
+        "studyTheory": "이론 공부하기"
+    }
+}
