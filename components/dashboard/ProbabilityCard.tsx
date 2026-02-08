@@ -54,7 +54,7 @@ export function ProbabilityCard({ probability, onImprove }: ProbabilityCardProps
                             end={{ x: 1, y: 0 }}
                             style={styles.improveButton}
                         >
-                            <Typography variant="caption" weight="bold" color="textInverted" style={{ fontSize: 12 }}>
+                            <Typography variant="caption" weight="bold" color="inverted" style={{ fontSize: 12 }}>
                                 Improve
                             </Typography>
                         </LinearGradient>

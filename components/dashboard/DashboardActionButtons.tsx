@@ -31,7 +31,7 @@ export function DashboardActionButtons({
                     end={{ x: 1, y: 1 }}
                     style={styles.buttonContent}
                 >
-                    <Typography variant="caption" weight="bold" color="textInverted" style={styles.buttonText}>
+                    <Typography variant="caption" weight="bold" color="inverted" style={styles.buttonText}>
                         Daily Challenge
                     </Typography>
                 </LinearGradient>
@@ -55,7 +55,7 @@ export function DashboardActionButtons({
                         <View style={styles.crownContainer}>
                             <Crown size={14} color="white" fill="white" />
                         </View>
-                        <Typography variant="caption" weight="bold" color="textInverted" style={styles.buttonText}>
+                        <Typography variant="caption" weight="bold" color="inverted" style={styles.buttonText}>
                             Get PRO
                         </Typography>
                         <View style={styles.starContainer}>
