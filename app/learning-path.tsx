@@ -1,4 +1,5 @@
 import { Colors } from '@/constants/theme';
+import { useUserStore } from '@/store/useUserStore';
 import { useRouter } from 'expo-router';
 import { BookOpen, Brain, Building2, Factory, Lock, Truck } from 'lucide-react-native';
 import React, { useEffect } from 'react';
@@ -39,14 +40,14 @@ const X_MAX = width - X_MARGIN;
 // Node Layout Config
 // Each node has a "row" property to group nodes on the same horizontal line
 // Pattern: Row 0 = 1 node, Row 1 = 2 nodes, Row 2 = 1 node, Row 3 = 2 nodes, Row 4 = 1 node
-const LEVELS = [
-    { id: 1, label: 'Core 1', layout: 0, row: 0, status: 'active' }, // Row 0: 1 node (center)
-    { id: 2, label: 'Core 2', layout: -1, row: 1, status: 'locked' }, // Row 1: 2 nodes
-    { id: 3, label: 'Core 3', layout: 1, row: 1, status: 'locked' }, // Row 1: 2 nodes
-    { id: 4, label: 'Core 4', layout: 0, row: 2, status: 'locked' }, // Row 2: 1 node (center)
-    { id: 5, label: 'Core 5', layout: -1, row: 3, status: 'locked' }, // Row 3: 2 nodes
-    { id: 6, label: 'Core 6', layout: 1, row: 3, status: 'locked' }, // Row 3: 2 nodes
-    { id: 7, label: 'Final', layout: 0, row: 4, status: 'locked' }, // Row 4: 1 node (center)
+const LEVELS_CONFIG = [
+    { id: 1, label: 'Core 1', layout: 0, row: 0 }, // Row 0: 1 node (center)
+    { id: 2, label: 'Core 2', layout: -1, row: 1 }, // Row 1: 2 nodes
+    { id: 3, label: 'Core 3', layout: 1, row: 1 }, // Row 1: 2 nodes
+    { id: 4, label: 'Core 4', layout: 0, row: 2 }, // Row 2: 1 node (center)
+    { id: 5, label: 'Core 5', layout: -1, row: 3 }, // Row 3: 2 nodes
+    { id: 6, label: 'Core 6', layout: 1, row: 3 }, // Row 3: 2 nodes
+    { id: 7, label: 'Final', layout: 0, row: 4 }, // Row 4: 1 node (center)
 ];
 
 const TOTAL_ROWS = 5; // Rows 0-4
@@ -57,6 +58,10 @@ export default function LearningPathScreen() {
     const router = useRouter();
     const pathProgress = useSharedValue(0);
 
+    // Get store state
+    const nodeStatus = useUserStore((state) => state.nodeStatus);
+    const courseProgress = useUserStore((state) => state.courseProgress);
+
     useEffect(() => {
         pathProgress.value = withTiming(1, {
             duration: 3500,
@@ -65,13 +70,19 @@ export default function LearningPathScreen() {
     }, []);
 
     // Calculate Node Positions based on ROW (not index)
-    const nodePoints = LEVELS.map((level) => {
+    const nodePoints = LEVELS_CONFIG.map((level) => {
         const y = START_Y + level.row * ROW_HEIGHT;
         // 20% padding from edges means nodes at 20% and 80% of width
         // maxOffset = 30% of width (since CENTER is 50%, 50% - 30% = 20%)
         const maxOffset = width * 0.2;
         const x = CENTER + level.layout * maxOffset;
-        return { x, y, ...level };
+
+        return {
+            x,
+            y,
+            ...level,
+            status: nodeStatus[level.id] || 'locked' // Use status from store
+        };
     });
 
     // Generate the "Snake" Path that ends at the final node
@@ -132,6 +143,16 @@ export default function LearningPathScreen() {
         strokeDashoffset: 2500 * (1 - pathProgress.value),
     }));
 
+    // Actions
+    const completeNode = useUserStore((state) => state.completeNode);
+
+    const handleNodePress = (nodeId: number, status: string) => {
+        if (status === 'active') {
+            // Demo: Completing a node unlocks the next one
+            completeNode(nodeId);
+        }
+    };
+
     return (
         <SafeAreaView style={styles.container}>
             <StatusBar barStyle="dark-content" />
@@ -140,24 +161,26 @@ export default function LearningPathScreen() {
             <View style={styles.header}>
                 <View>
                     <Text style={styles.headerTitle}>General Knowledge</Text>
-                    <Text style={styles.headerSubtitle}>0% Completed</Text>
+                    <Text style={styles.headerSubtitle}>{courseProgress}% Completed</Text>
                 </View>
                 <View style={styles.headerRight}>
                     <View style={styles.pill}>
                         <BookOpen size={16} color={Colors.light.primary} />
                         <Text style={styles.pillText}>Theory</Text>
                     </View>
-                    <Text style={styles.lessonCount}>0/23 Lessons</Text>
+                    <Text style={styles.lessonCount}>
+                        {nodePoints.filter(n => n.status === 'completed').length}/{nodePoints.length} Lessons
+                    </Text>
                 </View>
             </View>
 
             {/* Progress Bar */}
             <View style={styles.progressBarContainer}>
-                <View style={styles.progressBarFill} />
+                <View style={[styles.progressBarFill, { width: `${courseProgress}%` }]} />
             </View>
 
             <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 100 }}>
-                {/* Decor Layer */}
+                {/* ... Decor Layer ... */}
                 <View style={[styles.decorLayer, { height: contentHeight }]}>
                     <View style={[styles.decorItem, { top: 150, left: 20 }]}>
                         <Factory size={48} color={Colors.light.primaryLight} opacity={0.5} />
@@ -204,15 +227,21 @@ export default function LearningPathScreen() {
 
                     {/* Nodes */}
                     {nodePoints.map((node, index) => (
-                        <NodeItem key={node.id} node={node} index={index} total={nodePoints.length} />
+                        <NodeItem
+                            key={node.id}
+                            node={node}
+                            index={index}
+                            total={nodePoints.length}
+                            onPress={() => handleNodePress(node.id, node.status)}
+                        />
                     ))}
                 </View>
             </ScrollView>
 
             {/* Bottom Button */}
             <View style={styles.footer}>
-                <TouchableOpacity style={styles.button}>
-                    <Text style={styles.buttonText}>Continue</Text>
+                <TouchableOpacity style={styles.button} onPress={() => router.back()}>
+                    <Text style={styles.buttonText}>Back to Home</Text>
                 </TouchableOpacity>
             </View>
         </SafeAreaView>
@@ -232,9 +261,10 @@ interface NodeProps {
     };
     index: number;
     total: number;
+    onPress: () => void;
 }
 
-const NodeItem = ({ node, index }: NodeProps) => {
+const NodeItem = ({ node, index, onPress }: NodeProps) => {
     const scale = useSharedValue(0);
     const opacity = useSharedValue(0);
 
@@ -254,25 +284,32 @@ const NodeItem = ({ node, index }: NodeProps) => {
     });
 
     const isActive = node.status === 'active';
+    const isCompleted = node.status === 'completed';
+    const isLocked = node.status === 'locked';
 
     return (
         <Animated.View style={[styles.nodeWrapper, rStyle]}>
-            <View style={[styles.circle, isActive ? styles.activeCircle : styles.lockedCircle]}>
-                {isActive && <View style={styles.activeRing} />}
-                {isActive ? (
-                    <Brain size={32} color="#FFF" />
-                ) : (
-                    <View style={styles.lockedContent}>
-                        <Brain size={24} color="#aaa" />
-                        <View style={styles.lockBadge}>
-                            <Lock size={12} color="#FFF" />
+            <TouchableOpacity activeOpacity={0.8} onPress={onPress}>
+                <View style={[
+                    styles.circle,
+                    isActive ? styles.activeCircle : (isCompleted ? styles.completedCircle : styles.lockedCircle)
+                ]}>
+                    {isActive && <View style={styles.activeRing} />}
+                    {isActive || isCompleted ? (
+                        <Brain size={32} color={isCompleted ? "#FFF" : "#FFF"} />
+                    ) : (
+                        <View style={styles.lockedContent}>
+                            <Brain size={24} color="#aaa" />
+                            <View style={styles.lockBadge}>
+                                <Lock size={12} color="#FFF" />
+                            </View>
                         </View>
-                    </View>
-                )}
-            </View>
-            <Text style={[styles.label, isActive ? styles.activeLabel : styles.lockedLabel]}>
-                {node.label}
-            </Text>
+                    )}
+                </View>
+                <Text style={[styles.label, isActive || isCompleted ? styles.activeLabel : styles.lockedLabel]}>
+                    {node.label}
+                </Text>
+            </TouchableOpacity>
         </Animated.View>
     );
 };
@@ -387,6 +424,11 @@ const styles = StyleSheet.create({
         borderWidth: 2,
         borderColor: '#F880FA',
         opacity: 0.3,
+    },
+    completedCircle: {
+        backgroundColor: '#F880FA', // Solid pink for completed
+        borderColor: '#F999FB',
+        shadowOpacity: 0.1,
     },
     lockedCircle: {
         backgroundColor: '#F8F8F8',

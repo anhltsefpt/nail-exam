@@ -1,14 +1,16 @@
+import { AICharacter } from '@/components/AICharacter';
 import { EdgeFunctionDemo } from '@/components/EdgeFunctionDemo';
 import { MultipleChoiceQuestion } from '@/components/quiz/MultipleChoiceQuestion';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Typography } from '@/components/ui/Typography';
-import { Colors, Radius, Spacing } from '@/constants/theme';
+import { Colors, Radius, Shadows, Spacing } from '@/constants/theme';
 import { useAuth } from '@/context/AuthContext';
 import { useRevenueCat } from '@/hooks/useRevenueCat';
+import { useUserStore } from '@/store/useUserStore';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { ScrollView, StyleSheet, useColorScheme, View } from 'react-native';
+import { ScrollView, StyleSheet, TouchableOpacity, useColorScheme, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function DashboardScreen() {
@@ -17,7 +19,24 @@ export default function DashboardScreen() {
   const { isPro } = useRevenueCat();
   const colorScheme = useColorScheme() ?? 'light';
   const theme = Colors[colorScheme];
+
+  // Store state
+  const name = useUserStore((state) => state.name);
+  const courseProgress = useUserStore((state) => state.courseProgress);
+  const streak = useUserStore((state) => state.streak);
+  const recordAnswer = useUserStore((state) => state.recordAnswer);
+  const addXp = useUserStore((state) => state.addXp);
+
   const [selectedOpt, setSelectedOpt] = useState<string | null>(null);
+
+  const handleAnswer = (optionId: string) => {
+    setSelectedOpt(optionId);
+    const isCorrect = optionId === '3';
+    recordAnswer('daily-question-1', isCorrect, optionId);
+    if (isCorrect) {
+      addXp(10);
+    }
+  };
 
   const styles = StyleSheet.create({
     container: {
@@ -51,6 +70,17 @@ export default function DashboardScreen() {
     dailyQuestion: {
       marginBottom: Spacing.xl,
     },
+    fab: {
+      position: 'absolute',
+      bottom: Spacing.xl,
+      right: Spacing.l,
+      // Removed fixed width/height/bgcolor to let character define it
+      alignItems: 'center',
+      justifyContent: 'center',
+      ...Shadows[colorScheme].l,
+      // shadowColor handled by character or we can keep it here
+      shadowColor: theme.secondary, // Make shadow pink
+    },
   });
 
   return (
@@ -58,7 +88,7 @@ export default function DashboardScreen() {
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.header}>
           <Typography variant="display" color="primary" style={{ marginBottom: 4 }}>
-            Hello, {user?.user_metadata?.full_name || 'Student'}!
+            Hello, {name}!
           </Typography>
           <Typography variant="body" color="muted">
             Ready to ace your Nail Tech Exam?
@@ -79,12 +109,12 @@ export default function DashboardScreen() {
             <View>
               <Typography variant="title">Daily Goal</Typography>
               <Typography variant="caption" color="muted">
-                3/5 Modules
+                Streak: {streak} days
               </Typography>
             </View>
             <View style={styles.progressCircle}>
               <Typography variant="small" weight="bold" color="primary">
-                60%
+                {courseProgress}%
               </Typography>
             </View>
           </View>
@@ -131,7 +161,7 @@ export default function DashboardScreen() {
                 { id: '4', text: 'Paper Towel' },
               ]}
               selectedOptionId={selectedOpt}
-              onSelectOption={setSelectedOpt}
+              onSelectOption={handleAnswer}
               correctOptionId={selectedOpt ? '3' : undefined}
               status={selectedOpt ? 'result' : 'answering'}
             />
@@ -141,6 +171,11 @@ export default function DashboardScreen() {
         {/* Edge Function Demo */}
         {user && <EdgeFunctionDemo />}
       </ScrollView>
+
+      {/* Floating AI Button */}
+      <TouchableOpacity style={styles.fab} onPress={() => router.push('/ai-chat')}>
+        <AICharacter size={60} animated />
+      </TouchableOpacity>
     </SafeAreaView>
   );
 }
