@@ -72,6 +72,6 @@ const styles = StyleSheet.create({
         overflow: 'hidden',
         backgroundColor: '#FFFFFF', // Ensures clean background if transparent
         borderWidth: 2,
-        borderColor: '#F880FA', // Pink border as wrapper
+        borderColor: '#F2A7B3', // Soft rose border as wrapper
     },
 });

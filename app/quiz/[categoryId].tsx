@@ -365,14 +365,14 @@ export default function QuizScreen() {
                         const renderIndicator = () => {
                             if (showResult && isCorrectOption) {
                                 return (
-                                    <View style={[styles.iconCircle, { backgroundColor: '#10B981' }]}>
+                                    <View style={[styles.iconCircle, { backgroundColor: '#7EC8A4' }]}>
                                         <Check size={14} color="white" strokeWidth={3} />
                                     </View>
                                 );
                             }
                             if (showResult && isSelected && !isCorrectOption) {
                                 return (
-                                    <View style={[styles.iconCircle, { backgroundColor: '#EF4444' }]}>
+                                    <View style={[styles.iconCircle, { backgroundColor: '#E8878C' }]}>
                                         <X size={14} color="white" strokeWidth={3} />
                                     </View>
                                 );
@@ -408,12 +408,12 @@ export default function QuizScreen() {
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chipsContainer} contentContainerStyle={styles.chipsContent}>
                     {isCurrentAnswerWrong && (
                         <TouchableOpacity style={[styles.chip, styles.chipWrong]} onPress={() => handleAIChat('Why is my answer wrong?')}>
-                            <HelpCircle size={16} color="#EF4444" />
-                            <Typography variant="caption" style={[styles.chipText, { color: '#EF4444' }]}>{t('quiz.whyWrong')}</Typography>
+                            <HelpCircle size={16} color="#E8878C" />
+                            <Typography variant="caption" style={[styles.chipText, { color: '#E8878C' }]}>{t('quiz.whyWrong')}</Typography>
                         </TouchableOpacity>
                     )}
                     <TouchableOpacity style={[styles.chip, { borderColor: theme.border }]} onPress={() => handleAIChat('Give me a hint.')}>
-                        <Lightbulb size={16} color="#F59E0B" />
+                        <Lightbulb size={16} color="#F0C97E" />
                         <Typography variant="caption" style={styles.chipText}>{t('quiz.hint')}</Typography>
                     </TouchableOpacity>
                     <TouchableOpacity style={[styles.chip, { borderColor: theme.border }]} onPress={() => handleAIChat('Explain.')}>
@@ -434,7 +434,7 @@ export default function QuizScreen() {
                         activeOpacity={0.8}
                     >
                         <LinearGradient
-                            colors={selectedOptionId || showResult ? ['#F880FA', '#C026D3'] : ['#E5E7EB', '#D1D5DB']}
+                            colors={selectedOptionId || showResult ? ['#F2A7B3', '#D98E99'] : ['#E6E1E2', '#D1CACC']}
                             start={{ x: 0, y: 0 }}
                             end={{ x: 1, y: 0 }}
                             style={styles.continueGradient}
@@ -457,7 +457,7 @@ const styles = StyleSheet.create({
     header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: Spacing.l, paddingVertical: Spacing.m },
     backButton: { padding: Spacing.xs },
     headerStats: { flexDirection: 'row', gap: Spacing.s },
-    statPill: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#F3F4F6', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 12 },
+    statPill: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#FFF5F6', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 12 },
     headerRight: { flexDirection: 'row', alignItems: 'center', gap: Spacing.m },
     headerIcon: { padding: Spacing.xs },
     fontMenu: { position: 'absolute', top: 40, right: 0, width: 260, padding: Spacing.m, borderRadius: Radius.m, borderWidth: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4, elevation: 5 },
@@ -474,21 +474,21 @@ const styles = StyleSheet.create({
     questionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Spacing.m },
     questionActions: { flexDirection: 'row', gap: Spacing.s },
     actionButton: { padding: Spacing.xs, borderRadius: Radius.m },
-    actionButtonActive: { backgroundColor: 'rgba(248, 128, 250, 0.1)' },
+    actionButtonActive: { backgroundColor: 'rgba(242, 167, 179, 0.1)' },
     questionText: { marginBottom: Spacing.xl, lineHeight: 32 },
     optionsContainer: { gap: Spacing.m },
-    option: { flexDirection: 'row', alignItems: 'center', padding: Spacing.l, borderRadius: Radius.l, borderWidth: 1, backgroundColor: '#F9FAFB' },
-    optionSelected: { backgroundColor: 'rgba(248, 128, 250, 0.05)', borderWidth: 2 },
-    optionCorrect: { backgroundColor: 'rgba(16, 185, 129, 0.1)', borderColor: '#10B981', borderWidth: 2 },
-    optionIncorrect: { backgroundColor: 'rgba(239, 68, 68, 0.1)', borderColor: '#EF4444', borderWidth: 2 },
+    option: { flexDirection: 'row', alignItems: 'center', padding: Spacing.l, borderRadius: Radius.l, borderWidth: 1, backgroundColor: '#FAF8F8' },
+    optionSelected: { backgroundColor: 'rgba(242, 167, 179, 0.08)', borderWidth: 2 },
+    optionCorrect: { backgroundColor: 'rgba(126, 200, 164, 0.15)', borderColor: '#7EC8A4', borderWidth: 2 },
+    optionIncorrect: { backgroundColor: 'rgba(232, 135, 140, 0.12)', borderColor: '#E8878C', borderWidth: 2 },
     radioOuter: { width: 24, height: 24, borderRadius: 12, borderWidth: 2, borderColor: '#D1D5DB', alignItems: 'center', justifyContent: 'center' },
     radioInner: { width: 12, height: 12, borderRadius: 6 },
     iconCircle: { width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
-    stickyBottom: { borderTopWidth: 1, borderTopColor: '#E5E7EB', backgroundColor: 'white' },
+    stickyBottom: { borderTopWidth: 1, borderTopColor: '#E6E1E2', backgroundColor: 'white' },
     chipsContainer: { paddingVertical: Spacing.s },
     chipsContent: { paddingHorizontal: Spacing.l, gap: Spacing.s },
     chip: { flexDirection: 'row', alignItems: 'center', paddingVertical: Spacing.s, paddingHorizontal: Spacing.m, borderRadius: Radius.full, borderWidth: 1, marginRight: Spacing.s, backgroundColor: 'white' },
-    chipWrong: { borderColor: '#FEE2E2', backgroundColor: '#FEF2F2' },
+    chipWrong: { borderColor: '#FCD5DB', backgroundColor: '#FFF5F6' },
     chipText: { marginLeft: Spacing.xs },
     footer: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: Spacing.l, paddingVertical: Spacing.m, paddingBottom: Spacing.xl, gap: Spacing.m },
     aiButton: {},
@@ -496,5 +496,5 @@ const styles = StyleSheet.create({
     continueButtonDisabled: { opacity: 0.7 },
     continueGradient: { paddingVertical: Spacing.l, alignItems: 'center', justifyContent: 'center' },
     statCard: { padding: Spacing.l, borderRadius: Radius.l, borderWidth: 1, alignItems: 'center', marginBottom: Spacing.xl, width: '100%' },
-    summaryButton: { backgroundColor: '#F880FA', paddingVertical: Spacing.m, paddingHorizontal: Spacing.xl, borderRadius: Radius.full, flexDirection: 'row', alignItems: 'center' },
+    summaryButton: { backgroundColor: '#F2A7B3', paddingVertical: Spacing.m, paddingHorizontal: Spacing.xl, borderRadius: Radius.full, flexDirection: 'row', alignItems: 'center' },
 });

@@ -216,15 +216,15 @@ export default function LearningPathScreen() {
                     <Svg height={contentHeight} width={width} style={StyleSheet.absoluteFill}>
                         <Defs>
                             <LinearGradient id="grad" x1="0" y1="0" x2="0" y2="1">
-                                <Stop offset="0" stopColor="#F880FA" stopOpacity="0.4" />
-                                <Stop offset="1" stopColor="#F880FA" stopOpacity="0.1" />
+                                <Stop offset="0" stopColor="#F2A7B3" stopOpacity="0.4" />
+                                <Stop offset="1" stopColor="#F2A7B3" stopOpacity="0.1" />
                             </LinearGradient>
                         </Defs>
 
                         {/* Background thick path */}
                         <Path
                             d={pathData}
-                            stroke="#FCCCFD"
+                            stroke="#FCD5DB"
                             strokeWidth="24"
                             fill="none"
                             strokeLinecap="round"
@@ -234,7 +234,7 @@ export default function LearningPathScreen() {
                         {/* Foreground animating path */}
                         <AnimatedPath
                             d={pathData}
-                            stroke="#F999FB"
+                            stroke="#F5B3BE"
                             strokeWidth="8"
                             fill="none"
                             strokeDasharray={2500}
@@ -367,7 +367,7 @@ const styles = StyleSheet.create({
     // ... existing styles ...
     container: {
         flex: 1,
-        backgroundColor: '#FEF2FF',
+        backgroundColor: '#FFF5F6',
     },
     contentContainer: {
         flex: 1,
@@ -456,7 +456,7 @@ const styles = StyleSheet.create({
         width: 100,
         height: 100,
         borderRadius: 50,
-        backgroundColor: 'rgba(248, 128, 250, 0.4)',
+        backgroundColor: 'rgba(242, 167, 179, 0.4)',
         zIndex: -1,
     },
     touchableArea: {
@@ -470,7 +470,7 @@ const styles = StyleSheet.create({
         borderRadius: 40,
         alignItems: 'center',
         justifyContent: 'center',
-        shadowColor: '#F880FA',
+        shadowColor: '#F2A7B3',
         shadowOffset: { width: 0, height: 6 },
         shadowOpacity: 0.15,
         shadowRadius: 8,
@@ -480,16 +480,16 @@ const styles = StyleSheet.create({
         borderColor: '#FFF',
     },
     activeCircle: {
-        backgroundColor: '#F880FA',
-        borderColor: '#F999FB',
-        shadowColor: '#F880FA',
+        backgroundColor: '#F2A7B3',
+        borderColor: '#F5B3BE',
+        shadowColor: '#F2A7B3',
         shadowOpacity: 0.5,
         shadowRadius: 10,
         elevation: 12,
     },
     completedCircle: {
-        backgroundColor: '#F880FA', // Solid pink for completed
-        borderColor: '#F999FB',
+        backgroundColor: '#F2A7B3', // Soft rose for completed
+        borderColor: '#F5B3BE',
         shadowOpacity: 0.1,
     },
     lockedCircle: {
@@ -520,7 +520,7 @@ const styles = StyleSheet.create({
         textAlign: 'center', // Ensure text is centered
     },
     activeLabel: {
-        color: '#F880FA',
+        color: '#F2A7B3',
         fontWeight: '800',
     },
     lockedLabel: {
@@ -532,11 +532,11 @@ const styles = StyleSheet.create({
         backgroundColor: 'transparent',
     },
     continueButton: {
-        backgroundColor: '#F880FA',
+        backgroundColor: '#F2A7B3',
         paddingVertical: 14, // Smaller height
         borderRadius: 30,
         alignItems: 'center',
-        shadowColor: '#F880FA',
+        shadowColor: '#F2A7B3',
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.3,
         shadowRadius: 8,

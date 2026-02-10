@@ -16,7 +16,7 @@ export function ProbabilityCard({ probability, onImprove }: ProbabilityCardProps
     return (
         <View style={[styles.container, Shadows[colorScheme].sm]}>
             <LinearGradient
-                colors={['#FDF2FE', '#FCE7FD']} // Very Light Pink background
+                colors={['#FFF5F6', '#FEEAED']} // Warm pinkish tint background
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
                 style={styles.gradient}
@@ -38,7 +38,7 @@ export function ProbabilityCard({ probability, onImprove }: ProbabilityCardProps
                         <View style={styles.progressBarContainer}>
                             <View style={[styles.progressBarFill, { width: `${Math.max(5, probability)}%` }]}>
                                 <LinearGradient
-                                    colors={['#F880FA', '#E879F9']} // Primary Pink Gradient
+                                    colors={['#F2A7B3', '#F5B3BE']} // Soft Rose Gradient
                                     start={{ x: 0, y: 0 }}
                                     end={{ x: 1, y: 0 }}
                                     style={{ flex: 1, borderRadius: Radius.full }}
@@ -49,7 +49,7 @@ export function ProbabilityCard({ probability, onImprove }: ProbabilityCardProps
 
                     <TouchableOpacity onPress={onImprove}>
                         <LinearGradient
-                            colors={['#F880FA', '#C026D3']} // Primary Pink Gradient
+                            colors={['#F2A7B3', '#D98E99']} // Soft Rose Gradient
                             start={{ x: 0, y: 0 }}
                             end={{ x: 1, y: 0 }}
                             style={styles.improveButton}

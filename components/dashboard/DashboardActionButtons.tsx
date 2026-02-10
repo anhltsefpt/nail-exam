@@ -26,7 +26,7 @@ export function DashboardActionButtons({
                 activeOpacity={0.8}
             >
                 <LinearGradient
-                    colors={['#F880FA', '#C026D3']} // Pink-500 to Purple-600
+                    colors={['#F2A7B3', '#D98E99']} // Soft Rose gradient
                     start={{ x: 0, y: 0 }}
                     end={{ x: 1, y: 1 }}
                     style={styles.buttonContent}
@@ -46,7 +46,7 @@ export function DashboardActionButtons({
                 activeOpacity={0.8}
             >
                 <LinearGradient
-                    colors={['#F59E0B', '#EF4444']} // Amber-500 to Red-500
+                    colors={['#F0C97E', '#E8878C']} // Soft Amber to Coral
                     start={{ x: 0, y: 0 }}
                     end={{ x: 1, y: 1 }}
                     style={styles.buttonContent}
