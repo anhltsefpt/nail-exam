@@ -1,114 +1,163 @@
 /**
- * SaaS Design System - 'Pastel Pink' Theme
+ * Design System – 'Vibrant Rose' Theme
  *
  * Features:
- * - Primary Brand: Soft Rose (#F2A7B3)
- * - Eye-friendly, low-exposure colors throughout
- * - Dark Mode: Warm Dark (#1E1A1B)
+ * - Primary Brand: Rose (#E8567D)
+ * - Warm, earthy neutrals
+ * - Semantic colors with background variants
+ * - Phase colors for learning roadmap
+ * - Special colors for premium, stars, streaks
  * - 4px Grid System for Spacing
  */
 
 const palette = {
-  // Brand – Pastel Pink
+  // ── Primary Colors ──────────────────────────────
   primary: {
-    50: '#FFF5F6',
-    100: '#FEEAED',
-    200: '#FCD5DB',
-    300: '#F8BFC8',
-    400: '#F5B3BE',
-    500: '#F2A7B3', // Main Brand – Soft Rose
-    600: '#D98E99',
-    700: '#B87280',
-    800: '#965A67',
-    900: '#74434E',
+    rose: '#E8567D',       // CTA buttons, links, brand accent
+    roseLight: '#FCC4EC',  // Backgrounds, cards, highlights
+    roseDark: '#C24A62',   // Pressed states, emphasis text
+    roseWhisper: '#FFF5F7', // Page backgrounds, subtle tint
   },
-  // Accent (Dusty Rose) – subtle accent
-  secondary: {
-    DEFAULT: '#D4869A', // Dusty Rose
-    light: '#E8A8B8',
-    dark: '#B86E82',
+
+  // ── Neutrals ────────────────────────────────────
+  neutral: {
+    ink: '#2D2A26',         // Headings, primary text
+    body: '#5C564E',        // Body text, secondary content
+    muted: '#9E9B8C',       // Captions, placeholders, hints
+    borderLight: '#C8C1B8', // Dividers, subtle borders
+    surface: '#F0E8E8',     // Card borders, separators
+    canvas: '#FAF8F6',      // Page background
+    white: '#FFFFFF',       // Cards, modals, inputs
   },
-  // Semantic – soft, eye-friendly variants
-  success: '#7EC8A4', // Soft Sage
-  warning: '#F0C97E', // Soft Amber
-  error: '#E8878C', // Muted Coral
-  info: '#8DB4E8', // Pastel Blue
-  // Neutrals (Warm Slate)
-  slate: {
-    50: '#FAF8F8',
-    100: '#F3F0F0',
-    200: '#E6E1E2',
-    300: '#D1CACC',
-    400: '#A69B9E',
-    500: '#7A7073',
-    600: '#5A5153',
-    700: '#413A3C',
-    800: '#2A2526',
-    900: '#1A1617',
+
+  // ── Semantic Colors ─────────────────────────────
+  semantic: {
+    success: '#22C55E',     // Correct answer, passed, complete
+    error: '#EF4444',       // Wrong answer, failed, alerts
+    warning: '#F59E0B',     // Caution, almost passing, hints
+    info: '#3B82F6',        // Tips, information, links
+    successBg: '#DCFCE7',   // Correct answer card bg
+    errorBg: '#FEE2E2',     // Wrong answer card bg
+    warningBg: '#FEF3C7',   // Warning message bg
+    infoBg: '#DBEAFE',      // Tip/info card bg
   },
+
+  // ── Phase Colors ────────────────────────────────
+  phase: {
+    1: { primary: '#E8567D', light: '#FCC4EC' }, // High-Yield Foundations
+    2: { primary: '#22C55E', light: '#DCFCE7' }, // Core Procedures
+    3: { primary: '#3B82F6', light: '#DBEAFE' }, // Chemistry & Theory
+    4: { primary: '#16A34A', light: '#DCFCE7' }, // Quick Wins
+  },
+
+  // ── Special Colors ──────────────────────────────
+  special: {
+    starGold: '#FBBF24',    // Star rating, streaks
+    premium: '#E8567D',     // Premium badge
+    premiumDark: '#1a1a2e', // Paywall hero
+  },
+
   // Base
-  white: '#FFFFFF',
-  black: '#000000',
   transparent: 'transparent',
 };
 
 export const Colors = {
   light: {
-    text: palette.slate[900],
-    textMuted: palette.slate[500],
-    textInverted: palette.white,
+    text: palette.neutral.ink,
+    textMuted: palette.neutral.muted,
+    textSecondary: palette.neutral.body,
+    textInverted: palette.neutral.white,
 
-    background: '#FFFFFF',
-    backgroundSubtle: '#F8FAFC',
+    background: palette.neutral.canvas,
+    backgroundSubtle: palette.primary.roseWhisper,
 
-    primary: palette.primary[500],
-    primaryForeground: palette.white,
-    primaryLight: palette.primary[100],
+    primary: palette.primary.rose,
+    primaryForeground: palette.neutral.white,
+    primaryLight: palette.primary.roseLight,
+    primaryDark: palette.primary.roseDark,
 
-    secondary: palette.secondary.DEFAULT,
+    secondary: palette.primary.roseLight,
 
-    border: palette.slate[200],
-    input: palette.slate[100],
+    border: palette.neutral.borderLight,
+    borderLight: palette.neutral.borderLight,
+    input: palette.neutral.surface,
 
-    card: palette.white,
-    cardBorder: palette.slate[200], // For outlined cards
+    card: palette.neutral.white,
+    cardBorder: palette.neutral.surface,
+
+    surface: palette.neutral.surface,
+    canvas: palette.neutral.canvas,
 
     // Status
-    success: palette.success,
-    warning: palette.warning,
-    error: palette.error,
+    success: palette.semantic.success,
+    warning: palette.semantic.warning,
+    error: palette.semantic.error,
+    info: palette.semantic.info,
 
-    tint: palette.primary[500],
-    tabIconDefault: palette.slate[400],
-    tabIconSelected: palette.primary[500],
+    successBg: palette.semantic.successBg,
+    errorBg: palette.semantic.errorBg,
+    warningBg: palette.semantic.warningBg,
+    infoBg: palette.semantic.infoBg,
+
+    // Phase
+    phase: palette.phase,
+
+    // Special
+    starGold: palette.special.starGold,
+    premium: palette.special.premium,
+    premiumDark: palette.special.premiumDark,
+
+    tint: palette.primary.rose,
+    tabIconDefault: palette.neutral.muted,
+    tabIconSelected: palette.primary.rose,
   },
   dark: {
-    text: '#F3ECED', // Warm off-white
-    textMuted: palette.slate[400],
-    textInverted: palette.slate[900],
+    text: '#F3ECED',
+    textMuted: palette.neutral.muted,
+    textSecondary: '#A69B9E',
+    textInverted: palette.neutral.ink,
 
-    background: '#1E1A1B', // Warm Dark with pink undertone
-    backgroundSubtle: '#272223', // Slightly lighter warm dark
+    background: '#1E1A1B',
+    backgroundSubtle: '#272223',
 
-    primary: '#F5B3BE', // Slightly lighter for dark mode readability
-    primaryForeground: palette.slate[900],
-    primaryLight: 'rgba(242, 167, 179, 0.18)', // Glass effect
+    primary: '#F5B3BE',
+    primaryForeground: palette.neutral.ink,
+    primaryLight: 'rgba(232, 86, 125, 0.18)',
+    primaryDark: palette.primary.roseDark,
 
-    secondary: palette.secondary.light,
+    secondary: palette.primary.roseLight,
 
-    border: palette.slate[700],
-    input: palette.slate[800],
+    border: '#413A3C',
+    borderLight: '#413A3C',
+    input: '#2A2526',
 
     card: '#272223',
-    cardBorder: palette.slate[700],
+    cardBorder: '#413A3C',
 
-    // Status – softer for dark backgrounds
-    success: '#9AD8BA', // Soft mint
-    warning: '#F5D9A0', // Soft gold
-    error: '#EDA4A8', // Soft coral
+    surface: '#2A2526',
+    canvas: '#1E1A1B',
+
+    // Status – adjusted for dark backgrounds
+    success: '#4ADE80',
+    warning: '#FBBF24',
+    error: '#F87171',
+    info: '#60A5FA',
+
+    successBg: 'rgba(34, 197, 94, 0.15)',
+    errorBg: 'rgba(239, 68, 68, 0.15)',
+    warningBg: 'rgba(245, 158, 11, 0.15)',
+    infoBg: 'rgba(59, 130, 246, 0.15)',
+
+    // Phase
+    phase: palette.phase,
+
+    // Special
+    starGold: palette.special.starGold,
+    premium: '#F5B3BE',
+    premiumDark: palette.special.premiumDark,
 
     tint: '#F5B3BE',
-    tabIconDefault: palette.slate[600],
+    tabIconDefault: '#5A5153',
     tabIconSelected: '#F5B3BE',
   },
 };
@@ -151,21 +200,21 @@ export const Typography = {
 export const Shadows = {
   light: {
     sm: {
-      shadowColor: palette.slate[500],
+      shadowColor: palette.neutral.body,
       shadowOffset: { width: 0, height: 1 },
       shadowOpacity: 0.05,
       shadowRadius: 2,
       elevation: 2,
     },
     m: {
-      shadowColor: palette.slate[500],
+      shadowColor: palette.neutral.body,
       shadowOffset: { width: 0, height: 4 },
       shadowOpacity: 0.1,
       shadowRadius: 6,
       elevation: 4,
     },
     l: {
-      shadowColor: palette.primary[900], // Colored shadow for premium feel
+      shadowColor: palette.primary.roseDark,
       shadowOffset: { width: 0, height: 10 },
       shadowOpacity: 0.1,
       shadowRadius: 15,
@@ -188,7 +237,7 @@ export const Shadows = {
       elevation: 4,
     },
     l: {
-      shadowColor: '#000', // Deep black shadows for dark mode
+      shadowColor: '#000',
       shadowOffset: { width: 0, height: 10 },
       shadowOpacity: 0.5,
       shadowRadius: 15,
