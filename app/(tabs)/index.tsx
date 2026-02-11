@@ -150,24 +150,28 @@ export default function HomeScreen() {
           <View style={styles.loadingContainer}>
             <ActivityIndicator size="large" color={theme.primary} />
           </View>
-        ) : categories.reduce<{ elements: React.ReactNode[]; startFromLeft: boolean }>(
+        ) : categories.reduce<{ elements: React.ReactNode[]; startFromLeft: boolean; prevPhaseIndex: 1 | 2 | 3 | 4 | undefined }>(
           (acc, cat, idx) => {
             acc.elements.push(
               <CategorySection
                 key={cat.id}
                 title={cat.title}
                 phaseIndex={cat.phaseIndex}
+                prevPhaseIndex={acc.prevPhaseIndex}
                 nodes={cat.nodes}
                 rowPattern={cat.rowPattern}
                 startFromLeft={acc.startFromLeft}
+                isFirst={idx === 0}
                 isLast={idx === categories.length - 1}
               />
             );
             const exitSide = computeExitSide(cat.rowPattern, acc.startFromLeft);
-            acc.startFromLeft = exitSide === 'left';
+            // Next category starts from the opposite side of where the exit arrives
+            acc.startFromLeft = exitSide === 'right';
+            acc.prevPhaseIndex = cat.phaseIndex;
             return acc;
           },
-          { elements: [], startFromLeft: true }
+          { elements: [], startFromLeft: true, prevPhaseIndex: undefined }
         ).elements}
       </ScrollView>
 

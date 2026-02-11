@@ -54,6 +54,7 @@ export function useTopics() {
                         nodes: phaseTopics.map((t) => ({
                             id: t.order ?? 0,
                             label: t.name ?? 'Untitled',
+                            topicId: t.id,
                         })),
                         rowPattern: generateRowPattern(phaseTopics.length),
                     });

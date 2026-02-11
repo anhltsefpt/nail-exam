@@ -3,21 +3,23 @@ import { ChatBubble } from '@/components/ui/ChatBubble';
 import { QuickActionChip } from '@/components/ui/QuickActionChip';
 import { Colors, Radius, Spacing } from '@/constants/theme';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { BarChart3, BookOpen, ChevronDown, Download, Send, X } from 'lucide-react-native';
-import React, { useState } from 'react';
+import { ArrowDown, BarChart3, BookOpen, ChevronDown, Download, Send, X } from 'lucide-react-native';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
     KeyboardAvoidingView,
-    Platform,
-    SafeAreaView,
+    NativeScrollEvent,
+    NativeSyntheticEvent,
     ScrollView,
     StatusBar,
     StyleSheet,
     Text,
     TextInput,
     TouchableOpacity,
-    View,
+    View
 } from 'react-native';
+import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 type Message = {
     id: string;
@@ -34,10 +36,18 @@ const INITIAL_MESSAGES: Message[] = [
     },
 ];
 
+const NEAR_BOTTOM_THRESHOLD = 150; // pixels from bottom to consider "near bottom"
+
 export default function AIChatScreen() {
     const router = useRouter();
     const { t } = useTranslation();
+    const insets = useSafeAreaInsets();
     const { context, initialPrompt } = useLocalSearchParams<{ context?: string; initialPrompt?: string }>();
+
+    // Scroll state
+    const scrollViewRef = useRef<ScrollView>(null);
+    const isNearBottomRef = useRef(true);
+    const [showScrollButton, setShowScrollButton] = useState(false);
 
     // Build initial messages based on context
     const buildInitialMessages = (): Message[] => {
@@ -83,6 +93,42 @@ export default function AIChatScreen() {
     const [messages, setMessages] = useState<Message[]>(buildInitialMessages);
     const [inputText, setInputText] = useState('');
 
+    // Auto-scroll when messages change
+    useEffect(() => {
+        if (isNearBottomRef.current) {
+            // Small delay to let the new message render
+            setTimeout(() => {
+                scrollViewRef.current?.scrollToEnd({ animated: true });
+            }, 100);
+        } else {
+            setShowScrollButton(true);
+        }
+    }, [messages.length]);
+
+    // Scroll on first render
+    useEffect(() => {
+        setTimeout(() => {
+            scrollViewRef.current?.scrollToEnd({ animated: false });
+        }, 300);
+    }, []);
+
+    const handleScroll = useCallback((event: NativeSyntheticEvent<NativeScrollEvent>) => {
+        const { contentOffset, contentSize, layoutMeasurement } = event.nativeEvent;
+        const distanceFromBottom = contentSize.height - layoutMeasurement.height - contentOffset.y;
+        const nearBottom = distanceFromBottom < NEAR_BOTTOM_THRESHOLD;
+
+        isNearBottomRef.current = nearBottom;
+
+        if (nearBottom) {
+            setShowScrollButton(false);
+        }
+    }, []);
+
+    const scrollToBottom = useCallback(() => {
+        scrollViewRef.current?.scrollToEnd({ animated: true });
+        setShowScrollButton(false);
+    }, []);
+
     const handleSend = () => {
         if (!inputText.trim()) return;
 
@@ -94,6 +140,10 @@ export default function AIChatScreen() {
 
         setMessages((prev) => [...prev, userMessage]);
         setInputText('');
+
+        // User sent a message — always scroll to bottom
+        isNearBottomRef.current = true;
+        setShowScrollButton(false);
 
         // Simulate AI response
         setTimeout(() => {
@@ -154,43 +204,68 @@ export default function AIChatScreen() {
                 </TouchableOpacity>
             </View>
 
-            {/* Messages */}
-            <ScrollView
-                style={styles.messagesContainer}
-                contentContainerStyle={styles.messagesContent}
-                keyboardDismissMode="interactive"
+            {/* Content - KAV wraps everything below header */}
+            <KeyboardAvoidingView
+                behavior="height"
+                style={{ flex: 1 }}
+                keyboardVerticalOffset={insets.bottom + 48}
             >
-                {/* AI Avatar */}
-                <View style={styles.avatarContainer}>
-                    <AICharacter size={48} />
+                {/* Messages */}
+                <View style={{ flex: 1 }}>
+                    <ScrollView
+                        ref={scrollViewRef}
+                        style={styles.messagesContainer}
+                        contentContainerStyle={styles.messagesContent}
+                        keyboardDismissMode="interactive"
+                        keyboardShouldPersistTaps="handled"
+                        onScroll={handleScroll}
+                        scrollEventThrottle={16}
+                    >
+                        {/* AI Avatar */}
+                        <View style={styles.avatarContainer}>
+                            <AICharacter size={48} />
+                        </View>
+
+                        {messages.map((msg) => (
+                            <ChatBubble key={msg.id} message={msg.message} variant={msg.variant} />
+                        ))}
+                    </ScrollView>
+
+                    {/* Scroll to bottom button */}
+                    {showScrollButton && (
+                        <Animated.View
+                            entering={FadeIn.duration(200)}
+                            exiting={FadeOut.duration(200)}
+                            style={styles.scrollButtonWrapper}
+                        >
+                            <TouchableOpacity
+                                style={styles.scrollButton}
+                                onPress={scrollToBottom}
+                                activeOpacity={0.8}
+                            >
+                                <ArrowDown size={18} color={Colors.light.text} />
+                            </TouchableOpacity>
+                        </Animated.View>
+                    )}
                 </View>
 
-                {messages.map((msg) => (
-                    <ChatBubble key={msg.id} message={msg.message} variant={msg.variant} />
-                ))}
-            </ScrollView>
+                {/* Quick Actions */}
+                <View style={styles.quickActions}>
+                    <ScrollView horizontal showsHorizontalScrollIndicator={false} keyboardShouldPersistTaps="always">
+                        <QuickActionChip
+                            label={t('aiChat.analyzeProgress')}
+                            icon={<BarChart3 size={16} color={Colors.light.primary} />}
+                            onPress={() => handleQuickAction(t('aiChat.analyzeProgress'))}
+                        />
+                        <QuickActionChip
+                            label={t('aiChat.studyTheory')}
+                            icon={<BookOpen size={16} color={Colors.light.primary} />}
+                            onPress={() => handleQuickAction(t('aiChat.studyTheory'))}
+                        />
+                    </ScrollView>
+                </View>
 
-            {/* Quick Actions */}
-            <View style={styles.quickActions}>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                    <QuickActionChip
-                        label={t('aiChat.analyzeProgress')}
-                        icon={<BarChart3 size={16} color={Colors.light.primary} />}
-                        onPress={() => handleQuickAction(t('aiChat.analyzeProgress'))}
-                    />
-                    <QuickActionChip
-                        label={t('aiChat.studyTheory')}
-                        icon={<BookOpen size={16} color={Colors.light.primary} />}
-                        onPress={() => handleQuickAction(t('aiChat.studyTheory'))}
-                    />
-                </ScrollView>
-            </View>
-
-            {/* Input */}
-            <KeyboardAvoidingView
-                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-                keyboardVerticalOffset={0}
-            >
+                {/* Input */}
                 <View style={styles.inputContainer}>
                     <TextInput
                         style={styles.input}
@@ -263,6 +338,26 @@ const styles = StyleSheet.create({
         alignItems: 'flex-start',
         paddingHorizontal: Spacing.m,
         marginBottom: Spacing.s,
+    },
+    scrollButtonWrapper: {
+        position: 'absolute',
+        bottom: Spacing.m,
+        alignSelf: 'center',
+    },
+    scrollButton: {
+        width: 36,
+        height: 36,
+        borderRadius: 18,
+        backgroundColor: Colors.light.card,
+        alignItems: 'center',
+        justifyContent: 'center',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.15,
+        shadowRadius: 4,
+        elevation: 4,
+        borderWidth: 1,
+        borderColor: Colors.light.border,
     },
     quickActions: {
         paddingHorizontal: Spacing.m,

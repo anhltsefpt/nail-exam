@@ -3,6 +3,7 @@
 export interface RoadmapNodeConfig {
     id: number;
     label: string;
+    topicId?: string; // Supabase UUID for querying questions
 }
 
 export interface CategoryConfig {
@@ -23,21 +24,24 @@ export const PHASE_META: Record<number, { id: string; title: string; phaseIndex:
 };
 
 /**
- * Generate a balanced row pattern for N nodes.
- * Pattern: first row has 1 node, subsequent rows have 2, last row gets remainder.
- * Examples: 1→[1], 2→[1,1], 3→[1,2], 4→[1,2,1], 5→[1,2,2], 7→[1,2,2,2]
+ * Generate an alternating 1-2-1-2 row pattern for N nodes.
+ * Pattern: odd rows (1st, 3rd, 5th…) have 1 node, even rows (2nd, 4th…) have 2 nodes.
+ * Examples: 1→[1], 2→[1,1], 3→[1,2], 4→[1,2,1], 5→[1,2,1,1], 6→[1,2,1,2], 7→[1,2,1,2,1]
  */
 export function generateRowPattern(count: number): number[] {
     if (count <= 0) return [];
-    if (count === 1) return [1];
 
-    const pattern: number[] = [1]; // first row always has 1 node
-    let remaining = count - 1;
+    const pattern: number[] = [];
+    let remaining = count;
+    let rowIdx = 0;
 
     while (remaining > 0) {
-        const take = Math.min(2, remaining);
+        // Odd rows (0, 2, 4…) get 1 node; even rows (1, 3, 5…) get 2 nodes
+        const target = rowIdx % 2 === 0 ? 1 : 2;
+        const take = Math.min(target, remaining);
         pattern.push(take);
         remaining -= take;
+        rowIdx++;
     }
 
     return pattern;

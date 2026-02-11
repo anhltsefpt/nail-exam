@@ -19,9 +19,11 @@ const AnimatedPath = Animated.createAnimatedComponent(Path);
 interface CategorySectionProps {
     title: string;
     phaseIndex: 1 | 2 | 3 | 4;
+    prevPhaseIndex?: 1 | 2 | 3 | 4;
     nodes: RoadmapNodeConfig[];
     rowPattern: number[];
     startFromLeft?: boolean;
+    isFirst?: boolean;
     isLast?: boolean;
 }
 
@@ -30,7 +32,11 @@ const SECTION_PADDING = 16;
 const CONTENT_WIDTH = SCREEN_WIDTH - SECTION_PADDING * 2;
 const ROW_HEIGHT = 90;
 const BANNER_HEIGHT = 46;
-const FIRST_ROW_GAP = Math.round(ROW_HEIGHT * 0.8); // 15% smaller gap from banner to first row
+const BANNER_WIDTH = CONTENT_WIDTH * 0.7;
+const BANNER_LEFT = (CONTENT_WIDTH - BANNER_WIDTH) / 2;
+const BANNER_RIGHT = BANNER_LEFT + BANNER_WIDTH;
+const BANNER_MID_Y = BANNER_HEIGHT / 2;
+const FIRST_ROW_GAP = Math.round(ROW_HEIGHT * 0.8);
 const START_Y = BANNER_HEIGHT + FIRST_ROW_GAP;
 const CENTER = CONTENT_WIDTH / 2;
 const MAX_OFFSET = CONTENT_WIDTH * 0.22;
@@ -52,9 +58,11 @@ export function computeExitSide(
 export function CategorySection({
     title,
     phaseIndex,
+    prevPhaseIndex,
     nodes,
     rowPattern,
     startFromLeft = true,
+    isFirst = false,
     isLast = false,
 }: CategorySectionProps) {
     const router = useRouter();
@@ -64,6 +72,7 @@ export function CategorySection({
 
     const theme = Colors.light;
     const phase = theme.phase[phaseIndex];
+    const prevPhase = prevPhaseIndex ? theme.phase[prevPhaseIndex] : null;
 
     useEffect(() => {
         pathProgress.value = withTiming(1, {
@@ -79,7 +88,7 @@ export function CategorySection({
     // ── Compute node positions ──
     const nodePoints: Array<{
         x: number; y: number; id: number; label: string;
-        row: number; status: string; progress: number;
+        topicId?: string; row: number; status: string; progress: number;
     }> = [];
 
     let nodeIdx = 0;
@@ -104,6 +113,7 @@ export function CategorySection({
                 y,
                 id: n.id,
                 label: n.label,
+                topicId: n.topicId,
                 row: rowIdx,
                 status: nodeStatus[n.id] || 'locked',
                 progress: nodeProgress[n.id] || 0,
@@ -113,11 +123,10 @@ export function CategorySection({
     }
 
     // Content height: banner + rows + bottom space
-    // For non-last sections, add ROW_HEIGHT below last row for exit path to next banner
     const lastRowY = START_Y + (numRows - 1) * ROW_HEIGHT;
     const contentHeight = isLast
         ? lastRowY + 60
-        : lastRowY + ROW_HEIGHT;
+        : lastRowY + ROW_HEIGHT * 0.8;
 
     // Last node X — used to terminate the path for the last section
     const lastNode = nodePoints[nodePoints.length - 1];
@@ -156,17 +165,21 @@ export function CategorySection({
 
         if (numRows === 0) return { d: '', length: 0 };
 
-        // Entry X — from the banner's bottom-left or bottom-right border-radius area
-        const entryX = startFromLeft ? X_MIN : X_MAX;
-        addM(entryX, BANNER_HEIGHT);
-
-        // Go down from banner bottom to row 0 level
-        addL(entryX, START_Y - CORNER_RADIUS);
-
-        // Curve into row 0
+        // Main path starts from the departure side of the banner
         if (startFromLeft) {
+            addM(BANNER_LEFT, BANNER_MID_Y);
+            addQ(X_MIN, BANNER_MID_Y, X_MIN, BANNER_MID_Y + CORNER_RADIUS);
+        } else {
+            addM(BANNER_RIGHT, BANNER_MID_Y);
+            addQ(X_MAX, BANNER_MID_Y, X_MAX, BANNER_MID_Y + CORNER_RADIUS);
+        }
+
+        // Continue down the departure rail to row 0
+        if (startFromLeft) {
+            addL(X_MIN, START_Y - CORNER_RADIUS);
             addQ(X_MIN, START_Y, X_MIN + CORNER_RADIUS, START_Y);
         } else {
+            addL(X_MAX, START_Y - CORNER_RADIUS);
             addQ(X_MAX, START_Y, X_MAX - CORNER_RADIUS, START_Y);
         }
 
@@ -276,7 +289,7 @@ export function CategorySection({
             }
         }
 
-        // Exit: continue down to the next banner area (solid snake, not dashed)
+        // Exit: simple vertical rail down to contentHeight (next section draws the arrival curve)
         if (!isLast && !limit) {
             const exitSide = computeExitSide(rowPattern, startFromLeft);
             const exitX = exitSide === 'right' ? X_MAX : X_MIN;
@@ -288,6 +301,15 @@ export function CategorySection({
 
     const fullPathData = generateSnakePath();
     const snakePath = fullPathData.d;
+
+    // Generate arrival path (from previous section's rail to near banner edge)
+    // This uses the PREVIOUS section's color
+    let arrivalPath = '';
+    if (!isFirst) {
+        const arrivalX = startFromLeft ? X_MAX : X_MIN;
+        const nearEdge = startFromLeft ? BANNER_RIGHT : BANNER_LEFT;
+        arrivalPath = `M ${arrivalX} 0 Q ${arrivalX} ${BANNER_MID_Y} ${nearEdge} ${BANNER_MID_Y}`;
+    }
 
     // Find highest unlocked node
     // Assuming nodePoints are sorted by appearance order (which they are)
@@ -311,9 +333,18 @@ export function CategorySection({
         strokeDashoffset: activePathData.length * (1 - pathProgress.value),
     }));
 
-    const handleNodePress = (nodeId: number, status: string) => {
-        if (status === 'active' || status === 'completed') {
-            router.push(`/quiz/${nodeId}`);
+    const handleNodePress = (node: typeof nodePoints[0]) => {
+        if (node.status === 'active' || node.status === 'completed') {
+            router.push({
+                pathname: '/topic/[topicId]',
+                params: {
+                    topicId: node.topicId || node.id.toString(),
+                    topicName: node.label,
+                    phaseIndex: phaseIndex.toString(),
+                    nodeOrder: node.id.toString(),
+                    totalNodes: nodes.length.toString(),
+                },
+            });
         }
     };
 
@@ -326,12 +357,23 @@ export function CategorySection({
                     width={CONTENT_WIDTH}
                     style={StyleSheet.absoluteFill}
                 >
+                    {/* Arrival path from previous section (uses prev phase color) */}
+                    {arrivalPath && prevPhase ? (
+                        <Path
+                            d={arrivalPath}
+                            stroke={prevPhase.light}
+                            strokeWidth={14}
+                            fill="none"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                        />
+                    ) : null}
                     {snakePath ? (
                         <>
                             <Path
                                 d={snakePath}
                                 stroke={phase.light}
-                                strokeWidth={20}
+                                strokeWidth={14}
                                 fill="none"
                                 strokeLinecap="round"
                                 strokeLinejoin="round"
@@ -339,7 +381,7 @@ export function CategorySection({
                             <AnimatedPath
                                 d={activePathData.d}
                                 stroke={phase.primary}
-                                strokeWidth={6}
+                                strokeWidth={4}
                                 fill="none"
                                 strokeDasharray={activePathData.length}
                                 animatedProps={animatedPathProps}
@@ -353,10 +395,7 @@ export function CategorySection({
 
                 {/* Category Banner — sits inside the map, over the snake */}
                 <View style={[styles.banner, { backgroundColor: phase.primary }]}>
-                    <View style={styles.bannerIndex}>
-                        <Text style={styles.bannerIndexText}>{phaseIndex}</Text>
-                    </View>
-                    <Text style={styles.bannerTitle}>{title}</Text>
+                    <Text style={styles.bannerTitle} numberOfLines={1}>{title}</Text>
                 </View>
 
                 {/* Nodes */}
@@ -367,7 +406,7 @@ export function CategorySection({
                         index={index}
                         phaseColor={phase.primary}
                         phaseLightColor={phase.light}
-                        onPress={() => handleNodePress(node.id, node.status)}
+                        onPress={() => handleNodePress(node)}
                     />
                 ))}
             </View>
@@ -382,34 +421,21 @@ const styles = StyleSheet.create({
     banner: {
         position: 'absolute',
         top: 0,
-        left: 0,
-        right: 0,
+        left: BANNER_LEFT,
+        width: BANNER_WIDTH,
         flexDirection: 'row',
         alignItems: 'center',
+        justifyContent: 'center',
         paddingVertical: 12,
         paddingHorizontal: 20,
         borderRadius: 16,
         zIndex: 20,
     },
-    bannerIndex: {
-        width: 28,
-        height: 28,
-        borderRadius: 14,
-        backgroundColor: 'rgba(255,255,255,0.3)',
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginRight: 12,
-    },
-    bannerIndexText: {
-        color: '#FFF',
-        fontSize: 14,
-        fontWeight: '800',
-    },
     bannerTitle: {
         color: '#FFF',
-        fontSize: 16,
+        fontSize: 13,
         fontWeight: '700',
-        flex: 1,
+        textAlign: 'center',
     },
     mapContainer: {
         position: 'relative',

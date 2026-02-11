@@ -1,7 +1,7 @@
 import { AICharacter } from '@/components/AICharacter';
 import { Typography } from '@/components/ui/Typography';
 import { Colors, Radius, Spacing } from '@/constants/theme';
-import { getNodeLabel, getQuestionsByNodeId, Question } from '@/data/questions';
+import { useQuizStore } from '@/store/useQuizStore';
 import { useUserStore } from '@/store/useUserStore';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
@@ -18,9 +18,10 @@ import {
     Type,
     X
 } from 'lucide-react-native';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
+    ActivityIndicator,
     PanResponder,
     ScrollView,
     StyleSheet,
@@ -34,35 +35,38 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 export default function QuizScreen() {
     const router = useRouter();
     const { t } = useTranslation();
-    const { categoryId } = useLocalSearchParams<{ categoryId: string }>();
+    const { categoryId, topicId, offset, limit, topicName } = useLocalSearchParams<{
+        categoryId: string;
+        topicId: string;
+        offset: string;
+        limit: string;
+        topicName: string;
+    }>();
     const colorScheme = useColorScheme() ?? 'light';
     const theme = Colors[colorScheme];
 
-    const nodeId = parseInt(categoryId || '1', 10);
-    const initialQuestions = getQuestionsByNodeId(nodeId);
-    const nodeLabel = getNodeLabel(nodeId);
+    // --- Quiz Store ---
+    const {
+        activeQuestions,
+        currentIndex,
+        selectedOptionId,
+        showResult,
+        isRoundComplete,
+        roundCorrectCount,
+        roundMistakes,
+        masteredIds,
+        totalQuestionsCount,
+        isLoading,
+        error,
+        loadQuestions,
+        selectOption,
+        submitAnswer,
+        nextQuestion,
+        startNextRound,
+        resetQuiz,
+    } = useQuizStore();
 
-    // --- Mastery Logic State ---
-    // List of questions currently being practiced (starts with all)
-    const [activeQuestions, setActiveQuestions] = useState<Question[]>(initialQuestions);
-    // Index in the activeQuestions array
-    const [currentIndex, setCurrentIndex] = useState(0);
-
-    // Tracking for the CURRENT round
-    const [roundMistakes, setRoundMistakes] = useState<string[]>([]);
-    const [roundCorrectCount, setRoundCorrectCount] = useState(0);
-
-    // Tracking for OVERALL session mastery (unique IDs correctly answered)
-    const [masteredIds, setMasteredIds] = useState<Set<string>>(new Set());
-
-    const [selectedOptionId, setSelectedOptionId] = useState<string | null>(null);
-    const [showResult, setShowResult] = useState(false);
-
-    // UI State
-    const [showFontMenu, setShowFontMenu] = useState(false);
-    const [isRoundComplete, setIsRoundComplete] = useState(false);
-
-    // Store
+    // --- User Store (persistent) ---
     const savedQuestions = useUserStore((state) => state.savedQuestions);
     const likedQuestions = useUserStore((state) => state.likedQuestions);
     const dislikedQuestions = useUserStore((state) => state.dislikedQuestions);
@@ -75,12 +79,21 @@ export default function QuizScreen() {
     const fontScale = useUserStore((state) => state.fontScale);
     const setFontScale = useUserStore((state) => state.setFontScale);
 
-    const currentQuestion = activeQuestions[currentIndex];
-    const isSaved = currentQuestion ? savedQuestions.includes(currentQuestion.id) : false;
-    const isLiked = currentQuestion ? likedQuestions.includes(currentQuestion.id) : false;
-    const isDisliked = currentQuestion ? dislikedQuestions.includes(currentQuestion.id) : false;
+    const nodeId = parseInt(categoryId || '1', 10);
 
-    // Font Slider Logic
+    // --- Load questions from Supabase on mount ---
+    useEffect(() => {
+        if (topicId && offset && limit) {
+            loadQuestions(topicId, parseInt(offset, 10), parseInt(limit, 10));
+        }
+
+        return () => {
+            resetQuiz();
+        };
+    }, [topicId, offset, limit]);
+
+    // --- Font Slider ---
+    const [showFontMenu, setShowFontMenu] = React.useState(false);
     const TRACK_WIDTH = 180;
     const MIN_SCALE = 0.8;
     const MAX_SCALE = 1.4;
@@ -116,82 +129,49 @@ export default function QuizScreen() {
         lineHeight: 24 * fontScale,
     };
 
-    // Calculate Progress
-    const totalQuestionsCount = initialQuestions.length; // Always based on total original questions
-    const masteryPercentage = Math.round((masteredIds.size / totalQuestionsCount) * 100);
+    // --- Mastery ---
+    const masteryPercentage = totalQuestionsCount > 0
+        ? Math.round((masteredIds.length / totalQuestionsCount) * 100)
+        : 0;
 
-    // Save progress to store whenever mastery updates
+    // Save progress to user store whenever mastery updates
     useEffect(() => {
         updateNodeProgress(nodeId, masteryPercentage);
-        if (masteredIds.size === totalQuestionsCount) {
-            // Optional: Auto-complete if 100% mastery reached during session?
-            // Maybe wait for user to finish the round.
-        }
-    }, [masteredIds.size]);
+    }, [masteredIds.length]);
 
-    const handleSelectOption = (optionId: string) => {
-        if (showResult || isRoundComplete) return;
-        setSelectedOptionId(optionId);
-    };
+    // --- Handlers ---
+    const currentQuestion = activeQuestions[currentIndex];
+    const isSaved = currentQuestion ? savedQuestions.includes(currentQuestion.id) : false;
+    const isLiked = currentQuestion ? likedQuestions.includes(currentQuestion.id) : false;
+    const isDisliked = currentQuestion ? dislikedQuestions.includes(currentQuestion.id) : false;
 
     const handleContinue = () => {
-        if (isRoundComplete) {
-            // Logic handled in Round Summary view
-            return;
-        }
+        if (isRoundComplete) return;
 
         if (!showResult && selectedOptionId && currentQuestion) {
             // Submit Answer
-            const isCorrect = selectedOptionId === currentQuestion.correctOptionId;
-            setShowResult(true);
-
-            // Record Answer
-            recordAnswer(currentQuestion.id, isCorrect, selectedOptionId);
-
-            if (isCorrect) {
-                setRoundCorrectCount(prev => prev + 1);
-                // Mark as mastered
-                setMasteredIds(prev => new Set(prev).add(currentQuestion.id));
-            } else {
-                setRoundMistakes(prev => [...prev, currentQuestion.id]);
-                // If previously mastered, remove it? (Strict mastery)
-                // For now, let's keep it simple: once mastered, always tracked, but WRONG in this round means re-do.
+            const result = submitAnswer();
+            if (result) {
+                recordAnswer(currentQuestion.id, result.isCorrect, selectedOptionId);
             }
-
         } else if (showResult) {
-            // Next Question
-            if (currentIndex < activeQuestions.length - 1) {
-                setCurrentIndex(prev => prev + 1);
-                setSelectedOptionId(null);
-                setShowResult(false);
-            } else {
-                // End of Round
-                finishRound();
-            }
+            nextQuestion();
         }
     };
 
-    const finishRound = () => {
-        setIsRoundComplete(true);
+    const handleFinishRound = () => {
         if (roundMistakes.length === 0) {
-            // Perfect round!
             completeNode(nodeId);
             updateNodeProgress(nodeId, 100);
         }
     };
 
-    const startNextRound = () => {
-        // Filter questions to only include mistakes from the previous round
-        const nextQuestions = initialQuestions.filter(q => roundMistakes.includes(q.id));
-
-        setActiveQuestions(nextQuestions);
-        setCurrentIndex(0);
-        setRoundMistakes([]);
-        setRoundCorrectCount(0);
-        setSelectedOptionId(null);
-        setShowResult(false);
-        setIsRoundComplete(false);
-    };
+    // Trigger persistent store updates when round completes
+    useEffect(() => {
+        if (isRoundComplete) {
+            handleFinishRound();
+        }
+    }, [isRoundComplete]);
 
     const handleAIChat = (prompt?: string) => {
         router.push({
@@ -203,7 +183,42 @@ export default function QuizScreen() {
         });
     };
 
-    // Render Round Summary
+    // --- Loading / Error States ---
+    if (isLoading) {
+        return (
+            <SafeAreaView style={[styles.container, { backgroundColor: theme.background, justifyContent: 'center', alignItems: 'center' }]}>
+                <Stack.Screen options={{ headerShown: false }} />
+                <ActivityIndicator size="large" color={theme.primary} />
+                <Typography variant="body" color="muted" style={{ marginTop: Spacing.m }}>
+                    {t('quiz.loading', { defaultValue: 'Loading questions...' })}
+                </Typography>
+            </SafeAreaView>
+        );
+    }
+
+    if (error) {
+        return (
+            <SafeAreaView style={[styles.container, { backgroundColor: theme.background, justifyContent: 'center', alignItems: 'center', padding: Spacing.xl }]}>
+                <Stack.Screen options={{ headerShown: false }} />
+                <Typography variant="heading" weight="bold" align="center">
+                    {t('quiz.errorTitle', { defaultValue: 'Oops!' })}
+                </Typography>
+                <Typography variant="body" color="muted" align="center" style={{ marginTop: Spacing.s }}>
+                    {error}
+                </Typography>
+                <TouchableOpacity
+                    style={[styles.summaryButton, { marginTop: Spacing.xl }]}
+                    onPress={() => router.back()}
+                >
+                    <Typography variant="body" weight="bold" color="inverted">
+                        {t('quiz.goBack', { defaultValue: 'Go Back' })}
+                    </Typography>
+                </TouchableOpacity>
+            </SafeAreaView>
+        );
+    }
+
+    // --- Round Summary ---
     if (isRoundComplete) {
         const isPerfect = roundMistakes.length === 0;
 
@@ -391,7 +406,7 @@ export default function QuizScreen() {
                             <TouchableOpacity
                                 key={option.id}
                                 style={[optionStyle, { borderColor: isSelected && !showResult ? theme.primary : theme.border }]}
-                                onPress={() => handleSelectOption(option.id)}
+                                onPress={() => selectOption(option.id)}
                                 activeOpacity={0.7}
                             >
                                 <Typography variant="body" style={[{ flex: 1 }, optionTextStyle]}>
@@ -402,6 +417,24 @@ export default function QuizScreen() {
                         );
                     })}
                 </View>
+
+                {/* Explanation */}
+                {showResult && currentQuestion.explanation && (
+                    <Animated.View
+                        entering={FadeIn.duration(300)}
+                        style={[styles.explanationCard, { backgroundColor: theme.card, borderColor: theme.border }]}
+                    >
+                        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: Spacing.s }}>
+                            <Lightbulb size={18} color="#F0C97E" />
+                            <Typography variant="caption" weight="bold" style={{ marginLeft: Spacing.xs, color: '#B8941F' }}>
+                                {t('quiz.explanationTitle', { defaultValue: 'Explanation' })}
+                            </Typography>
+                        </View>
+                        <Typography variant="body" color="muted" style={[{ lineHeight: 22 }, optionTextStyle]}>
+                            {currentQuestion.explanation}
+                        </Typography>
+                    </Animated.View>
+                )}
             </ScrollView>
 
             <View style={styles.stickyBottom}>
@@ -497,4 +530,5 @@ const styles = StyleSheet.create({
     continueGradient: { paddingVertical: Spacing.l, alignItems: 'center', justifyContent: 'center' },
     statCard: { padding: Spacing.l, borderRadius: Radius.l, borderWidth: 1, alignItems: 'center', marginBottom: Spacing.xl, width: '100%' },
     summaryButton: { backgroundColor: '#F2A7B3', paddingVertical: Spacing.m, paddingHorizontal: Spacing.xl, borderRadius: Radius.full, flexDirection: 'row', alignItems: 'center' },
+    explanationCard: { marginTop: Spacing.l, padding: Spacing.l, borderRadius: Radius.l, borderWidth: 1 },
 });
