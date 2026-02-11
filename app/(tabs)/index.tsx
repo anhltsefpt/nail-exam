@@ -2,14 +2,14 @@ import { AICharacter } from '@/components/AICharacter';
 import { CategorySection, computeExitSide } from '@/components/roadmap/CategorySection';
 import { Typography } from '@/components/ui/Typography';
 import { Colors, Radius, Shadows, Spacing } from '@/constants/theme';
-import { CATEGORIES } from '@/data/roadmap-config';
 import { useRevenueCat } from '@/hooks/useRevenueCat';
+import { useTopics } from '@/hooks/useTopics';
 import { useUserStore } from '@/store/useUserStore';
 import { useRouter } from 'expo-router';
 import { FlaskConical, Gem, Menu } from 'lucide-react-native';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { ScrollView, StyleSheet, TouchableOpacity, useColorScheme, View } from 'react-native';
+import { ActivityIndicator, ScrollView, StyleSheet, TouchableOpacity, useColorScheme, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function HomeScreen() {
@@ -21,6 +21,7 @@ export default function HomeScreen() {
 
   const gems = useUserStore((s) => s.gems);
   const courseProgress = useUserStore((s) => s.courseProgress);
+  const { categories, loading, error } = useTopics();
 
   const styles = StyleSheet.create({
     container: {
@@ -88,6 +89,12 @@ export default function HomeScreen() {
       justifyContent: 'center',
       ...Shadows[colorScheme].l,
     },
+    loadingContainer: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingTop: 60,
+    },
   });
 
   return (
@@ -139,7 +146,11 @@ export default function HomeScreen() {
         </View>
 
         {/* Category Sections — chained via exit side */}
-        {CATEGORIES.reduce<{ elements: React.ReactNode[]; startFromLeft: boolean }>(
+        {loading ? (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color={theme.primary} />
+          </View>
+        ) : categories.reduce<{ elements: React.ReactNode[]; startFromLeft: boolean }>(
           (acc, cat, idx) => {
             acc.elements.push(
               <CategorySection
@@ -149,7 +160,7 @@ export default function HomeScreen() {
                 nodes={cat.nodes}
                 rowPattern={cat.rowPattern}
                 startFromLeft={acc.startFromLeft}
-                isLast={idx === CATEGORIES.length - 1}
+                isLast={idx === categories.length - 1}
               />
             );
             const exitSide = computeExitSide(cat.rowPattern, acc.startFromLeft);
@@ -167,3 +178,4 @@ export default function HomeScreen() {
     </SafeAreaView>
   );
 }
+

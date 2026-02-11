@@ -28,12 +28,13 @@ interface CategorySectionProps {
 // ── Layout constants ──
 const SECTION_PADDING = 16;
 const CONTENT_WIDTH = SCREEN_WIDTH - SECTION_PADDING * 2;
-const ROW_HEIGHT = 80;
+const ROW_HEIGHT = 90;
 const BANNER_HEIGHT = 46;
-const START_Y = BANNER_HEIGHT + ROW_HEIGHT; // Banner sits inside the map, first row below it
+const FIRST_ROW_GAP = Math.round(ROW_HEIGHT * 0.8); // 15% smaller gap from banner to first row
+const START_Y = BANNER_HEIGHT + FIRST_ROW_GAP;
 const CENTER = CONTENT_WIDTH / 2;
 const MAX_OFFSET = CONTENT_WIDTH * 0.22;
-const CORNER_RADIUS = 40;
+const CORNER_RADIUS = 45;
 const X_MIN = 24;
 const X_MAX = CONTENT_WIDTH - 24;
 
@@ -66,7 +67,7 @@ export function CategorySection({
 
     useEffect(() => {
         pathProgress.value = withTiming(1, {
-            duration: 2500,
+            duration: 1500,
             easing: Easing.inOut(Easing.ease),
         });
     }, []);

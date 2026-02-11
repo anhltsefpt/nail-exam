@@ -63,7 +63,7 @@ export function RoadmapNode({ node, index, phaseColor, phaseLightColor, onPress 
     const rPositionStyle = useAnimatedStyle(() => ({
         opacity: opacity.value,
         left: node.x - WRAPPER_SIZE / 2,
-        top: node.y - WRAPPER_SIZE / 2 + 4,
+        top: node.y - WRAPPER_SIZE / 2,
     }));
 
     const rScaleStyle = useAnimatedStyle(() => ({
@@ -108,18 +108,18 @@ export function RoadmapNode({ node, index, phaseColor, phaseLightColor, onPress 
                         )}
                     </View>
                 </Animated.View>
-                <Text
-                    style={[
-                        styles.label,
-                        (isActive || isCompleted)
-                            ? [styles.activeLabel, { color: phaseColor }]
-                            : styles.lockedLabel,
-                    ]}
-                    numberOfLines={2}
-                >
-                    {node.label}
-                </Text>
             </TouchableOpacity>
+            <Text
+                style={[
+                    styles.label,
+                    (isActive || isCompleted)
+                        ? [styles.activeLabel, { color: phaseColor }]
+                        : styles.lockedLabel,
+                ]}
+                numberOfLines={2}
+            >
+                {node.label}
+            </Text>
         </Animated.View>
     );
 }
@@ -198,11 +198,12 @@ const styles = StyleSheet.create({
         fontWeight: '700',
     },
     label: {
-        marginTop: 6,
+        position: 'absolute',
+        top: WRAPPER_SIZE / 2 + NODE_SIZE / 2 + 4,
+        width: WRAPPER_SIZE,
         fontSize: 11,
         fontWeight: '600',
         textAlign: 'center',
-        maxWidth: 90,
     },
     activeLabel: {
         fontWeight: '700',
