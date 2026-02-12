@@ -35,12 +35,13 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 export default function QuizScreen() {
     const router = useRouter();
     const { t } = useTranslation();
-    const { categoryId, topicId, offset, limit, topicName } = useLocalSearchParams<{
+    const { categoryId, topicId, offset, limit, topicName, setIndex: setIndexStr } = useLocalSearchParams<{
         categoryId: string;
         topicId: string;
         offset: string;
         limit: string;
         topicName: string;
+        setIndex: string;
     }>();
     const colorScheme = useColorScheme() ?? 'light';
     const theme = Colors[colorScheme];
@@ -76,10 +77,13 @@ export default function QuizScreen() {
     const recordAnswer = useUserStore((state) => state.recordAnswer);
     const completeNode = useUserStore((state) => state.completeNode);
     const updateNodeProgress = useUserStore((state) => state.updateNodeProgress);
+    const updateSetProgress = useUserStore((state) => state.updateSetProgress);
+    const addGems = useUserStore((state) => state.addGems);
     const fontScale = useUserStore((state) => state.fontScale);
     const setFontScale = useUserStore((state) => state.setFontScale);
 
     const nodeId = parseInt(categoryId || '1', 10);
+    const setIndex = parseInt(setIndexStr || '0', 10);
 
     // --- Load questions from Supabase on mount ---
     useEffect(() => {
@@ -145,25 +149,38 @@ export default function QuizScreen() {
     const isLiked = currentQuestion ? likedQuestions.includes(currentQuestion.id) : false;
     const isDisliked = currentQuestion ? dislikedQuestions.includes(currentQuestion.id) : false;
 
-    const handleContinue = () => {
-        if (isRoundComplete) return;
-
-        if (!showResult && selectedOptionId && currentQuestion) {
-            // Submit Answer
-            const result = submitAnswer();
+    const handleOptionSelect = (optionId: string) => {
+        if (showResult || isRoundComplete) return;
+        selectOption(optionId);
+        // Auto-submit immediately after selecting
+        // We need to call submitAnswer after state updates, so use a microtask
+        setTimeout(() => {
+            const state = useQuizStore.getState();
+            const question = state.activeQuestions[state.currentIndex];
+            if (!question) return;
+            const result = useQuizStore.getState().submitAnswer();
             if (result) {
-                recordAnswer(currentQuestion.id, result.isCorrect, selectedOptionId);
+                recordAnswer(question.id, result.isCorrect, optionId);
             }
-        } else if (showResult) {
-            nextQuestion();
-        }
+        }, 0);
+    };
+
+    const handleContinue = () => {
+        if (!showResult || isRoundComplete) return;
+        nextQuestion();
     };
 
     const handleFinishRound = () => {
+        // Save set progress (best score)
+        if (topicId) {
+            updateSetProgress(topicId, setIndex, masteryPercentage);
+        }
         if (roundMistakes.length === 0) {
             completeNode(nodeId);
             updateNodeProgress(nodeId, 100);
         }
+        // Reward gems for completing a set
+        addGems(2);
     };
 
     // Trigger persistent store updates when round completes
@@ -241,6 +258,11 @@ export default function QuizScreen() {
                 <View style={[styles.statCard, { backgroundColor: theme.card, borderColor: theme.border }]}>
                     <Typography variant="title" color="primary">{masteryPercentage}%</Typography>
                     <Typography variant="caption" color="muted">{t('quiz.totalMastery')}</Typography>
+                </View>
+
+                <View style={[styles.statCard, { backgroundColor: '#FFFBEB', borderColor: '#FEF3C7', marginTop: 0, marginBottom: Spacing.xl }]}>
+                    <Typography variant="title" style={{ color: '#D97706' }}>+2 💎</Typography>
+                    <Typography variant="caption" style={{ color: '#B8941F' }}>Gems earned!</Typography>
                 </View>
 
                 {isPerfect ? (
@@ -406,7 +428,8 @@ export default function QuizScreen() {
                             <TouchableOpacity
                                 key={option.id}
                                 style={[optionStyle, { borderColor: isSelected && !showResult ? theme.primary : theme.border }]}
-                                onPress={() => selectOption(option.id)}
+                                onPress={() => handleOptionSelect(option.id)}
+                                disabled={showResult}
                                 activeOpacity={0.7}
                             >
                                 <Typography variant="body" style={[{ flex: 1 }, optionTextStyle]}>
@@ -461,18 +484,18 @@ export default function QuizScreen() {
                     </TouchableOpacity>
 
                     <TouchableOpacity
-                        style={[styles.continueButton, !selectedOptionId && !showResult && styles.continueButtonDisabled]}
+                        style={[styles.continueButton, !showResult && styles.continueButtonDisabled]}
                         onPress={handleContinue}
-                        disabled={!selectedOptionId && !showResult}
+                        disabled={!showResult}
                         activeOpacity={0.8}
                     >
                         <LinearGradient
-                            colors={selectedOptionId || showResult ? ['#F2A7B3', '#D98E99'] : ['#E6E1E2', '#D1CACC']}
+                            colors={showResult ? ['#F2A7B3', '#D98E99'] : ['#E6E1E2', '#D1CACC']}
                             start={{ x: 0, y: 0 }}
                             end={{ x: 1, y: 0 }}
                             style={styles.continueGradient}
                         >
-                            <Typography variant="body" weight="bold" color={selectedOptionId || showResult ? 'inverted' : 'muted'}>
+                            <Typography variant="body" weight="bold" color={showResult ? 'inverted' : 'muted'}>
                                 {showResult
                                     ? (currentIndex < activeQuestions.length - 1 ? t('quiz.nextQuestion') : t('quiz.finishRound'))
                                     : t('quiz.checkAnswer')}
@@ -481,7 +504,7 @@ export default function QuizScreen() {
                     </TouchableOpacity>
                 </View>
             </View>
-        </SafeAreaView>
+        </SafeAreaView >
     );
 }
 

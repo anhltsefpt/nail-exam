@@ -32,16 +32,20 @@ const SECTION_PADDING = 16;
 const CONTENT_WIDTH = SCREEN_WIDTH - SECTION_PADDING * 2;
 const ROW_HEIGHT = 90;
 const BANNER_HEIGHT = 46;
-const BANNER_WIDTH = CONTENT_WIDTH * 0.7;
-const BANNER_LEFT = (CONTENT_WIDTH - BANNER_WIDTH) / 2;
-const BANNER_RIGHT = BANNER_LEFT + BANNER_WIDTH;
-const BANNER_MID_Y = BANNER_HEIGHT / 2;
-const FIRST_ROW_GAP = Math.round(ROW_HEIGHT * 0.8);
-const START_Y = BANNER_HEIGHT + FIRST_ROW_GAP;
-const CENTER = CONTENT_WIDTH / 2;
-const MAX_OFFSET = CONTENT_WIDTH * 0.22;
+const BANNER_TOP = 24;
 const CORNER_RADIUS = 45;
 const X_MIN = 24;
+// Calculate banner width to perfectly accomodate the corner radius curve
+// BANNER_WIDTH = Total Width - (Left Rail Gap + Right Rail Gap)
+// Where Gap = X_MIN + CORNER_RADIUS
+const BANNER_WIDTH = CONTENT_WIDTH - 2 * (X_MIN + CORNER_RADIUS);
+const BANNER_LEFT = (CONTENT_WIDTH - BANNER_WIDTH) / 2;
+const BANNER_RIGHT = BANNER_LEFT + BANNER_WIDTH;
+const BANNER_MID_Y = BANNER_TOP + BANNER_HEIGHT / 2;
+const FIRST_ROW_GAP = Math.round(ROW_HEIGHT * 0.8);
+const START_Y = BANNER_TOP + BANNER_HEIGHT + FIRST_ROW_GAP;
+const CENTER = CONTENT_WIDTH / 2;
+const MAX_OFFSET = CONTENT_WIDTH * 0.22;
 const X_MAX = CONTENT_WIDTH - 24;
 
 export function computeExitSide(
@@ -125,8 +129,8 @@ export function CategorySection({
     // Content height: banner + rows + bottom space
     const lastRowY = START_Y + (numRows - 1) * ROW_HEIGHT;
     const contentHeight = isLast
-        ? lastRowY + 60
-        : lastRowY + ROW_HEIGHT * 0.8;
+        ? lastRowY + 40
+        : lastRowY + ROW_HEIGHT * 0.5;
 
     // Last node X — used to terminate the path for the last section
     const lastNode = nodePoints[nodePoints.length - 1];
@@ -308,7 +312,9 @@ export function CategorySection({
     if (!isFirst) {
         const arrivalX = startFromLeft ? X_MAX : X_MIN;
         const nearEdge = startFromLeft ? BANNER_RIGHT : BANNER_LEFT;
-        arrivalPath = `M ${arrivalX} 0 Q ${arrivalX} ${BANNER_MID_Y} ${nearEdge} ${BANNER_MID_Y}`;
+        // Vertical line from 0 to curve start, then curve to banner mid-Y
+        const curveStart = Math.max(0, BANNER_MID_Y - CORNER_RADIUS);
+        arrivalPath = `M ${arrivalX} 0 L ${arrivalX} ${curveStart} Q ${arrivalX} ${BANNER_MID_Y} ${nearEdge} ${BANNER_MID_Y}`;
     }
 
     // Find highest unlocked node
@@ -420,7 +426,7 @@ const styles = StyleSheet.create({
     },
     banner: {
         position: 'absolute',
-        top: 0,
+        top: BANNER_TOP,
         left: BANNER_LEFT,
         width: BANNER_WIDTH,
         flexDirection: 'row',

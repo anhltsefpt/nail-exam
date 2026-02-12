@@ -21,6 +21,7 @@ export const PHASE_META: Record<number, { id: string; title: string; phaseIndex:
     1: { id: 'high-yield-foundations', title: 'High-Yield Foundations', phaseIndex: 1 },
     2: { id: 'core-procedures', title: 'Core Procedures', phaseIndex: 2 },
     3: { id: 'chemistry-theory', title: 'Chemistry & Theory', phaseIndex: 3 },
+    4: { id: 'quick-wins', title: 'Quick Wins', phaseIndex: 4 },
 };
 
 /**

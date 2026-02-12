@@ -30,18 +30,18 @@ export function useTopics() {
 
                 const topics = (data as TopicRow[]) || [];
 
-                // Group by phase_id (skip phase 4 and null)
+                // Group by phase_id (skip null)
                 const grouped = new Map<number, TopicRow[]>();
                 for (const topic of topics) {
                     const pid = topic.phase_id;
-                    if (pid == null || pid === 4) continue;
+                    if (pid == null) continue;
                     if (!grouped.has(pid)) grouped.set(pid, []);
                     grouped.get(pid)!.push(topic);
                 }
 
-                // Build CategoryConfig[] in phase order (1, 2, 3)
+                // Build CategoryConfig[] in phase order (1, 2, 3, 4)
                 const cats: CategoryConfig[] = [];
-                for (const phaseId of [1, 2, 3]) {
+                for (const phaseId of [1, 2, 3, 4]) {
                     const meta = PHASE_META[phaseId];
                     if (!meta) continue;
                     const phaseTopics = grouped.get(phaseId) || [];

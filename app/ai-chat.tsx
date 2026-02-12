@@ -2,11 +2,14 @@ import { AICharacter } from '@/components/AICharacter';
 import { ChatBubble } from '@/components/ui/ChatBubble';
 import { QuickActionChip } from '@/components/ui/QuickActionChip';
 import { Colors, Radius, Spacing } from '@/constants/theme';
+import { useRevenueCat } from '@/hooks/useRevenueCat';
+import { useUserStore } from '@/store/useUserStore';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { ArrowDown, BarChart3, BookOpen, ChevronDown, Download, Send, X } from 'lucide-react-native';
+import { ArrowDown, BarChart3, BookOpen, ChevronDown, Gem, Send, X } from 'lucide-react-native';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
+    Alert,
     KeyboardAvoidingView,
     NativeScrollEvent,
     NativeSyntheticEvent,
@@ -43,6 +46,9 @@ export default function AIChatScreen() {
     const { t } = useTranslation();
     const insets = useSafeAreaInsets();
     const { context, initialPrompt } = useLocalSearchParams<{ context?: string; initialPrompt?: string }>();
+    const { isPro, presentPaywall } = useRevenueCat();
+    const gems = useUserStore((s) => s.gems);
+    const deductGem = useUserStore((s) => s.deductGem);
 
     // Scroll state
     const scrollViewRef = useRef<ScrollView>(null);
@@ -132,6 +138,22 @@ export default function AIChatScreen() {
     const handleSend = () => {
         if (!inputText.trim()) return;
 
+        // Gem gate for free users
+        if (!isPro) {
+            const success = deductGem();
+            if (!success) {
+                Alert.alert(
+                    'Out of Gems 💎',
+                    'You need gems to ask the AI. Complete quiz sets to earn more, or upgrade to Pro for unlimited access!',
+                    [
+                        { text: 'Cancel', style: 'cancel' },
+                        { text: 'Upgrade to Pro', onPress: () => presentPaywall() },
+                    ],
+                );
+                return;
+            }
+        }
+
         const userMessage = {
             id: Date.now().toString(),
             variant: 'user' as const,
@@ -158,6 +180,22 @@ export default function AIChatScreen() {
     };
 
     const handleQuickAction = (action: string) => {
+        // Gem gate for free users
+        if (!isPro) {
+            const success = deductGem();
+            if (!success) {
+                Alert.alert(
+                    'Out of Gems 💎',
+                    'You need gems to ask the AI. Complete quiz sets to earn more, or upgrade to Pro for unlimited access!',
+                    [
+                        { text: 'Cancel', style: 'cancel' },
+                        { text: 'Upgrade to Pro', onPress: () => presentPaywall() },
+                    ],
+                );
+                return;
+            }
+        }
+
         const userMessage = {
             id: Date.now().toString(),
             variant: 'user' as const,
@@ -200,7 +238,10 @@ export default function AIChatScreen() {
                 </View>
 
                 <TouchableOpacity style={styles.headerButton}>
-                    <Download size={24} color={Colors.light.text} />
+                    <View style={styles.gemBadge}>
+                        <Text style={styles.gemCount}>{isPro ? '∞' : gems}</Text>
+                        <Gem size={12} color="#D97706" fill="#FCD34D" />
+                    </View>
                 </TouchableOpacity>
             </View>
 
@@ -390,5 +431,21 @@ const styles = StyleSheet.create({
     },
     sendButtonActive: {
         backgroundColor: Colors.light.primaryLight,
+    },
+    gemBadge: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#FFFBEB',
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+        borderRadius: 12,
+        borderWidth: 1,
+        borderColor: '#FEF3C7',
+    },
+    gemCount: {
+        fontSize: 13,
+        fontWeight: '700',
+        color: '#D97706',
+        marginRight: 4,
     },
 });

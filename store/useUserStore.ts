@@ -3,8 +3,9 @@ import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
 // --- Types ---
-
 export type NodeStatus = 'locked' | 'active' | 'completed' | 'starred';
+
+const PASS_THRESHOLD = 75; // 75% required to unlock next set/topic
 
 export interface QuestionRecord {
     answeredAt: string;
@@ -19,6 +20,7 @@ export interface UserState {
     xp: number;
     gems: number;
     lastLoginDate: string | null;
+    lastDailyClaimDate: string | null;
 
     // Study Progress
     courseProgress: number; // 0-100 (Overall)
@@ -33,6 +35,9 @@ export interface UserState {
     dislikedQuestions: string[]; // IDs
     mistakes: string[]; // IDs
 
+    // Topic Set Progress: topicId -> { setIndex -> best score % }
+    topicSetProgress: Record<string, Record<number, number>>;
+
     // Settings
     isDarkMode: boolean; // Simplified theme for now
     notificationsEnabled: boolean;
@@ -46,6 +51,9 @@ export interface UserState {
     // Actions
     setName: (name: string) => void;
     addXp: (amount: number) => void;
+    addGems: (amount: number) => void;
+    deductGem: () => boolean;
+    claimDailyGems: (isPro: boolean) => number;
     unlockNode: (nodeId: number) => void;
     updateNodeProgress: (nodeId: number, percentage: number) => void;
     completeNode: (nodeId: number) => void;
@@ -53,6 +61,7 @@ export interface UserState {
     likeQuestion: (questionId: string) => void;
     dislikeQuestion: (questionId: string) => void;
     recordAnswer: (questionId: string, correct: boolean, selectedOption: string) => void;
+    updateSetProgress: (topicId: string, setIndex: number, percentage: number) => void;
     resetProgress: () => void;
     setFontScale: (scale: number) => void;
     setLanguage: (lang: 'en' | 'ko' | 'vi') => void;
@@ -78,6 +87,7 @@ const INITIAL_STATE = {
     xp: 0,
     gems: 0,
     lastLoginDate: new Date().toISOString(),
+    lastDailyClaimDate: null as string | null,
     courseProgress: 0,
     nodeProgress: {},
     nodeStatus: INITIAL_NODE_STATUS,
@@ -95,6 +105,7 @@ const INITIAL_STATE = {
     language: 'en' as const,
     reminderTime: '09:00',
     feedbackRating: null,
+    topicSetProgress: {},
 };
 
 // --- Store ---
@@ -107,6 +118,27 @@ export const useUserStore = create<UserState>()(
             setName: (name) => set({ name }),
 
             addXp: (amount) => set((state) => ({ xp: state.xp + amount })),
+
+            addGems: (amount) => set((state) => ({ gems: state.gems + amount })),
+
+            deductGem: () => {
+                const { gems } = get();
+                if (gems <= 0) return false;
+                set({ gems: gems - 1 });
+                return true;
+            },
+
+            claimDailyGems: (isPro) => {
+                const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+                const { lastDailyClaimDate } = get();
+                if (lastDailyClaimDate === today) return 0;
+                const amount = isPro ? 40 : 5;
+                set((state) => ({
+                    gems: state.gems + amount,
+                    lastDailyClaimDate: today,
+                }));
+                return amount;
+            },
 
             unlockNode: (nodeId) =>
                 set((state) => ({
@@ -211,6 +243,23 @@ export const useUserStore = create<UserState>()(
                     };
                 }),
 
+            updateSetProgress: (topicId, setIndex, percentage) =>
+                set((state) => {
+                    const topicProgress = state.topicSetProgress[topicId] || {};
+                    const currentBest = topicProgress[setIndex] || 0;
+                    // Only update if the new score is better
+                    if (percentage <= currentBest) return state;
+                    return {
+                        topicSetProgress: {
+                            ...state.topicSetProgress,
+                            [topicId]: {
+                                ...topicProgress,
+                                [setIndex]: percentage,
+                            },
+                        },
+                    };
+                }),
+
             resetProgress: () =>
                 set((state) => ({
                     ...INITIAL_STATE,
@@ -236,3 +285,35 @@ export const useUserStore = create<UserState>()(
         }
     )
 );
+
+// --- Helper Functions ---
+
+/** Get the index of the first set that the user hasn't passed (75%+) yet */
+export function getUnlockedSetIndex(
+    topicSetProgress: Record<string, Record<number, number>>,
+    topicId: string,
+    totalSets: number,
+): number {
+    const progress = topicSetProgress[topicId] || {};
+    for (let i = 0; i < totalSets; i++) {
+        if ((progress[i] || 0) < PASS_THRESHOLD) return i;
+    }
+    // All sets passed
+    return totalSets - 1;
+}
+
+/** Check if all sets in a topic have been passed (75%+) */
+export function isTopicComplete(
+    topicSetProgress: Record<string, Record<number, number>>,
+    topicId: string,
+    totalSets: number,
+): boolean {
+    if (totalSets === 0) return false;
+    const progress = topicSetProgress[topicId] || {};
+    for (let i = 0; i < totalSets; i++) {
+        if ((progress[i] || 0) < PASS_THRESHOLD) return false;
+    }
+    return true;
+}
+
+export { PASS_THRESHOLD };

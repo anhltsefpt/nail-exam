@@ -1,24 +1,23 @@
 import { Typography } from '@/components/ui/Typography';
 import { Colors, Radius, Spacing } from '@/constants/theme';
 import { divideIntoSets, useQuestionCount } from '@/hooks/useQuestions';
+import { getUnlockedSetIndex, isTopicComplete, PASS_THRESHOLD, useUserStore } from '@/store/useUserStore';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
-import { ArrowLeft, Lock } from 'lucide-react-native';
+import { ArrowLeft, Check, Lock, RotateCcw } from 'lucide-react-native';
 import React from 'react';
 import {
     ActivityIndicator,
     ScrollView,
     StyleSheet,
     TouchableOpacity,
-    useColorScheme,
     View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function TopicDetailScreen() {
     const router = useRouter();
-    const colorScheme = useColorScheme() ?? 'light';
-    const theme = Colors[colorScheme];
+    const theme = Colors.light;
 
     const {
         topicId,
@@ -44,9 +43,11 @@ export default function TopicDetailScreen() {
     const { count: questionCount, loading } = useQuestionCount(topicId || '');
     const sets = divideIntoSets(questionCount, 15);
 
-    // For now, only the first set is unlocked
-    // TODO: integrate with useUserStore to track completed sets
-    const unlockedSetIndex = 0;
+    // --- Progress from store ---
+    const topicSetProgress = useUserStore((s) => s.topicSetProgress);
+    const topicProgress = topicSetProgress[topicId] || {};
+    const unlockedSetIndex = getUnlockedSetIndex(topicSetProgress, topicId, sets.length);
+    const topicComplete = isTopicComplete(topicSetProgress, topicId, sets.length);
 
     const handleStartSet = (setIndex: number, offset: number, count: number) => {
         router.push({
@@ -57,6 +58,7 @@ export default function TopicDetailScreen() {
                 offset: offset.toString(),
                 limit: count.toString(),
                 topicName: topicName || '',
+                setIndex: setIndex.toString(),
             },
         });
     };
@@ -113,6 +115,7 @@ export default function TopicDetailScreen() {
                             style={{ color: 'rgba(255,255,255,0.75)', marginTop: 4 }}
                         >
                             {sets.length} sets · {sets.length > 0 ? `${sets[0].count}Q each` : '0Q'}
+                            {topicComplete ? ' · ✅ Complete' : ''}
                         </Typography>
                     )}
                 </SafeAreaView>
@@ -137,8 +140,10 @@ export default function TopicDetailScreen() {
                 ) : (
                     <>
                         {sets.map((set, index) => {
+                            const score = topicProgress[index] || 0;
+                            const isPassed = score >= PASS_THRESHOLD;
                             const isUnlocked = index <= unlockedSetIndex;
-                            const isActive = index === unlockedSetIndex;
+                            const isActive = index === unlockedSetIndex && !topicComplete;
 
                             return (
                                 <View
@@ -146,12 +151,18 @@ export default function TopicDetailScreen() {
                                     style={[
                                         styles.setCard,
                                         {
-                                            borderColor: isActive ? phaseColor : theme.border,
-                                            backgroundColor: isActive
-                                                ? `${phaseLightColor}33`
-                                                : theme.card,
+                                            borderColor: isPassed
+                                                ? theme.success
+                                                : isActive
+                                                    ? phaseColor
+                                                    : theme.border,
+                                            backgroundColor: isPassed
+                                                ? `${theme.successBg}`
+                                                : isActive
+                                                    ? `${phaseLightColor}33`
+                                                    : theme.card,
                                         },
-                                        isActive && {
+                                        (isActive || isPassed) && {
                                             borderWidth: 2,
                                         },
                                     ]}
@@ -161,13 +172,17 @@ export default function TopicDetailScreen() {
                                         style={[
                                             styles.setBadge,
                                             {
-                                                backgroundColor: isUnlocked
-                                                    ? phaseColor
-                                                    : theme.input,
+                                                backgroundColor: isPassed
+                                                    ? theme.success
+                                                    : isUnlocked
+                                                        ? phaseColor
+                                                        : theme.input,
                                             },
                                         ]}
                                     >
-                                        {isUnlocked ? (
+                                        {isPassed ? (
+                                            <Check size={18} color="white" strokeWidth={3} />
+                                        ) : isUnlocked ? (
                                             <Typography
                                                 variant="body"
                                                 weight="bold"
@@ -200,6 +215,7 @@ export default function TopicDetailScreen() {
                                             }}
                                         >
                                             {set.count} questions
+                                            {score > 0 ? ` · Best: ${score}%` : ''}
                                         </Typography>
                                     </View>
 
@@ -220,8 +236,24 @@ export default function TopicDetailScreen() {
                                                 weight="bold"
                                                 style={{ color: 'white' }}
                                             >
-                                                Start
+                                                {score > 0 ? 'Retry' : 'Start'}
                                             </Typography>
+                                        </TouchableOpacity>
+                                    )}
+
+                                    {/* Retry button for passed sets */}
+                                    {isPassed && (
+                                        <TouchableOpacity
+                                            style={[
+                                                styles.retryButton,
+                                                { borderColor: theme.success },
+                                            ]}
+                                            onPress={() =>
+                                                handleStartSet(index, set.offset, set.count)
+                                            }
+                                            activeOpacity={0.8}
+                                        >
+                                            <RotateCcw size={14} color={theme.success} />
                                         </TouchableOpacity>
                                     )}
                                 </View>
@@ -233,17 +265,19 @@ export default function TopicDetailScreen() {
                             style={[
                                 styles.tipCard,
                                 {
-                                    backgroundColor: theme.warningBg,
-                                    borderColor: '#FDE68A',
+                                    backgroundColor: topicComplete ? theme.successBg : theme.warningBg,
+                                    borderColor: topicComplete ? '#86EFAC' : '#FDE68A',
                                 },
                             ]}
                         >
                             <Typography
                                 variant="caption"
                                 weight="semibold"
-                                style={{ color: '#92400E' }}
+                                style={{ color: topicComplete ? '#166534' : '#92400E' }}
                             >
-                                🔒 Score 75%+ on each set to unlock the next
+                                {topicComplete
+                                    ? '🎉 Topic complete! Next topic is unlocked.'
+                                    : `🔒 Score ${PASS_THRESHOLD}%+ on each set to unlock the next`}
                             </Typography>
                         </View>
                     </>
@@ -307,6 +341,14 @@ const styles = StyleSheet.create({
         paddingHorizontal: Spacing.l,
         paddingVertical: Spacing.s,
         borderRadius: Radius.full,
+    },
+    retryButton: {
+        width: 36,
+        height: 36,
+        borderRadius: 18,
+        borderWidth: 1.5,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     tipCard: {
         padding: Spacing.m,

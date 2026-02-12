@@ -1,8 +1,9 @@
 import { BugReportModal } from '@/components/BugReportModal';
+import { CongratsModal } from '@/components/CongratsModal';
 import { FeedbackModal } from '@/components/FeedbackModal';
 import { Typography } from '@/components/ui/Typography';
 import { Colors, Radius, Spacing } from '@/constants/theme';
-import { useAuth } from '@/context/AuthContext';
+
 import { useRevenueCat } from '@/hooks/useRevenueCat';
 import { useUserStore } from '@/store/useUserStore';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -22,6 +23,7 @@ import {
     FileText,
     Gem,
     Globe,
+    Headset,
     MapPin,
     MessageSquare,
     Play,
@@ -50,10 +52,18 @@ import {
 export default function MenuScreen() {
     const router = useRouter();
     const { t, i18n } = useTranslation();
-    const { user, signOut } = useAuth();
-    const { isPro } = useRevenueCat();
+
+    const { isPro, presentPaywall, presentCustomerCenter } = useRevenueCat();
     const colorScheme = useColorScheme() ?? 'light';
     const theme = Colors[colorScheme];
+    const [congratsVisible, setCongratsVisible] = useState(false);
+
+    const handlePresentPaywall = async () => {
+        const success = await presentPaywall();
+        if (success) {
+            setCongratsVisible(true);
+        }
+    };
 
     // Store state
     const gems = useUserStore((state) => state.gems);
@@ -421,7 +431,7 @@ export default function MenuScreen() {
             <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
                 {/* Premium Banner */}
                 {!isPro && (
-                    <TouchableOpacity style={styles.premiumBanner} onPress={() => router.push('/paywall')}>
+                    <TouchableOpacity style={styles.premiumBanner} onPress={handlePresentPaywall}>
                         <LinearGradient
                             colors={['#FF9A9E', '#FECFEF']}
                             start={{ x: 0, y: 0 }}
@@ -494,8 +504,23 @@ export default function MenuScreen() {
                         icon={Crown}
                         label={t('menu.items.achievements')}
                         onPress={() => { }}
-                        isLast
                     />
+                    {isPro && (
+                        <MenuItem
+                            icon={Headset}
+                            label="Manage Subscription"
+                            onPress={() => presentCustomerCenter()}
+                            isLast
+                        />
+                    )}
+                    {!isPro && (
+                        <MenuItem
+                            icon={Crown}
+                            label="Upgrade to Pro"
+                            onPress={handlePresentPaywall}
+                            isLast
+                        />
+                    )}
                 </View>
 
                 {/* Settings Exam */}
@@ -745,6 +770,11 @@ export default function MenuScreen() {
             <BugReportModal
                 visible={bugReportModalVisible}
                 onClose={() => setBugReportModalVisible(false)}
+            />
+
+            <CongratsModal
+                visible={congratsVisible}
+                onClose={() => setCongratsVisible(false)}
             />
         </SafeAreaView>
     );

@@ -1,13 +1,26 @@
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import * as Notifications from 'expo-notifications';
-import { Stack, useRootNavigationState, useRouter, useSegments } from 'expo-router';
+import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useColorScheme } from 'react-native';
-import { AuthProvider, useAuth } from '../context/AuthContext';
+import { Text, useColorScheme } from 'react-native';
+import Purchases, { LOG_LEVEL } from 'react-native-purchases';
+import { useRevenueCat } from '../hooks/useRevenueCat';
 import '../i18n'; // Initialize i18n
 import { useUserStore } from '../store/useUserStore';
+
+// Disable system font scaling globally for all Text components
+(Text as any).defaultProps = (Text as any).defaultProps || {};
+(Text as any).defaultProps.allowFontScaling = false;
+(Text as any).defaultProps.maxFontSizeMultiplier = 1;
+
+// Configure RevenueCat synchronously at module level — before any component mounts
+const rcApiKey = process.env.EXPO_PUBLIC_RC_API_KEY;
+if (rcApiKey) {
+  Purchases.setLogLevel(LOG_LEVEL.DEBUG);
+  Purchases.configure({ apiKey: rcApiKey });
+}
 
 // Configure notifications handler
 Notifications.setNotificationHandler({
@@ -20,59 +33,21 @@ Notifications.setNotificationHandler({
   }),
 });
 
-function useProtectedRoute(user: any) {
-  const segments = useSegments();
-  const router = useRouter();
-  const navigationState = useRootNavigationState();
-
-  useEffect(() => {
-    if (!navigationState?.key) return;
-
-    const inAuthGroup = segments[0] === '(tabs)';
-
-    if (
-      // If the user is not signed in and the initial segment is not anything in the auth group.
-      !user &&
-      inAuthGroup
-    ) {
-      // Redirect to the sign-in page.
-      // Use setTimeout to avoid 'Attempted to navigate before mounting' error
-      /* setTimeout(() => {
-        router.replace('/login');
-      }, 0); */
-    } else if (user && !inAuthGroup) {
-      // Redirect away from the sign-in page.
-      setTimeout(() => {
-        router.replace('/(tabs)');
-      }, 0);
-    }
-  }, [user, segments, navigationState?.key]);
-}
-
-
 export default function RootLayout() {
   const colorScheme = useColorScheme();
 
-  useEffect(() => {
-    // if (process.env.EXPO_PUBLIC_RC_API_KEY) {
-    //   Purchases.setLogLevel(Purchases.LOG_LEVEL.DEBUG);
-    //   Purchases.configure({ apiKey: process.env.EXPO_PUBLIC_RC_API_KEY });
-    // }
-  }, []);
-
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <AuthProvider>
-        <RootLayoutNav />
-      </AuthProvider>
+      <RootLayoutNav />
     </ThemeProvider>
   );
 }
 
 function RootLayoutNav() {
-  const { user } = useAuth();
   const { i18n } = useTranslation();
   const language = useUserStore((state) => state.language);
+  const claimDailyGems = useUserStore((state) => state.claimDailyGems);
+  const { isPro } = useRevenueCat();
 
   useEffect(() => {
     if (language) {
@@ -80,15 +55,17 @@ function RootLayoutNav() {
     }
   }, [language, i18n]);
 
-  useProtectedRoute(user);
+  // Claim daily free gems on app launch (once per calendar day)
+  useEffect(() => {
+    claimDailyGems(isPro);
+  }, []);
 
   return (
     <>
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="+not-found" />
-        <Stack.Screen name="login" options={{ presentation: 'fullScreenModal', headerShown: false, gestureEnabled: false }} />
-        <Stack.Screen name="paywall" options={{ presentation: 'modal' }} />
+        <Stack.Screen name="paywall" options={{ presentation: 'transparentModal', headerShown: false, animation: 'fade' }} />
         <Stack.Screen name="ai-chat" options={{ presentation: 'modal', headerShown: false }} />
         <Stack.Screen name="menu" options={{ headerShown: false }} />
         <Stack.Screen name="topic/[topicId]" options={{ headerShown: false }} />

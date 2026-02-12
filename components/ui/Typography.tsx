@@ -56,7 +56,12 @@ export function Typography({
   };
 
   return (
-    <Text style={[getTextStyle(), style]} {...props}>
+    <Text
+      style={[getTextStyle(), style]}
+      maxFontSizeMultiplier={1}
+      allowFontScaling={false}
+      {...props}
+    >
       {content}
     </Text>
   );
