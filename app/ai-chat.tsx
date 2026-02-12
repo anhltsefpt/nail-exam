@@ -2,6 +2,7 @@ import { AICharacter } from '@/components/AICharacter';
 import { ChatBubble } from '@/components/ui/ChatBubble';
 import { QuickActionChip } from '@/components/ui/QuickActionChip';
 import { Colors, Radius, Spacing } from '@/constants/theme';
+import { fetchMessages, sendChatMessage } from '@/hooks/useChatHistory';
 import { useRevenueCat } from '@/hooks/useRevenueCat';
 import { useUserStore } from '@/store/useUserStore';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -9,37 +10,38 @@ import { ArrowDown, BarChart3, BookOpen, ChevronDown, Gem, Send, X } from 'lucid
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-    Alert,
+    ActivityIndicator,
     KeyboardAvoidingView,
     NativeScrollEvent,
     NativeSyntheticEvent,
+    Platform,
     ScrollView,
     StatusBar,
     StyleSheet,
     Text,
     TextInput,
     TouchableOpacity,
-    View
+    View,
 } from 'react-native';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
-type Message = {
+type DisplayMessage = {
     id: string;
     variant: 'ai' | 'user';
     message: string;
+    created_at?: string; // from DB, used for pagination cursor
 };
 
-const INITIAL_MESSAGES: Message[] = [
-    {
-        id: '1',
-        variant: 'ai',
-        message:
-            "Hello! I'm Mentora, your AI study assistant. I'm here to help you ace your Nail Technician exam! 💅\n\nBased on your progress, you haven't practiced any tests or topics yet. Let's get started with the General Knowledge section, particularly the Core concepts.\n\nMastering the basics will significantly improve your understanding and confidence!",
-    },
-];
+const WELCOME_MESSAGE: DisplayMessage = {
+    id: 'welcome',
+    variant: 'ai',
+    message:
+        "Hello! I'm Mentora, your AI study assistant. I'm here to help you ace your Nail Technician exam! 💅\n\nAsk me anything about nail anatomy, sanitation, safety, or exam prep!",
+};
 
-const NEAR_BOTTOM_THRESHOLD = 150; // pixels from bottom to consider "near bottom"
+const NEAR_BOTTOM_THRESHOLD = 150;
+const NEAR_TOP_THRESHOLD = 100;
 
 export default function AIChatScreen() {
     const router = useRouter();
@@ -50,59 +52,67 @@ export default function AIChatScreen() {
     const gems = useUserStore((s) => s.gems);
     const deductGem = useUserStore((s) => s.deductGem);
 
+    // Message state
+    const [messages, setMessages] = useState<DisplayMessage[]>([WELCOME_MESSAGE]);
+    const [inputText, setInputText] = useState('');
+    const [isSending, setIsSending] = useState(false);
+    const [isLoadingHistory, setIsLoadingHistory] = useState(true);
+    const [hasMore, setHasMore] = useState(true);
+    const [isLoadingMore, setIsLoadingMore] = useState(false);
+
     // Scroll state
     const scrollViewRef = useRef<ScrollView>(null);
     const isNearBottomRef = useRef(true);
     const [showScrollButton, setShowScrollButton] = useState(false);
+    const contentHeightRef = useRef(0);
+    const scrollOffsetRef = useRef(0);
 
-    // Build initial messages based on context
-    const buildInitialMessages = (): Message[] => {
-        const messages: Message[] = [...INITIAL_MESSAGES];
-
+    // Prefill from context / initialPrompt
+    useEffect(() => {
         if (context) {
-            messages.push({
-                id: 'context',
-                variant: 'ai',
-                message: `I see you're working on:\n\n📝 ${context}\n\nHow can I help you with this question?`,
-            });
+            setMessages((prev) => [
+                ...prev,
+                {
+                    id: 'context',
+                    variant: 'ai',
+                    message: `I see you're working on:\n\n📝 ${context}\n\nHow can I help you with this question?`,
+                },
+            ]);
         }
-
         if (initialPrompt) {
-            messages.push({
-                id: 'user-prompt',
-                variant: 'user',
-                message: initialPrompt,
-            });
-            messages.push({
-                id: 'ai-response',
-                variant: 'ai',
-                message: getAIResponseForPrompt(initialPrompt),
-            });
+            setInputText(initialPrompt);
         }
+    }, []);
 
-        return messages;
-    };
+    // Load chat history from Supabase on mount
+    useEffect(() => {
+        let mounted = true;
+        (async () => {
+            try {
+                const { data, hasMore: more } = await fetchMessages();
+                if (!mounted) return;
+                if (data.length > 0) {
+                    const displayMsgs: DisplayMessage[] = data.map((m) => ({
+                        id: m.id,
+                        variant: m.role === 'assistant' ? 'ai' : 'user',
+                        message: m.content,
+                        created_at: m.created_at,
+                    }));
+                    setMessages([WELCOME_MESSAGE, ...displayMsgs]);
+                }
+                setHasMore(more);
+            } catch (e) {
+                console.error('Failed to load chat history:', e);
+            } finally {
+                if (mounted) setIsLoadingHistory(false);
+            }
+        })();
+        return () => { mounted = false; };
+    }, []);
 
-    const getAIResponseForPrompt = (prompt: string): string => {
-        if (prompt.toLowerCase().includes('hint')) {
-            return "💡 **Hint**: Think about which items can be properly sanitized and reused versus those that must be discarded after single use. Consider the material and porous nature of each option.";
-        }
-        if (prompt.toLowerCase().includes('break') || prompt.toLowerCase().includes('down')) {
-            return "📚 **Let's break this down**:\n\n1. **Wooden Pusher** - Made of porous wood, cannot be properly disinfected\n2. **Cotton Ball** - Absorbent material, single-use only\n3. **Metal Pusher** - Non-porous metal, can be sanitized and reused\n4. **Paper Towel** - Disposable by design\n\nWhich of these stands out as different?";
-        }
-        if (prompt.toLowerCase().includes('explain')) {
-            return "📖 **Single-Use vs Reusable Items**:\n\nIn nail tech practice, items are classified by their material:\n\n• **Porous materials** (wood, paper, cotton) absorb liquids and cannot be fully disinfected\n• **Non-porous materials** (metal, glass) can be properly sanitized for reuse\n\nThis is a key concept for the state board exam!";
-        }
-        return "Let me help you with that question. What specifically would you like me to explain?";
-    };
-
-    const [messages, setMessages] = useState<Message[]>(buildInitialMessages);
-    const [inputText, setInputText] = useState('');
-
-    // Auto-scroll when messages change
+    // Auto-scroll to bottom when messages change (if near bottom)
     useEffect(() => {
         if (isNearBottomRef.current) {
-            // Small delay to let the new message render
             setTimeout(() => {
                 scrollViewRef.current?.scrollToEnd({ animated: true });
             }, 100);
@@ -111,12 +121,14 @@ export default function AIChatScreen() {
         }
     }, [messages.length]);
 
-    // Scroll on first render
+    // Scroll to bottom on first load
     useEffect(() => {
-        setTimeout(() => {
-            scrollViewRef.current?.scrollToEnd({ animated: false });
-        }, 300);
-    }, []);
+        if (!isLoadingHistory) {
+            setTimeout(() => {
+                scrollViewRef.current?.scrollToEnd({ animated: false });
+            }, 300);
+        }
+    }, [isLoadingHistory]);
 
     const handleScroll = useCallback((event: NativeSyntheticEvent<NativeScrollEvent>) => {
         const { contentOffset, contentSize, layoutMeasurement } = event.nativeEvent;
@@ -124,96 +136,139 @@ export default function AIChatScreen() {
         const nearBottom = distanceFromBottom < NEAR_BOTTOM_THRESHOLD;
 
         isNearBottomRef.current = nearBottom;
+        contentHeightRef.current = contentSize.height;
+        scrollOffsetRef.current = contentOffset.y;
 
         if (nearBottom) {
             setShowScrollButton(false);
         }
-    }, []);
+
+        // Load more when scrolled near the top
+        if (contentOffset.y < NEAR_TOP_THRESHOLD && hasMore && !isLoadingMore) {
+            handleLoadMore();
+        }
+    }, [hasMore, isLoadingMore]);
 
     const scrollToBottom = useCallback(() => {
         scrollViewRef.current?.scrollToEnd({ animated: true });
         setShowScrollButton(false);
     }, []);
 
-    const handleSend = () => {
-        if (!inputText.trim()) return;
+    // Load older messages
+    const handleLoadMore = useCallback(async () => {
+        if (isLoadingMore || !hasMore) return;
+        setIsLoadingMore(true);
+
+        try {
+            // Find the oldest DB message's created_at to use as cursor
+            const dbMessages = messages.filter((m) => m.created_at);
+            const cursor = dbMessages.length > 0 ? dbMessages[0].created_at : undefined;
+
+            const { data, hasMore: more } = await fetchMessages(cursor);
+
+            if (data.length > 0) {
+                const olderMsgs: DisplayMessage[] = data.map((m) => ({
+                    id: m.id,
+                    variant: m.role === 'assistant' ? 'ai' : 'user',
+                    message: m.content,
+                    created_at: m.created_at,
+                }));
+
+                // Prepend older messages (after welcome)
+                setMessages((prev) => {
+                    const welcomeMsg = prev.find((m) => m.id === 'welcome');
+                    const rest = prev.filter((m) => m.id !== 'welcome');
+                    return [
+                        ...(welcomeMsg ? [welcomeMsg] : []),
+                        ...olderMsgs,
+                        ...rest,
+                    ];
+                });
+            }
+
+            setHasMore(more);
+        } catch (e) {
+            console.error('Load more error:', e);
+        } finally {
+            setIsLoadingMore(false);
+        }
+    }, [isLoadingMore, hasMore, messages]);
+
+    // --- Send message ---
+    const handleSend = useCallback(async () => {
+        const text = inputText.trim();
+        if (!text || isSending) return;
 
         // Gem gate for free users
         if (!isPro) {
             const success = deductGem();
             if (!success) {
-                Alert.alert(
-                    'Out of Gems 💎',
-                    'You need gems to ask the AI. Complete quiz sets to earn more, or upgrade to Pro for unlimited access!',
-                    [
-                        { text: 'Cancel', style: 'cancel' },
-                        { text: 'Upgrade to Pro', onPress: () => presentPaywall() },
-                    ],
-                );
+                // Show in-chat upgrade prompt instead of Alert
+                setMessages((prev) => [
+                    ...prev,
+                    { id: Date.now().toString(), variant: 'user', message: text },
+                    {
+                        id: (Date.now() + 1).toString(),
+                        variant: 'ai',
+                        message: "💎 You've run out of gems! Complete quiz sets to earn more gems, or upgrade to Pro for unlimited AI coaching. ✨",
+                    },
+                ]);
+                setInputText('');
+                isNearBottomRef.current = true;
                 return;
             }
         }
 
-        const userMessage = {
+        // Add user message immediately
+        const userMsg: DisplayMessage = {
             id: Date.now().toString(),
-            variant: 'user' as const,
-            message: inputText.trim(),
+            variant: 'user',
+            message: text,
         };
-
-        setMessages((prev) => [...prev, userMessage]);
+        setMessages((prev) => [...prev, userMsg]);
         setInputText('');
-
-        // User sent a message — always scroll to bottom
+        setIsSending(true);
         isNearBottomRef.current = true;
         setShowScrollButton(false);
 
-        // Simulate AI response
-        setTimeout(() => {
-            const aiResponse = {
-                id: (Date.now() + 1).toString(),
-                variant: 'ai' as const,
-                message:
-                    "Great question! Let me help you with that. For the Nail Technician exam, you'll want to focus on sanitation procedures, nail anatomy, and safety protocols. Would you like me to explain any of these topics in detail?",
-            };
-            setMessages((prev) => [...prev, aiResponse]);
-        }, 1000);
-    };
+        try {
+            // Build history from recent messages for context
+            const recentHistory = messages
+                .filter((m) => m.id !== 'welcome' && m.id !== 'context')
+                .slice(-10)
+                .map((m) => ({
+                    role: m.variant === 'ai' ? 'assistant' : 'user',
+                    content: m.message,
+                }));
 
-    const handleQuickAction = (action: string) => {
-        // Gem gate for free users
-        if (!isPro) {
-            const success = deductGem();
-            if (!success) {
-                Alert.alert(
-                    'Out of Gems 💎',
-                    'You need gems to ask the AI. Complete quiz sets to earn more, or upgrade to Pro for unlimited access!',
-                    [
-                        { text: 'Cancel', style: 'cancel' },
-                        { text: 'Upgrade to Pro', onPress: () => presentPaywall() },
-                    ],
-                );
-                return;
-            }
+            const aiResponse = await sendChatMessage(text, recentHistory);
+
+            setMessages((prev) => [
+                ...prev,
+                {
+                    id: (Date.now() + 1).toString(),
+                    variant: 'ai',
+                    message: aiResponse,
+                },
+            ]);
+        } catch (error) {
+            console.error('Send error:', error);
+            setMessages((prev) => [
+                ...prev,
+                {
+                    id: (Date.now() + 1).toString(),
+                    variant: 'ai',
+                    message: "Sorry, I couldn't respond right now. Please try again in a moment. 🔄",
+                },
+            ]);
+        } finally {
+            setIsSending(false);
         }
+    }, [inputText, isSending, isPro, deductGem, messages]);
 
-        const userMessage = {
-            id: Date.now().toString(),
-            variant: 'user' as const,
-            message: action,
-        };
-        setMessages((prev) => [...prev, userMessage]);
-
-        setTimeout(() => {
-            const aiResponse = {
-                id: (Date.now() + 1).toString(),
-                variant: 'ai' as const,
-                message:
-                    action === t('aiChat.analyzeProgress')
-                        ? "Based on your current progress:\n\n📊 Overall: 0% complete\n📚 Topics studied: 0/12\n✅ Practice tests: 0/5\n\nI recommend starting with the 'General Knowledge' section. Would you like me to guide you through the first lesson?"
-                        : "Let's dive into some theory! Here are the key areas you should study:\n\n1. **Sanitation & Safety** - Essential for the exam\n2. **Nail Anatomy** - Understanding structure\n3. **Product Chemistry** - How products work\n\nWhich topic interests you most?",
-            };
-            setMessages((prev) => [...prev, aiResponse]);
-        }, 1000);
+    // Quick actions now prefill the input instead of sending directly
+    const handleQuickAction = (action: string) => {
+        setInputText(action);
     };
 
     return (
@@ -237,19 +292,17 @@ export default function AIChatScreen() {
                     </TouchableOpacity>
                 </View>
 
-                <TouchableOpacity style={styles.headerButton}>
-                    <View style={styles.gemBadge}>
-                        <Text style={styles.gemCount}>{isPro ? '∞' : gems}</Text>
-                        <Gem size={12} color="#D97706" fill="#FCD34D" />
-                    </View>
-                </TouchableOpacity>
+                <View style={styles.gemBadge}>
+                    <Text style={styles.gemCount}>{isPro ? '∞' : gems}</Text>
+                    <Gem size={12} color="#D97706" fill="#FCD34D" />
+                </View>
             </View>
 
             {/* Content - KAV wraps everything below header */}
             <KeyboardAvoidingView
-                behavior="height"
+                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
                 style={{ flex: 1 }}
-                keyboardVerticalOffset={insets.bottom + 48}
+                keyboardVerticalOffset={insets.top + 10}
             >
                 {/* Messages */}
                 <View style={{ flex: 1 }}>
@@ -262,14 +315,41 @@ export default function AIChatScreen() {
                         onScroll={handleScroll}
                         scrollEventThrottle={16}
                     >
+                        {/* Loading more indicator */}
+                        {isLoadingMore && (
+                            <View style={styles.loadingMore}>
+                                <ActivityIndicator size="small" color={Colors.light.primary} />
+                            </View>
+                        )}
+
                         {/* AI Avatar */}
                         <View style={styles.avatarContainer}>
                             <AICharacter size={48} />
                         </View>
 
-                        {messages.map((msg) => (
-                            <ChatBubble key={msg.id} message={msg.message} variant={msg.variant} />
-                        ))}
+                        {/* Loading state */}
+                        {isLoadingHistory ? (
+                            <View style={styles.loadingContainer}>
+                                <ActivityIndicator size="small" color={Colors.light.primary} />
+                                <Text style={styles.loadingText}>Loading conversation...</Text>
+                            </View>
+                        ) : (
+                            <>
+                                {messages.map((msg) => (
+                                    <ChatBubble key={msg.id} message={msg.message} variant={msg.variant} />
+                                ))}
+
+                                {/* Typing indicator */}
+                                {isSending && (
+                                    <Animated.View entering={FadeIn.duration(200)} style={styles.typingContainer}>
+                                        <ChatBubble
+                                            message="Mentora is thinking..."
+                                            variant="ai"
+                                        />
+                                    </Animated.View>
+                                )}
+                            </>
+                        )}
                     </ScrollView>
 
                     {/* Scroll to bottom button */}
@@ -316,13 +396,18 @@ export default function AIChatScreen() {
                         onChangeText={setInputText}
                         multiline
                         maxLength={500}
+                        editable={!isSending}
                     />
                     <TouchableOpacity
-                        style={[styles.sendButton, inputText.trim() && styles.sendButtonActive]}
+                        style={[styles.sendButton, inputText.trim() && !isSending && styles.sendButtonActive]}
                         onPress={handleSend}
-                        disabled={!inputText.trim()}
+                        disabled={!inputText.trim() || isSending}
                     >
-                        <Send size={20} color={inputText.trim() ? Colors.light.primary : Colors.light.textMuted} />
+                        {isSending ? (
+                            <ActivityIndicator size={20} color={Colors.light.textMuted} />
+                        ) : (
+                            <Send size={20} color={inputText.trim() ? Colors.light.primary : Colors.light.textMuted} />
+                        )}
                     </TouchableOpacity>
                 </View>
             </KeyboardAvoidingView>
@@ -379,6 +464,22 @@ const styles = StyleSheet.create({
         alignItems: 'flex-start',
         paddingHorizontal: Spacing.m,
         marginBottom: Spacing.s,
+    },
+    loadingContainer: {
+        alignItems: 'center',
+        paddingVertical: Spacing.xl,
+        gap: Spacing.s,
+    },
+    loadingText: {
+        fontSize: 14,
+        color: Colors.light.textMuted,
+    },
+    loadingMore: {
+        alignItems: 'center',
+        paddingVertical: Spacing.s,
+    },
+    typingContainer: {
+        opacity: 0.7,
     },
     scrollButtonWrapper: {
         position: 'absolute',
