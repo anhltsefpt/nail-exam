@@ -1,6 +1,8 @@
 import { AICharacter } from '@/components/AICharacter';
 import { ChatBubble } from '@/components/ui/ChatBubble';
 import { QuickActionChip } from '@/components/ui/QuickActionChip';
+import { ThinkingIndicator } from '@/components/ui/ThinkingIndicator';
+import { TypewriterChatBubble } from '@/components/ui/TypewriterChatBubble';
 import { Colors, Radius, Spacing } from '@/constants/theme';
 import { fetchMessages, sendChatMessage } from '@/hooks/useChatHistory';
 import { useRevenueCat } from '@/hooks/useRevenueCat';
@@ -59,6 +61,7 @@ export default function AIChatScreen() {
     const [isLoadingHistory, setIsLoadingHistory] = useState(true);
     const [hasMore, setHasMore] = useState(true);
     const [isLoadingMore, setIsLoadingMore] = useState(false);
+    const [streamingMessageId, setStreamingMessageId] = useState<string | null>(null);
 
     // Scroll state
     const scrollViewRef = useRef<ScrollView>(null);
@@ -243,10 +246,12 @@ export default function AIChatScreen() {
 
             const aiResponse = await sendChatMessage(text, recentHistory);
 
+            const aiMsgId = (Date.now() + 1).toString();
+            setStreamingMessageId(aiMsgId);
             setMessages((prev) => [
                 ...prev,
                 {
-                    id: (Date.now() + 1).toString(),
+                    id: aiMsgId,
                     variant: 'ai',
                     message: aiResponse,
                 },
@@ -336,16 +341,21 @@ export default function AIChatScreen() {
                         ) : (
                             <>
                                 {messages.map((msg) => (
-                                    <ChatBubble key={msg.id} message={msg.message} variant={msg.variant} />
+                                    msg.id === streamingMessageId ? (
+                                        <TypewriterChatBubble
+                                            key={msg.id}
+                                            message={msg.message}
+                                            onComplete={() => setStreamingMessageId(null)}
+                                        />
+                                    ) : (
+                                        <ChatBubble key={msg.id} message={msg.message} variant={msg.variant} />
+                                    )
                                 ))}
 
-                                {/* Typing indicator */}
+                                {/* Thinking indicator with animated dots */}
                                 {isSending && (
                                     <Animated.View entering={FadeIn.duration(200)} style={styles.typingContainer}>
-                                        <ChatBubble
-                                            message="Mentora is thinking..."
-                                            variant="ai"
-                                        />
+                                        <ThinkingIndicator />
                                     </Animated.View>
                                 )}
                             </>

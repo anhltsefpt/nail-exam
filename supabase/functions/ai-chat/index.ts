@@ -1,7 +1,7 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
 
-const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY")!;
+const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY")!;
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
@@ -43,57 +43,58 @@ Deno.serve(async (req: Request) => {
             );
         }
 
-        // Build conversation history for Gemini
-        const contents = [];
+        // Build conversation messages for OpenAI
+        const messages: { role: string; content: string }[] = [
+            { role: "system", content: SYSTEM_PROMPT },
+        ];
 
         // Add previous messages as context (last 10 messages from history)
         if (history && Array.isArray(history)) {
             for (const msg of history.slice(-10)) {
-                contents.push({
-                    role: msg.role === "assistant" ? "model" : "user",
-                    parts: [{ text: msg.content }],
+                messages.push({
+                    role: msg.role, // OpenAI uses "user" and "assistant" directly
+                    content: msg.content,
                 });
             }
         }
 
         // Add the new user message
-        contents.push({
+        messages.push({
             role: "user",
-            parts: [{ text: message }],
+            content: message,
         });
 
-        // Call Gemini API
-        const geminiResponse = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`,
+        // Call OpenAI API
+        const openaiResponse = await fetch(
+            "https://api.openai.com/v1/chat/completions",
             {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${OPENAI_API_KEY}`,
+                },
                 body: JSON.stringify({
-                    system_instruction: {
-                        parts: [{ text: SYSTEM_PROMPT }],
-                    },
-                    contents,
-                    generationConfig: {
-                        temperature: 0.7,
-                        topP: 0.95,
-                        maxOutputTokens: 1024,
-                    },
+                    model: "gpt-4o-mini",
+                    messages,
+                    temperature: 0.7,
+                    top_p: 0.95,
+                    max_tokens: 1024,
                 }),
             }
         );
 
-        if (!geminiResponse.ok) {
-            const errorText = await geminiResponse.text();
-            console.error("Gemini API error:", errorText);
+        if (!openaiResponse.ok) {
+            const errorText = await openaiResponse.text();
+            console.error("OpenAI API error:", errorText);
             return new Response(
                 JSON.stringify({ error: "AI service temporarily unavailable" }),
                 { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } }
             );
         }
 
-        const geminiData = await geminiResponse.json();
+        const openaiData = await openaiResponse.json();
         const aiMessage =
-            geminiData.candidates?.[0]?.content?.parts?.[0]?.text ||
+            openaiData.choices?.[0]?.message?.content ||
             "Sorry, I couldn't generate a response. Please try again.";
 
         // Save both messages to database
