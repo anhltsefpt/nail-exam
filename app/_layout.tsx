@@ -9,6 +9,7 @@ import Purchases, { LOG_LEVEL } from 'react-native-purchases';
 import { ErrorBoundary } from '../components/ErrorBoundary';
 import { useRevenueCat } from '../hooks/useRevenueCat';
 import '../i18n'; // Initialize i18n
+import { identify, initAnalytics, setUserProperties } from '../lib/analytics';
 import { useUserStore } from '../store/useUserStore';
 
 // Disable system font scaling globally for all Text components
@@ -22,6 +23,9 @@ if (rcApiKey) {
   Purchases.setLogLevel(LOG_LEVEL.DEBUG);
   Purchases.configure({ apiKey: rcApiKey });
 }
+
+// Initialize Amplitude analytics
+initAnalytics();
 
 // Configure notifications handler
 Notifications.setNotificationHandler({
@@ -50,7 +54,15 @@ function RootLayoutNav() {
   const { i18n } = useTranslation();
   const language = useUserStore((state) => state.language);
   const claimDailyGems = useUserStore((state) => state.claimDailyGems);
-  const { isPro } = useRevenueCat();
+  const { isPro, customerInfo } = useRevenueCat();
+
+  // Sync Amplitude identity with RevenueCat user
+  useEffect(() => {
+    if (customerInfo?.originalAppUserId) {
+      identify(customerInfo.originalAppUserId);
+    }
+    setUserProperties({ isPro, language });
+  }, [customerInfo, isPro, language]);
 
   useEffect(() => {
     if (language) {

@@ -4,6 +4,7 @@ import { Typography } from '@/components/ui/Typography';
 import { Colors, Radius, Shadows, Spacing } from '@/constants/theme';
 import { useRevenueCat } from '@/hooks/useRevenueCat';
 import { useTopics } from '@/hooks/useTopics';
+import { track } from '@/lib/analytics';
 import { useUserStore } from '@/store/useUserStore';
 import { useRouter } from 'expo-router';
 import { FlaskConical, Gem, Menu } from 'lucide-react-native';
@@ -122,7 +123,7 @@ export default function HomeScreen() {
               </Typography>
               <Gem size={12} color="#D97706" fill="#FCD34D" />
             </View>
-            <TouchableOpacity style={{ marginLeft: 12 }} onPress={() => router.push('/menu')}>
+            <TouchableOpacity style={{ marginLeft: 12 }} onPress={() => { track('tap_menu'); router.push('/menu'); }}>
               <Menu size={20} color={theme.text} />
             </TouchableOpacity>
           </View>
@@ -176,7 +177,7 @@ export default function HomeScreen() {
       </ScrollView>
 
       {/* Floating AI Button */}
-      <TouchableOpacity style={styles.fab} onPress={() => router.push('/ai-chat')}>
+      <TouchableOpacity style={styles.fab} onPress={() => { track('tap_ai_chat', { source: 'fab' }); router.push('/ai-chat'); }}>
         <AICharacter size={60} animated />
       </TouchableOpacity>
     </SafeAreaView>

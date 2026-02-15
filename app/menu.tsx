@@ -5,6 +5,7 @@ import { Typography } from '@/components/ui/Typography';
 import { Colors, Radius, Spacing } from '@/constants/theme';
 
 import { useRevenueCat } from '@/hooks/useRevenueCat';
+import { track } from '@/lib/analytics';
 import { useUserStore } from '@/store/useUserStore';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import Constants from 'expo-constants';
@@ -59,6 +60,7 @@ export default function MenuScreen() {
     const [congratsVisible, setCongratsVisible] = useState(false);
 
     const handlePresentPaywall = async () => {
+        track('tap_upgrade', { source: 'banner' });
         const success = await presentPaywall();
         if (success) {
             setCongratsVisible(true);
@@ -105,6 +107,7 @@ export default function MenuScreen() {
     };
 
     const handleLanguageChange = (langCode: string) => {
+        track('change_language', { language: langCode });
         setLanguage(langCode as any);
         i18n.changeLanguage(langCode);
         setLanguageModalVisible(false);
@@ -134,6 +137,7 @@ export default function MenuScreen() {
     };
 
     const toggleNotifications = async (value: boolean) => {
+        track('toggle_notifications', { enabled: value });
         if (value) {
             const { status } = await Notifications.requestPermissionsAsync();
             if (status === 'granted') {
@@ -167,10 +171,12 @@ export default function MenuScreen() {
     };
 
     const confirmResetProgress = () => {
+        track('tap_reset_progress');
         setResetModalVisible(true);
     };
 
     const handleResetProgress = () => {
+        track('confirm_reset_progress');
         resetProgress();
         setResetModalVisible(false);
     };
@@ -509,7 +515,7 @@ export default function MenuScreen() {
                         <MenuItem
                             icon={Headset}
                             label="Manage Subscription"
-                            onPress={() => presentCustomerCenter()}
+                            onPress={() => { track('tap_manage_subscription'); presentCustomerCenter(); }}
                             isLast
                         />
                     )}
@@ -517,7 +523,7 @@ export default function MenuScreen() {
                         <MenuItem
                             icon={Crown}
                             label="Upgrade to Pro"
-                            onPress={handlePresentPaywall}
+                            onPress={() => { track('tap_upgrade', { source: 'menu_item' }); handlePresentPaywall(); }}
                             isLast
                         />
                     )}
@@ -630,12 +636,12 @@ export default function MenuScreen() {
                     <MenuItem
                         icon={MessageSquare}
                         label={t('menu.items.interfaceEvaluation')}
-                        onPress={() => setFeedbackModalVisible(true)}
+                        onPress={() => { track('tap_feedback'); setFeedbackModalVisible(true); }}
                     />
                     <MenuItem
                         icon={Bug}
                         label={t('menu.items.reportBug')}
-                        onPress={() => setBugReportModalVisible(true)}
+                        onPress={() => { track('tap_bug_report'); setBugReportModalVisible(true); }}
                         isLast
                     />
                 </View>

@@ -35,8 +35,18 @@ export async function fetchMessages(
         return { data: [], hasMore: false };
     }
 
+    // Sort oldest-first; when timestamps match, user messages come before assistant
+    const sorted = (data as ChatMessage[]).reverse().sort((a, b) => {
+        const timeDiff = new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+        if (timeDiff !== 0) return timeDiff;
+        // Same timestamp: 'user' before 'assistant'
+        if (a.role === 'user' && b.role === 'assistant') return -1;
+        if (a.role === 'assistant' && b.role === 'user') return 1;
+        return 0;
+    });
+
     return {
-        data: (data as ChatMessage[]).reverse(), // oldest-first for display
+        data: sorted,
         hasMore: data.length === PAGE_SIZE,
     };
 }

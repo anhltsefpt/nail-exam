@@ -6,6 +6,7 @@ import { TypewriterChatBubble } from '@/components/ui/TypewriterChatBubble';
 import { Colors, Radius, Spacing } from '@/constants/theme';
 import { fetchMessages, sendChatMessage } from '@/hooks/useChatHistory';
 import { useRevenueCat } from '@/hooks/useRevenueCat';
+import { track } from '@/lib/analytics';
 import { useUserStore } from '@/store/useUserStore';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { ArrowDown, BarChart3, BookOpen, ChevronDown, Gem, Send, X } from 'lucide-react-native';
@@ -234,6 +235,8 @@ export default function AIChatScreen() {
         isNearBottomRef.current = true;
         setShowScrollButton(false);
 
+        track('ai_send_message', { messageLength: text.length });
+
         try {
             // Build history from recent messages for context
             const recentHistory = messages
@@ -273,6 +276,7 @@ export default function AIChatScreen() {
 
     // Quick actions now prefill the input instead of sending directly
     const handleQuickAction = (action: string) => {
+        track('ai_quick_action', { action });
         setInputText(action);
     };
 

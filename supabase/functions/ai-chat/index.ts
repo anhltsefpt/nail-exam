@@ -97,16 +97,23 @@ Deno.serve(async (req: Request) => {
             openaiData.choices?.[0]?.message?.content ||
             "Sorry, I couldn't generate a response. Please try again.";
 
-        // Save both messages to database
+        // Save both messages to database (separate inserts for distinct timestamps)
         const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
-        const { error: insertError } = await supabase.from("chat_messages").insert([
-            { user_id, role: "user", content: message },
-            { user_id, role: "assistant", content: aiMessage },
-        ]);
+        const { error: userInsertError } = await supabase
+            .from("chat_messages")
+            .insert({ user_id, role: "user", content: message });
 
-        if (insertError) {
-            console.error("DB insert error:", insertError);
+        if (userInsertError) {
+            console.error("DB insert error (user):", userInsertError);
+        }
+
+        const { error: aiInsertError } = await supabase
+            .from("chat_messages")
+            .insert({ user_id, role: "assistant", content: aiMessage });
+
+        if (aiInsertError) {
+            console.error("DB insert error (assistant):", aiInsertError);
             // Still return the AI response even if DB save fails
         }
 

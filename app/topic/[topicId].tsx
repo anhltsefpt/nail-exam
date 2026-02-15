@@ -1,6 +1,7 @@
 import { Typography } from '@/components/ui/Typography';
 import { Colors, Radius, Spacing } from '@/constants/theme';
 import { divideIntoSets, useQuestionCount } from '@/hooks/useQuestions';
+import { track } from '@/lib/analytics';
 import { getUnlockedSetIndex, isTopicComplete, PASS_THRESHOLD, useUserStore } from '@/store/useUserStore';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
@@ -50,6 +51,8 @@ export default function TopicDetailScreen() {
     const topicComplete = isTopicComplete(topicSetProgress, topicId, sets.length);
 
     const handleStartSet = (setIndex: number, offset: number, count: number) => {
+        const score = topicProgress[setIndex] || 0;
+        track('topic_start_set', { topicId, setIndex, isRetry: score > 0 });
         router.push({
             pathname: '/quiz/[categoryId]',
             params: {

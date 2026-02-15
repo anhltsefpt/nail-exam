@@ -1,6 +1,7 @@
 import { AICharacter } from '@/components/AICharacter';
 import { Typography } from '@/components/ui/Typography';
 import { Colors, Radius, Spacing } from '@/constants/theme';
+import { track } from '@/lib/analytics';
 import { useQuizStore } from '@/store/useQuizStore';
 import { useUserStore } from '@/store/useUserStore';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -152,14 +153,13 @@ export default function QuizScreen() {
     const handleOptionSelect = (optionId: string) => {
         if (showResult || isRoundComplete) return;
         selectOption(optionId);
-        // Auto-submit immediately after selecting
-        // We need to call submitAnswer after state updates, so use a microtask
         setTimeout(() => {
             const state = useQuizStore.getState();
             const question = state.activeQuestions[state.currentIndex];
             if (!question) return;
             const result = useQuizStore.getState().submitAnswer();
             if (result) {
+                track('quiz_answer', { questionId: question.id, correct: result.isCorrect, topicId });
                 recordAnswer(question.id, result.isCorrect, optionId);
             }
         }, 0);
@@ -167,14 +167,15 @@ export default function QuizScreen() {
 
     const handleContinue = () => {
         if (!showResult || isRoundComplete) return;
+        track('quiz_continue', { questionIndex: currentIndex });
         nextQuestion();
     };
 
     const handleFinishRound = () => {
-        // Save set progress (best score)
         if (topicId) {
             updateSetProgress(topicId, setIndex, masteryPercentage);
         }
+        track('quiz_finish', { topicId, setIndex, score: masteryPercentage, total: totalQuestionsCount });
         if (roundMistakes.length === 0) {
             completeNode(nodeId);
             updateNodeProgress(nodeId, 100);
@@ -191,6 +192,7 @@ export default function QuizScreen() {
     }, [isRoundComplete]);
 
     const handleAIChat = (prompt?: string) => {
+        track('quiz_ai_chat', { prompt: prompt || 'open' });
         router.push({
             pathname: '/ai-chat',
             params: {
@@ -365,13 +367,13 @@ export default function QuizScreen() {
                         {t('quiz.questionProgress', { current: currentIndex + 1, total: activeQuestions.length })}
                     </Typography>
                     <View style={styles.questionActions}>
-                        <TouchableOpacity onPress={() => likeQuestion(currentQuestion.id)} style={[styles.actionButton, isLiked && styles.actionButtonActive]}>
+                        <TouchableOpacity onPress={() => { track('quiz_like', { questionId: currentQuestion.id }); likeQuestion(currentQuestion.id); }} style={[styles.actionButton, isLiked && styles.actionButtonActive]}>
                             <ThumbsUp size={18} color={isLiked ? theme.primary : theme.textMuted} />
                         </TouchableOpacity>
-                        <TouchableOpacity onPress={() => dislikeQuestion(currentQuestion.id)} style={[styles.actionButton, isDisliked && styles.actionButtonActive]}>
+                        <TouchableOpacity onPress={() => { track('quiz_dislike', { questionId: currentQuestion.id }); dislikeQuestion(currentQuestion.id); }} style={[styles.actionButton, isDisliked && styles.actionButtonActive]}>
                             <ThumbsDown size={18} color={isDisliked ? theme.error : theme.textMuted} />
                         </TouchableOpacity>
-                        <TouchableOpacity onPress={() => toggleSavedQuestion(currentQuestion.id)} style={[styles.actionButton, isSaved && styles.actionButtonActive]}>
+                        <TouchableOpacity onPress={() => { track('quiz_save', { questionId: currentQuestion.id }); toggleSavedQuestion(currentQuestion.id); }} style={[styles.actionButton, isSaved && styles.actionButtonActive]}>
                             <Bookmark size={18} color={isSaved ? theme.primary : theme.textMuted} fill={isSaved ? theme.primary : 'transparent'} />
                         </TouchableOpacity>
                     </View>
