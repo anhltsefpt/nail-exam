@@ -6,6 +6,7 @@ import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Text, useColorScheme } from 'react-native';
 import Purchases, { LOG_LEVEL } from 'react-native-purchases';
+import { ErrorBoundary } from '../components/ErrorBoundary';
 import { useRevenueCat } from '../hooks/useRevenueCat';
 import '../i18n'; // Initialize i18n
 import { useUserStore } from '../store/useUserStore';
@@ -37,9 +38,11 @@ export default function RootLayout() {
   const colorScheme = useColorScheme();
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <RootLayoutNav />
-    </ThemeProvider>
+    <ErrorBoundary>
+      <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+        <RootLayoutNav />
+      </ThemeProvider>
+    </ErrorBoundary>
   );
 }
 
