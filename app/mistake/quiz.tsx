@@ -418,7 +418,7 @@ const styles = StyleSheet.create({
         paddingBottom: Spacing.xl,
         gap: Spacing.m,
     },
-    aiButton: { width: 56, height: 56, borderRadius: 28, backgroundColor: '#FFF5F6', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#F2A7B3' },
+    aiButton: {},
     continueButton: { flex: 1, borderRadius: Radius.full, overflow: 'hidden' },
     continueButtonDisabled: { opacity: 0.7 },
     continueGradient: { paddingVertical: Spacing.l, alignItems: 'center', justifyContent: 'center' },

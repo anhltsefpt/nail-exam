@@ -122,7 +122,7 @@ export function CongratsModal({ visible, onClose }: CongratsModalProps) {
                     {/* Crown icon */}
                     <Animated.View style={{ transform: [{ rotate }] }}>
                         <LinearGradient
-                            colors={['#FF9A9E', '#FECFEF']}
+                            colors={['#E8567D', '#C24462']}
                             style={styles.iconCircle}
                         >
                             <Crown size={40} color="white" fill="white" />
@@ -140,13 +140,13 @@ export function CongratsModal({ visible, onClose }: CongratsModalProps) {
 
                     <Text style={[styles.subtitle, { color: theme.textSecondary }]}>
                         You've unlocked{' '}
-                        <Text style={{ fontWeight: '700', color: theme.primary }}>Nail Exam Pro</Text>
+                        <Text style={{ fontWeight: '700', color: theme.primary }}>NailPrep Premium</Text>
                         ! Enjoy unlimited access to all premium features.
                     </Text>
 
                     {/* Features */}
                     <View style={[styles.featuresCard, { backgroundColor: theme.backgroundSubtle }]}>
-                        {['Unlimited practice exams', 'AI-powered coaching'].map(
+                        {['AI-powered explanations', 'Unlimited mock exams', '805 expert questions'].map(
                             (feature, i) => (
                                 <View key={i} style={styles.featureRow}>
                                     <Text style={styles.checkmark}>✅</Text>

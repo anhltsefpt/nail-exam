@@ -154,20 +154,18 @@ export default function QuizScreen() {
     const handleOptionSelect = (optionId: string) => {
         if (showResult || isRoundComplete) return;
         selectOption(optionId);
-        setTimeout(() => {
-            const state = useQuizStore.getState();
-            const question = state.activeQuestions[state.currentIndex];
-            if (!question) return;
-            const result = useQuizStore.getState().submitAnswer();
-            if (result) {
-                track('quiz_answer', { questionId: question.id, correct: result.isCorrect, topicId });
-                recordAnswer(question.id, result.isCorrect, optionId);
-                // Track first-attempt wrong answers in the Mistakes list
-                if (!result.isCorrect) {
-                    addMistake(question.id, topicId || '', topicName || '');
-                }
+        const state = useQuizStore.getState();
+        const question = state.activeQuestions[state.currentIndex];
+        if (!question) return;
+        const result = useQuizStore.getState().submitAnswer();
+        if (result) {
+            track('quiz_answer', { questionId: question.id, correct: result.isCorrect, topicId });
+            recordAnswer(question.id, result.isCorrect, optionId);
+            // Track first-attempt wrong answers in the Mistakes list
+            if (!result.isCorrect) {
+                addMistake(question.id, topicId || '', topicName || '');
             }
-        }, 0);
+        }
     };
 
     const handleContinue = () => {
