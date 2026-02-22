@@ -7,7 +7,7 @@ import { useTopics } from '@/hooks/useTopics';
 import { track } from '@/lib/analytics';
 import { useUserStore } from '@/store/useUserStore';
 import { useRouter } from 'expo-router';
-import { FlaskConical, Gem, Menu } from 'lucide-react-native';
+import { FlaskConical, Gem } from 'lucide-react-native';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, ScrollView, StyleSheet, TouchableOpacity, useColorScheme, View } from 'react-native';
@@ -22,6 +22,8 @@ export default function HomeScreen() {
 
   const gems = useUserStore((s) => s.gems);
   const courseProgress = useUserStore((s) => s.courseProgress);
+  const mistakes = useUserStore((s) => s.mistakes);
+  const mistakeCount = mistakes.length;
   const { categories, loading, error } = useTopics();
 
   const styles = StyleSheet.create({
@@ -123,9 +125,6 @@ export default function HomeScreen() {
               </Typography>
               <Gem size={12} color="#D97706" fill="#FCD34D" />
             </View>
-            <TouchableOpacity style={{ marginLeft: 12 }} onPress={() => { track('tap_menu'); router.push('/menu'); }}>
-              <Menu size={20} color={theme.text} />
-            </TouchableOpacity>
           </View>
         </View>
       </View>

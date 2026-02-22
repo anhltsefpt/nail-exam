@@ -84,6 +84,7 @@ function RootLayoutNav() {
         <Stack.Screen name="ai-chat" options={{ presentation: 'modal', headerShown: false }} />
         <Stack.Screen name="menu" options={{ headerShown: false }} />
         <Stack.Screen name="topic/[topicId]" options={{ headerShown: false }} />
+        <Stack.Screen name="mistake" options={{ headerShown: false }} />
       </Stack>
       <StatusBar style="auto" />
     </>

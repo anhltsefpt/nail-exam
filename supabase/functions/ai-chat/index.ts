@@ -34,7 +34,7 @@ Deno.serve(async (req: Request) => {
     }
 
     try {
-        const { user_id, message, history } = await req.json();
+        const { user_id, message, history, context } = await req.json();
 
         if (!user_id || !message) {
             return new Response(
@@ -47,6 +47,10 @@ Deno.serve(async (req: Request) => {
         const messages: { role: string; content: string }[] = [
             { role: "system", content: SYSTEM_PROMPT },
         ];
+
+        if (context) {
+            messages.push({ role: "system", content: `Current Question Context:\n${context}` });
+        }
 
         // Add previous messages as context (last 10 messages from history)
         if (history && Array.isArray(history)) {

@@ -5,7 +5,7 @@ import { track } from '@/lib/analytics';
 import { getUnlockedSetIndex, isTopicComplete, PASS_THRESHOLD, useUserStore } from '@/store/useUserStore';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
-import { ArrowLeft, Check, Lock, RotateCcw } from 'lucide-react-native';
+import { ArrowLeft, Check, ChevronRight, Lock } from 'lucide-react-native';
 import React from 'react';
 import {
     ActivityIndicator,
@@ -42,7 +42,7 @@ export default function TopicDetailScreen() {
     const phaseLightColor = phase?.light ?? theme.primaryLight;
 
     const { count: questionCount, loading } = useQuestionCount(topicId || '');
-    const sets = divideIntoSets(questionCount, 15);
+    const sets = divideIntoSets(questionCount, 20);
 
     // --- Progress from store ---
     const topicSetProgress = useUserStore((s) => s.topicSetProgress);
@@ -149,7 +149,7 @@ export default function TopicDetailScreen() {
                             const isActive = index === unlockedSetIndex && !topicComplete;
 
                             return (
-                                <View
+                                <TouchableOpacity
                                     key={index}
                                     style={[
                                         styles.setCard,
@@ -169,6 +169,12 @@ export default function TopicDetailScreen() {
                                             borderWidth: 2,
                                         },
                                     ]}
+                                    activeOpacity={(isActive || isPassed) ? 0.75 : 1}
+                                    onPress={() => {
+                                        if (isActive || isPassed) {
+                                            handleStartSet(index, set.offset, set.count);
+                                        }
+                                    }}
                                 >
                                     {/* Set number badge */}
                                     <View
@@ -222,44 +228,12 @@ export default function TopicDetailScreen() {
                                         </Typography>
                                     </View>
 
-                                    {/* Action button */}
-                                    {isActive && (
-                                        <TouchableOpacity
-                                            style={[
-                                                styles.startButton,
-                                                { backgroundColor: phaseColor },
-                                            ]}
-                                            onPress={() =>
-                                                handleStartSet(index, set.offset, set.count)
-                                            }
-                                            activeOpacity={0.8}
-                                        >
-                                            <Typography
-                                                variant="body"
-                                                weight="bold"
-                                                style={{ color: 'white' }}
-                                            >
-                                                {score > 0 ? 'Retry' : 'Start'}
-                                            </Typography>
-                                        </TouchableOpacity>
+                                    {/* Chevron indicator for unlocked/passed sets */}
+                                    {(isActive || isPassed) && (
+                                        <ChevronRight size={20} color={theme.textMuted} />
                                     )}
 
-                                    {/* Retry button for passed sets */}
-                                    {isPassed && (
-                                        <TouchableOpacity
-                                            style={[
-                                                styles.retryButton,
-                                                { borderColor: theme.success },
-                                            ]}
-                                            onPress={() =>
-                                                handleStartSet(index, set.offset, set.count)
-                                            }
-                                            activeOpacity={0.8}
-                                        >
-                                            <RotateCcw size={14} color={theme.success} />
-                                        </TouchableOpacity>
-                                    )}
-                                </View>
+                                </TouchableOpacity>
                             );
                         })}
 

@@ -13,6 +13,13 @@ export interface QuestionRecord {
     selectedOption: string;
 }
 
+export interface MistakeRecord {
+    questionId: string;
+    topicId: string;
+    topicName: string;
+    consecutiveCorrect: number; // 0 or 1; removed from list when reaches 2
+}
+
 export interface UserState {
     // User Profile
     name: string;
@@ -33,7 +40,7 @@ export interface UserState {
     savedQuestions: string[]; // IDs
     likedQuestions: string[]; // IDs
     dislikedQuestions: string[]; // IDs
-    mistakes: string[]; // IDs
+    mistakes: MistakeRecord[];
 
     // Topic Set Progress: topicId -> { setIndex -> best score % }
     topicSetProgress: Record<string, Record<number, number>>;
@@ -61,6 +68,8 @@ export interface UserState {
     likeQuestion: (questionId: string) => void;
     dislikeQuestion: (questionId: string) => void;
     recordAnswer: (questionId: string, correct: boolean, selectedOption: string) => void;
+    addMistake: (questionId: string, topicId: string, topicName: string) => void;
+    recordMistakeAnswer: (questionId: string, isCorrect: boolean) => void;
     updateSetProgress: (topicId: string, setIndex: number, percentage: number) => void;
     resetProgress: () => void;
     setFontScale: (scale: number) => void;
@@ -96,7 +105,7 @@ const INITIAL_STATE = {
     savedQuestions: [],
     likedQuestions: [],
     dislikedQuestions: [],
-    mistakes: [],
+    mistakes: [] as MistakeRecord[],
     isDarkMode: false,
     notificationsEnabled: true,
     soundEnabled: true,
@@ -217,30 +226,40 @@ export const useUserStore = create<UserState>()(
                 }),
 
             recordAnswer: (questionId, correct, selectedOption) =>
-                set((state) => {
-                    const newHistory = {
+                set((state) => ({
+                    questionHistory: {
                         ...state.questionHistory,
                         [questionId]: {
                             answeredAt: new Date().toISOString(),
                             correct,
                             selectedOption,
                         },
-                    };
+                    },
+                })),
 
-                    let newMistakes = state.mistakes;
-                    if (!correct && !state.mistakes.includes(questionId)) {
-                        newMistakes = [...state.mistakes, questionId];
-                    } else if (correct && state.mistakes.includes(questionId)) {
-                        // Optional: Remove from mistakes if answered correctly later? 
-                        // For now, let's keep it in "mistakes" until explicitly cleared or allow re-answering to clear.
-                        // Let's remove it to show "improvement".
-                        newMistakes = state.mistakes.filter((id) => id !== questionId);
-                    }
-
+            addMistake: (questionId, topicId, topicName) =>
+                set((state) => {
+                    // Idempotent – skip if already tracked
+                    if (state.mistakes.some((m) => m.questionId === questionId)) return state;
                     return {
-                        questionHistory: newHistory,
-                        mistakes: newMistakes,
+                        mistakes: [
+                            ...state.mistakes,
+                            { questionId, topicId, topicName, consecutiveCorrect: 0 },
+                        ],
                     };
+                }),
+
+            recordMistakeAnswer: (questionId, isCorrect) =>
+                set((state) => {
+                    const updated = state.mistakes.map((m) => {
+                        if (m.questionId !== questionId) return m;
+                        return {
+                            ...m,
+                            consecutiveCorrect: isCorrect ? m.consecutiveCorrect + 1 : 0,
+                        };
+                    });
+                    // Remove questions that have been answered correctly 2 times in a row
+                    return { mistakes: updated.filter((m) => m.consecutiveCorrect < 2) };
                 }),
 
             updateSetProgress: (topicId, setIndex, percentage) =>

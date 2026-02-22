@@ -55,6 +55,7 @@ export async function fetchMessages(
 export async function sendChatMessage(
     message: string,
     history: { role: string; content: string }[],
+    context?: string,
 ): Promise<string> {
     const userId = await getUserId();
 
@@ -63,6 +64,7 @@ export async function sendChatMessage(
             user_id: userId,
             message,
             history,
+            context,
         },
     });
 

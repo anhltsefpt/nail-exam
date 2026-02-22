@@ -50,7 +50,7 @@ export default function AIChatScreen() {
     const router = useRouter();
     const { t } = useTranslation();
     const insets = useSafeAreaInsets();
-    const { context, initialPrompt } = useLocalSearchParams<{ context?: string; initialPrompt?: string }>();
+    const { context, initialPrompt, autoSend } = useLocalSearchParams<{ context?: string; initialPrompt?: string; autoSend?: string }>();
     const { isPro, presentPaywall } = useRevenueCat();
     const gems = useUserStore((s) => s.gems);
     const deductGem = useUserStore((s) => s.deductGem);
@@ -63,6 +63,8 @@ export default function AIChatScreen() {
     const [hasMore, setHasMore] = useState(true);
     const [isLoadingMore, setIsLoadingMore] = useState(false);
     const [streamingMessageId, setStreamingMessageId] = useState<string | null>(null);
+
+    const hasAutoSentRef = useRef(false);
 
     // Scroll state
     const scrollViewRef = useRef<ScrollView>(null);
@@ -198,9 +200,9 @@ export default function AIChatScreen() {
         }
     }, [isLoadingMore, hasMore, messages]);
 
-    // --- Send message ---
-    const handleSend = useCallback(async () => {
-        const text = inputText.trim();
+    // --- Send message logic ---
+    const sendMessage = useCallback(async (text: string) => {
+        text = text.trim();
         if (!text || isSending) return;
 
         // Gem gate for free users
@@ -217,7 +219,6 @@ export default function AIChatScreen() {
                         message: "💎 You've run out of gems! Complete quiz sets to earn more gems, or upgrade to Pro for unlimited AI coaching. ✨",
                     },
                 ]);
-                setInputText('');
                 isNearBottomRef.current = true;
                 return;
             }
@@ -229,8 +230,15 @@ export default function AIChatScreen() {
             variant: 'user',
             message: text,
         };
-        setMessages((prev) => [...prev, userMsg]);
-        setInputText('');
+
+        // We use a functional state update and return the new messages array
+        // so we can build context off the absolute latest state (including this new user msg)
+        let latestMessages: DisplayMessage[] = [];
+        setMessages((prev) => {
+            latestMessages = [...prev, userMsg];
+            return latestMessages;
+        });
+
         setIsSending(true);
         isNearBottomRef.current = true;
         setShowScrollButton(false);
@@ -239,7 +247,7 @@ export default function AIChatScreen() {
 
         try {
             // Build history from recent messages for context
-            const recentHistory = messages
+            const recentHistory = latestMessages
                 .filter((m) => m.id !== 'welcome' && m.id !== 'context')
                 .slice(-10)
                 .map((m) => ({
@@ -247,7 +255,7 @@ export default function AIChatScreen() {
                     content: m.message,
                 }));
 
-            const aiResponse = await sendChatMessage(text, recentHistory);
+            const aiResponse = await sendChatMessage(text, recentHistory, context);
 
             const aiMsgId = (Date.now() + 1).toString();
             setStreamingMessageId(aiMsgId);
@@ -272,7 +280,25 @@ export default function AIChatScreen() {
         } finally {
             setIsSending(false);
         }
-    }, [inputText, isSending, isPro, deductGem, messages]);
+    }, [isSending, isPro, deductGem, messages]);
+
+    const handleSend = useCallback(() => {
+        if (!inputText.trim()) return;
+        sendMessage(inputText);
+        setInputText('');
+    }, [inputText, sendMessage]);
+
+    // Auto-send effect
+    useEffect(() => {
+        if (!isLoadingHistory && initialPrompt && autoSend === 'true' && !hasAutoSentRef.current) {
+            hasAutoSentRef.current = true;
+            // Slight delay to let UI settle and scroll to bottom naturally before sending
+            setTimeout(() => {
+                sendMessage(initialPrompt);
+                setInputText(''); // Clear input if it was prefilled by the earlier effect
+            }, 300);
+        }
+    }, [isLoadingHistory, initialPrompt, autoSend, sendMessage]);
 
     // Quick actions now prefill the input instead of sending directly
     const handleQuickAction = (action: string) => {

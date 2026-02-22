@@ -62,30 +62,25 @@ export async function fetchQuestionsByRange(
 }
 
 /**
- * Divide total questions into balanced sets of ~setSize.
- * If the remainder would create a very small last set,
- * distribute the extra questions across the last few sets.
+ * Divide total questions into exact sets of setSize.
+ * Any remainder is placed in the final set.
  *
- * Example: total=40, setSize=15 → [15, 13, 12]
- * Example: total=45, setSize=15 → [15, 15, 15]
- * Example: total=23, setSize=15 → [12, 11]
+ * Example: total=40, setSize=20 → [20, 20]
+ * Example: total=45, setSize=20 → [20, 20, 5]
+ * Example: total=23, setSize=20 → [20, 3]
  */
-export function divideIntoSets(total: number, setSize: number = 15): { offset: number; count: number }[] {
+export function divideIntoSets(total: number, setSize: number = 20): { offset: number; count: number }[] {
     if (total <= 0) return [];
-    if (total <= setSize) return [{ offset: 0, count: total }];
-
-    const numSets = Math.ceil(total / setSize);
-    const baseSize = Math.floor(total / numSets);
-    const remainder = total % numSets;
 
     const sets: { offset: number; count: number }[] = [];
     let offset = 0;
+    let remaining = total;
 
-    for (let i = 0; i < numSets; i++) {
-        // Distribute remainder across first `remainder` sets
-        const size = baseSize + (i < remainder ? 1 : 0);
-        sets.push({ offset, count: size });
-        offset += size;
+    while (remaining > 0) {
+        const count = Math.min(setSize, remaining);
+        sets.push({ offset, count });
+        offset += count;
+        remaining -= count;
     }
 
     return sets;

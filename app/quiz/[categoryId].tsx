@@ -76,6 +76,7 @@ export default function QuizScreen() {
     const likeQuestion = useUserStore((state) => state.likeQuestion);
     const dislikeQuestion = useUserStore((state) => state.dislikeQuestion);
     const recordAnswer = useUserStore((state) => state.recordAnswer);
+    const addMistake = useUserStore((state) => state.addMistake);
     const completeNode = useUserStore((state) => state.completeNode);
     const updateNodeProgress = useUserStore((state) => state.updateNodeProgress);
     const updateSetProgress = useUserStore((state) => state.updateSetProgress);
@@ -161,6 +162,10 @@ export default function QuizScreen() {
             if (result) {
                 track('quiz_answer', { questionId: question.id, correct: result.isCorrect, topicId });
                 recordAnswer(question.id, result.isCorrect, optionId);
+                // Track first-attempt wrong answers in the Mistakes list
+                if (!result.isCorrect) {
+                    addMistake(question.id, topicId || '', topicName || '');
+                }
             }
         }, 0);
     };
@@ -192,12 +197,22 @@ export default function QuizScreen() {
     }, [isRoundComplete]);
 
     const handleAIChat = (prompt?: string) => {
+        let chatContext = 'Quiz Context';
+        if (currentQuestion) {
+            chatContext = `Question: ${currentQuestion.text}\n\nOptions:\n${currentQuestion.options.map(o => `- ${o.text}`).join('\n')}`;
+            if (selectedOptionId) {
+                const selectedText = currentQuestion.options.find(o => o.id === selectedOptionId)?.text;
+                chatContext += `\n\nUser selected: ${selectedText}`;
+            }
+        }
+
         track('quiz_ai_chat', { prompt: prompt || 'open' });
         router.push({
             pathname: '/ai-chat',
             params: {
-                context: currentQuestion ? `Question: ${currentQuestion.text}` : 'Quiz Context',
+                context: chatContext,
                 initialPrompt: prompt,
+                autoSend: prompt ? 'true' : undefined,
             },
         });
     };
@@ -492,7 +507,7 @@ export default function QuizScreen() {
                         activeOpacity={0.8}
                     >
                         <LinearGradient
-                            colors={showResult ? ['#F2A7B3', '#D98E99'] : ['#E6E1E2', '#D1CACC']}
+                            colors={showResult ? ['#C4607A', '#B0566D'] : ['#E6E1E2', '#D1CACC']}
                             start={{ x: 0, y: 0 }}
                             end={{ x: 1, y: 0 }}
                             style={styles.continueGradient}

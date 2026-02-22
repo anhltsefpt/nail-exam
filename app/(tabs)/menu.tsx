@@ -54,7 +54,7 @@ export default function MenuScreen() {
     const router = useRouter();
     const { t, i18n } = useTranslation();
 
-    const { isPro, presentPaywall, presentCustomerCenter } = useRevenueCat();
+    const { isPro, presentPaywall, presentCustomerCenter, restorePurchases } = useRevenueCat();
     const colorScheme = useColorScheme() ?? 'light';
     const theme = Colors[colorScheme];
     const [congratsVisible, setCongratsVisible] = useState(false);
@@ -516,7 +516,6 @@ export default function MenuScreen() {
                             icon={Headset}
                             label="Manage Subscription"
                             onPress={() => { track('tap_manage_subscription'); presentCustomerCenter(); }}
-                            isLast
                         />
                     )}
                     {!isPro && (
@@ -524,9 +523,20 @@ export default function MenuScreen() {
                             icon={Crown}
                             label="Upgrade to Pro"
                             onPress={() => { track('tap_upgrade', { source: 'menu_item' }); handlePresentPaywall(); }}
-                            isLast
                         />
                     )}
+                    <MenuItem
+                        icon={RotateCcw}
+                        label="Restore Purchases"
+                        onPress={async () => {
+                            track('tap_restore_purchases');
+                            const success = await restorePurchases();
+                            if (success) {
+                                Alert.alert('Success', 'Purchases restored successfully.');
+                            }
+                        }}
+                        isLast
+                    />
                 </View>
 
                 {/* Settings Exam */}
