@@ -3,6 +3,8 @@
 export interface RoadmapNodeConfig {
     id: number;
     label: string;
+    labelEn?: string;
+    labelVn?: string;
     topicId?: string; // Supabase UUID for querying questions
 }
 
@@ -17,11 +19,11 @@ export interface CategoryConfig {
 }
 
 /** Phase metadata keyed by phase_id from Supabase */
-export const PHASE_META: Record<number, { id: string; title: string; phaseIndex: 1 | 2 | 3 | 4 }> = {
-    1: { id: 'high-yield-foundations', title: 'High-Yield Foundations', phaseIndex: 1 },
-    2: { id: 'core-procedures', title: 'Core Procedures', phaseIndex: 2 },
-    3: { id: 'chemistry-theory', title: 'Chemistry & Theory', phaseIndex: 3 },
-    4: { id: 'quick-wins', title: 'Quick Wins', phaseIndex: 4 },
+export const PHASE_META: Record<number, { id: string; title: string; title_vn?: string; phaseIndex: 1 | 2 | 3 | 4 }> = {
+    1: { id: 'high-yield-foundations', title: 'High-Yield Foundations', title_vn: 'Kiến Thức Nền Tảng', phaseIndex: 1 },
+    2: { id: 'core-procedures', title: 'Core Procedures', title_vn: 'Quy Trình Cốt Lõi', phaseIndex: 2 },
+    3: { id: 'chemistry-theory', title: 'Chemistry & Theory', title_vn: 'Hóa Học & Lý Thuyết', phaseIndex: 3 },
+    4: { id: 'quick-wins', title: 'Quick Wins', title_vn: 'Điểm Dễ Lấy', phaseIndex: 4 },
 };
 
 /**

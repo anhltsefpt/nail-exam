@@ -35,15 +35,18 @@ export default function MistakeQuizScreen() {
     const colorScheme = useColorScheme() ?? 'light';
     const theme = Colors[colorScheme];
 
-    const { mode, topicId, topicName } = useLocalSearchParams<{
+    const { mode, topicId, topicName, topicNameEn, topicNameVn } = useLocalSearchParams<{
         mode: 'all' | 'topic';
         topicId?: string;
         topicName?: string;
+        topicNameEn?: string;
+        topicNameVn?: string;
     }>();
 
     // --- Store ---
     const allMistakes = useUserStore((s) => s.mistakes);
     const recordMistakeAnswer = useUserStore((s) => s.recordMistakeAnswer);
+    const language = useUserStore((s) => s.language);
 
     // Filter to relevant mistakes for this session
     const initialMistakes = useMemo<MistakeRecord[]>(() => {
@@ -230,7 +233,7 @@ export default function MistakeQuizScreen() {
 
                 <View style={styles.headerCenter}>
                     <Typography variant="caption" color="muted">
-                        {mode === 'topic' ? topicName : t('mistakeQuiz.allMistakes')}
+                        {mode === 'topic' ? (language === 'vi' && topicNameVn ? topicNameVn : (topicNameEn || topicName)) : t('mistakeQuiz.allMistakes')}
                     </Typography>
                     <Typography variant="caption" weight="bold" color="muted">
                         {sessionIds.length} {t('mistakeQuiz.remaining')}
@@ -327,16 +330,16 @@ export default function MistakeQuizScreen() {
             <View style={styles.stickyBottom}>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chipsContainer} contentContainerStyle={styles.chipsContent}>
                     {isCurrentAnswerWrong && (
-                        <TouchableOpacity style={[styles.chip, styles.chipWrong]} onPress={() => handleAIChat('Why is my answer wrong?')}>
+                        <TouchableOpacity style={[styles.chip, styles.chipWrong]} onPress={() => handleAIChat(t('quiz.whyWrong'))}>
                             <HelpCircle size={16} color="#E8878C" />
                             <Typography variant="caption" style={[styles.chipText, { color: '#E8878C' }]}>{t('quiz.whyWrong', { defaultValue: 'Why is my answer wrong?' })}</Typography>
                         </TouchableOpacity>
                     )}
-                    <TouchableOpacity style={[styles.chip, { borderColor: theme.border }]} onPress={() => handleAIChat('Give me a hint.')}>
+                    <TouchableOpacity style={[styles.chip, { borderColor: theme.border }]} onPress={() => handleAIChat(t('quiz.hint'))}>
                         <Lightbulb size={16} color="#F0C97E" />
                         <Typography variant="caption" style={styles.chipText}>{t('quiz.hint', { defaultValue: 'Hint' })}</Typography>
                     </TouchableOpacity>
-                    <TouchableOpacity style={[styles.chip, { borderColor: theme.border }]} onPress={() => handleAIChat('Explain.')}>
+                    <TouchableOpacity style={[styles.chip, { borderColor: theme.border }]} onPress={() => handleAIChat(t('quiz.explain'))}>
                         <BookOpen size={16} color={theme.primary} />
                         <Typography variant="caption" style={styles.chipText}>{t('quiz.explain', { defaultValue: 'Explain' })}</Typography>
                     </TouchableOpacity>

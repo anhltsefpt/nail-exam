@@ -1,5 +1,5 @@
 import { Colors } from '@/constants/theme';
-import { Lock } from 'lucide-react-native';
+import { Crown, Lock } from 'lucide-react-native';
 import React, { useEffect } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Animated, {
@@ -25,13 +25,14 @@ interface RoadmapNodeProps {
     index: number;
     phaseColor: string;
     phaseLightColor: string;
+    isPremiumLocked?: boolean;
     onPress: () => void;
 }
 
 const NODE_SIZE = 56;
 const WRAPPER_SIZE = 100;
 
-export function RoadmapNode({ node, index, phaseColor, phaseLightColor, onPress }: RoadmapNodeProps) {
+export function RoadmapNode({ node, index, phaseColor, phaseLightColor, isPremiumLocked = false, onPress }: RoadmapNodeProps) {
     const scale = useSharedValue(0);
     const pulse = useSharedValue(1);
     const opacity = useSharedValue(0);
@@ -40,6 +41,7 @@ export function RoadmapNode({ node, index, phaseColor, phaseLightColor, onPress 
     const isActive = node.status === 'active';
     const isCompleted = node.status === 'completed';
     const isLocked = node.status === 'locked';
+    const isAccessible = node.status === 'accessible';
 
     useEffect(() => {
         const delay = 200 + index * 150;
@@ -93,17 +95,25 @@ export function RoadmapNode({ node, index, phaseColor, phaseLightColor, onPress 
                             styles.circle,
                             isActive && [styles.activeCircle, { backgroundColor: phaseColor, borderColor: phaseColor }],
                             isCompleted && [styles.completedCircle, { backgroundColor: phaseColor, borderColor: phaseColor }],
-                            isLocked && styles.lockedCircle,
+                            isAccessible && [styles.completedCircle, { backgroundColor: phaseColor, borderColor: phaseColor }],
+                            (isLocked || isPremiumLocked) && styles.lockedCircle,
                         ]}
                     >
-                        {isActive || isCompleted ? (
+                        {(isActive || isCompleted || isAccessible) ? (
                             <Text style={styles.nodeNumber}>{node.id}</Text>
                         ) : (
                             <>
                                 <Text style={styles.lockedNumber}>{node.id}</Text>
-                                <View style={styles.lockBadge}>
-                                    <Lock size={10} color="#FFF" />
-                                </View>
+                                {/* Premium lock badge: gold crown; progress lock: grey lock */}
+                                {isPremiumLocked ? (
+                                    <View style={styles.crownBadge}>
+                                        <Crown size={10} color="#FFF" />
+                                    </View>
+                                ) : (
+                                    <View style={styles.lockBadge}>
+                                        <Lock size={10} color="#FFF" />
+                                    </View>
+                                )}
                             </>
                         )}
                     </View>
@@ -112,7 +122,7 @@ export function RoadmapNode({ node, index, phaseColor, phaseLightColor, onPress 
             <Text
                 style={[
                     styles.label,
-                    (isActive || isCompleted)
+                    (isActive || isCompleted || isAccessible)
                         ? [styles.activeLabel, { color: phaseColor }]
                         : styles.lockedLabel,
                 ]}
@@ -177,11 +187,26 @@ const styles = StyleSheet.create({
         borderColor: '#E8E4E0',
         shadowOpacity: 0.05,
     },
+    accessibleCircle: {
+        backgroundColor: 'white',
+        borderWidth: 2.5,
+        shadowOpacity: 0.06,
+    },
     lockBadge: {
         position: 'absolute',
         top: -4,
         right: -4,
         backgroundColor: '#C8C1B8',
+        borderRadius: 10,
+        padding: 3,
+        borderWidth: 2,
+        borderColor: '#FFF',
+    },
+    crownBadge: {
+        position: 'absolute',
+        top: -4,
+        right: -4,
+        backgroundColor: '#F59E0B',
         borderRadius: 10,
         padding: 3,
         borderWidth: 2,

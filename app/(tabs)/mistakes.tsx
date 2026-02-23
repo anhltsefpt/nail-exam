@@ -5,6 +5,7 @@ import { MistakeRecord, useUserStore } from '@/store/useUserStore';
 import { useRouter } from 'expo-router';
 import { BookOpen, CheckCircle, ChevronRight } from 'lucide-react-native';
 import React, { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
     ScrollView,
     StyleSheet,
@@ -18,17 +19,21 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 interface TopicGroup {
     topicId: string;
-    topicName: string;
+    topicName: string; // legacy english name fallback
+    topicNameEn?: string;
+    topicNameVn?: string;
     mistakes: MistakeRecord[];
     inProgressCount: number; // mistakes with consecutiveCorrect === 1
 }
 
 export default function MistakesScreen() {
     const router = useRouter();
+    const { t } = useTranslation();
     const colorScheme = useColorScheme() ?? 'light';
     const theme = Colors[colorScheme];
 
     const mistakes = useUserStore((s) => s.mistakes);
+    const language = useUserStore((s) => s.language);
 
     const totalCount = mistakes.length;
 
@@ -40,6 +45,8 @@ export default function MistakesScreen() {
                 map.set(m.topicId, {
                     topicId: m.topicId,
                     topicName: m.topicName,
+                    topicNameEn: m.topicNameEn,
+                    topicNameVn: m.topicNameVn,
                     mistakes: [],
                     inProgressCount: 0,
                 });
@@ -60,7 +67,13 @@ export default function MistakesScreen() {
         track('mistakes_review_topic', { topicId: group.topicId, count: group.mistakes.length });
         router.push({
             pathname: '/mistake/quiz' as any,
-            params: { mode: 'topic', topicId: group.topicId, topicName: group.topicName },
+            params: {
+                mode: 'topic',
+                topicId: group.topicId,
+                topicName: group.topicName,
+                topicNameEn: group.topicNameEn,
+                topicNameVn: group.topicNameVn,
+            },
         });
     };
 
@@ -72,10 +85,10 @@ export default function MistakesScreen() {
                 <View style={styles.backButton} />
                 <View style={styles.navCenter}>
                     <Typography variant="heading" weight="bold" style={{ fontSize: 18 }}>
-                        Mistakes
+                        {t('mistakesTab.title')}
                     </Typography>
                     <Typography variant="caption" color="muted" style={{ marginTop: 1 }}>
-                        Answer correctly 2× in a row to clear
+                        {t('mistakesTab.subtitle')}
                     </Typography>
                 </View>
                 {/* Right spacer to balance center */}
@@ -102,7 +115,7 @@ export default function MistakesScreen() {
                                 {totalCount}
                             </Typography>
                             <Typography variant="caption" color="muted" style={{ marginLeft: 4 }}>
-                                to clear
+                                {t('mistakesTab.toClear')}
                             </Typography>
                         </View>
                     </View>
@@ -117,10 +130,10 @@ export default function MistakesScreen() {
                                 weight="bold"
                                 style={{ color: 'white', fontSize: 16 }}
                             >
-                                Review All ({totalCount})
+                                {t('mistakesTab.reviewAll', { count: totalCount })}
                             </Typography>
                             <Typography variant="caption" style={{ color: 'rgba(255,255,255,0.8)', marginTop: 2 }}>
-                                Quiz through all your mistakes
+                                {t('mistakesTab.reviewAllDesc')}
                             </Typography>
                         </View>
                         <ChevronRight size={24} color="white" />
@@ -132,10 +145,10 @@ export default function MistakesScreen() {
                     <View style={styles.emptyContainer}>
                         <CheckCircle size={64} color={theme.success} strokeWidth={1.5} />
                         <Typography variant="heading" weight="bold" align="center" style={{ marginTop: Spacing.l, fontSize: 20 }}>
-                            All clear!
+                            {t('mistakesTab.allClear')}
                         </Typography>
                         <Typography variant="body" color="muted" align="center" style={{ marginTop: Spacing.s }}>
-                            You have no mistakes yet.{'\n'}Keep practicing to see them here.
+                            {t('mistakesTab.noMistakes')}
                         </Typography>
                     </View>
                 )}
@@ -149,7 +162,7 @@ export default function MistakesScreen() {
                             color="muted"
                             style={styles.sectionLabel}
                         >
-                            BY TOPIC
+                            {t('mistakesTab.byTopic')}
                         </Typography>
 
                         {topicGroups.map((group) => {
@@ -171,18 +184,18 @@ export default function MistakesScreen() {
                                     {/* Info */}
                                     <View style={styles.topicInfo}>
                                         <Typography variant="body" weight="bold" style={{ fontSize: 15 }}>
-                                            {group.topicName}
+                                            {language === 'vi' && group.topicNameVn ? group.topicNameVn : (group.topicNameEn || group.topicName)}
                                         </Typography>
                                         <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 2 }}>
                                             <Typography variant="caption" color="muted">
-                                                {count} {count === 1 ? 'mistake' : 'mistakes'}
+                                                {count === 1 ? t('mistakesTab.mistakeSingle', { count }) : t('mistakesTab.mistakePlural', { count })}
                                             </Typography>
                                             {inProgress > 0 && (
                                                 <Typography
                                                     variant="caption"
                                                     style={{ color: theme.success, marginLeft: 4 }}
                                                 >
-                                                    · {inProgress} at 1/2
+                                                    {t('mistakesTab.inProgress', { count: inProgress })}
                                                 </Typography>
                                             )}
                                         </View>

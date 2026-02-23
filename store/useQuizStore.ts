@@ -1,4 +1,5 @@
 import { fetchQuestionsByRange } from '@/hooks/useQuestions';
+import { useUserStore } from '@/store/useUserStore';
 import { create } from 'zustand';
 
 // --- Types ---
@@ -33,23 +34,31 @@ function shuffle<T>(arr: T[]): T[] {
  *   id (uuid), question (text), answer (text – correct),
  *   o1, o2, o3 (text – distractors), explanation (text)
  */
-function mapToQuizQuestion(row: any): QuizQuestion {
+function mapToQuizQuestion(row: any, language: string): QuizQuestion {
+    const isVn = language === 'vi';
+    const answer = isVn && row.answer_vn ? row.answer_vn : row.answer;
+    const o1 = isVn && row.o1_vn ? row.o1_vn : row.o1;
+    const o2 = isVn && row.o2_vn ? row.o2_vn : row.o2;
+    const o3 = isVn && row.o3_vn ? row.o3_vn : row.o3;
+    const questionText = isVn && row.question_vn ? row.question_vn : row.question;
+    const explanation = isVn && row.explanation_vn ? row.explanation_vn : row.explanation;
+
     // Build options from answer + o1/o2/o3, assign stable IDs, then shuffle
     const allOptions: QuizOption[] = shuffle(
         [
-            { id: 'correct', text: String(row.answer ?? '') },
-            row.o1 ? { id: 'o1', text: String(row.o1) } : null,
-            row.o2 ? { id: 'o2', text: String(row.o2) } : null,
-            row.o3 ? { id: 'o3', text: String(row.o3) } : null,
+            { id: 'correct', text: String(answer ?? '') },
+            o1 ? { id: 'o1', text: String(o1) } : null,
+            o2 ? { id: 'o2', text: String(o2) } : null,
+            o3 ? { id: 'o3', text: String(o3) } : null,
         ].filter(Boolean) as QuizOption[],
     );
 
     return {
         id: String(row.id),
-        text: row.question ?? '',
+        text: questionText ?? '',
         options: allOptions,
         correctOptionId: 'correct', // always matches the answer option
-        explanation: row.explanation ?? null,
+        explanation: explanation ?? null,
     };
 }
 
@@ -84,6 +93,8 @@ export interface QuizState {
     finishRound: () => void;
     startNextRound: () => void;
     resetQuiz: () => void;
+    /** Internal debug action: instantly completes all questions in the set. */
+    bypassSet: () => void;
 }
 
 // --- Initial State ---
@@ -111,8 +122,9 @@ export const useQuizStore = create<QuizState>()((set, get) => ({
     loadQuestions: async (topicId: string, offset: number, limit: number) => {
         set({ isLoading: true, error: null });
         try {
+            const language = useUserStore.getState().language;
             const rows = await fetchQuestionsByRange(topicId, offset, limit);
-            const questions = rows.map(mapToQuizQuestion);
+            const questions = rows.map(r => mapToQuizQuestion(r, language));
             set({
                 questions,
                 activeQuestions: questions,
@@ -198,5 +210,16 @@ export const useQuizStore = create<QuizState>()((set, get) => ({
 
     resetQuiz: () => {
         set(INITIAL_QUIZ_STATE);
+    },
+
+    bypassSet: () => {
+        const { questions } = get();
+        if (questions.length === 0) return;
+        set({
+            masteredIds: questions.map((q) => q.id),
+            roundCorrectCount: questions.length,
+            roundMistakes: [],
+            isRoundComplete: true,
+        });
     },
 }));

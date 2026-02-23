@@ -25,6 +25,9 @@
         "items": {
             "referFriends": "Giới thiệu bạn bè",
             "achievements": "Thành tích",
+            "manageSubscription": "Quản lý gói đăng ký",
+            "upgradeToPro": "Nâng cấp lên Pro",
+            "restorePurchases": "Khôi phục thanh toán",
             "settingsExam": "Cài đặt thi",
             "changeState": "Đổi bang",
             "changeEndorsements": "Đổi chứng chỉ",
@@ -44,6 +47,8 @@
             "reportBug": "Báo cáo lỗi"
         },
         "resetConfirmMessage": "Bạn có chắc chắn muốn đặt lại toàn bộ tiến độ? Hành động này không thể hoàn tác.",
+        "restoreSuccessTitle": "Thành công",
+        "restoreSuccessMessage": "Khôi phục thanh toán thành công.",
         "feedback": {
             "title": "Bạn có thích ứng dụng không?",
             "subtitle": "Chạm vào ngôi sao để đánh giá trên App Store.",
@@ -75,6 +80,8 @@
         "subtitle": "Học theo chủ đề",
         "myCourses": "Khóa học của tôi",
         "todaysQuestion": "Câu hỏi hôm nay",
+        "roadMap": "Lộ trình",
+        "completedProgress": "Đã hoàn thành {{progress}}%",
         "categories": {
             "generalKnowledge": "Kiến thức chung",
             "generalKnowledgeSubtitle": "Lý thuyết, Đạo đức, Luật",
@@ -137,5 +144,30 @@
         "checkAnswer": "Kiểm tra đáp án",
         "cleared": "✓ Đã xóa!",
         "continue": "Tiếp tục"
+    },
+    "topic": {
+        "roadmap": "Lộ trình",
+        "step": "Bước {{order}} / {{total}}",
+        "setsInfo": "{{sets}} bộ · {{questions}}",
+        "questionsEach": "{{count}} câu/bộ",
+        "zeroQ": "0 câu",
+        "complete": " · ✅ Hoàn thành",
+        "noQuestions": "Chưa có câu hỏi nào cho chủ đề này.",
+        "setNumber": "Bộ {{number}}",
+        "questionsCount": "{{count}} câu hỏi",
+        "bestScore": " · Cao nhất: {{score}}%"
+    },
+    "mistakesTab": {
+        "title": "Lỗi sai",
+        "subtitle": "Trả lời đúng 2 lần liên tiếp để xóa",
+        "toClear": "để xóa",
+        "reviewAll": "Ôn tập tất cả ({{count}})",
+        "reviewAllDesc": "Kiểm tra lại tất cả các lỗi sai của bạn",
+        "allClear": "Xuất sắc!",
+        "noMistakes": "Bạn chưa có lỗi sai nào.\nHãy tiếp tục luyện tập để theo dõi tại đây.",
+        "byTopic": "THEO CHỦ ĐỀ",
+        "mistakeSingle": "{{count}} lỗi sai",
+        "mistakePlural": "{{count}} lỗi sai",
+        "inProgress": "· {{count}} đang ở 1/2"
     }
 }

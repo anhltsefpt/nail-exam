@@ -1,3 +1,4 @@
+import { useUserStore } from '@/store/useUserStore';
 import { useEffect, useState } from 'react';
 import { Alert } from 'react-native';
 import Purchases, {
@@ -143,7 +144,10 @@ export function useRevenueCat() {
     useEffect(() => {
         if (customerInfo) {
             const entitlement = customerInfo.entitlements.active[ENTITLEMENT_ID];
-            setIsPro(entitlement !== undefined);
+            const proValue = entitlement !== undefined;
+            setIsPro(proValue);
+            // Persist to Zustand so other screens get the cached value instantly
+            useUserStore.getState().setIsPro(proValue);
         }
     }, [customerInfo]);
 

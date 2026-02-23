@@ -25,6 +25,9 @@
         "items": {
             "referFriends": "Refer Friends",
             "achievements": "Achievements",
+            "manageSubscription": "Manage Subscription",
+            "upgradeToPro": "Upgrade to Pro",
+            "restorePurchases": "Restore Purchases",
             "settingsExam": "Settings Exam",
             "changeState": "Change State",
             "changeEndorsements": "Change Endorsements",
@@ -44,6 +47,8 @@
             "reportBug": "Report Bug"
         },
         "resetConfirmMessage": "Are you sure you want to reset all progress? This action cannot be undone.",
+        "restoreSuccessTitle": "Success",
+        "restoreSuccessMessage": "Purchases restored successfully.",
         "feedback": {
             "title": "Enjoying the app?",
             "subtitle": "Tap a star to rate it on the App Store.",
@@ -75,6 +80,8 @@
         "subtitle": "Study By Topics",
         "myCourses": "My Courses",
         "todaysQuestion": "Today's Question",
+        "roadMap": "Road Map",
+        "completedProgress": "{{progress}}% completed",
         "categories": {
             "generalKnowledge": "General Knowledge",
             "generalKnowledgeSubtitle": "Theory, Ethics, Laws",
@@ -137,5 +144,30 @@
         "checkAnswer": "Check Answer",
         "cleared": "✓ Cleared!",
         "continue": "Continue"
+    },
+    "topic": {
+        "roadmap": "Roadmap",
+        "step": "Step {{order}} of {{total}}",
+        "setsInfo": "{{sets}} sets · {{questions}}",
+        "questionsEach": "{{count}}Q each",
+        "zeroQ": "0Q",
+        "complete": " · ✅ Complete",
+        "noQuestions": "No questions available for this topic yet.",
+        "setNumber": "Set {{number}}",
+        "questionsCount": "{{count}} questions",
+        "bestScore": " · Best: {{score}}%"
+    },
+    "mistakesTab": {
+        "title": "Mistakes",
+        "subtitle": "Answer correctly 2× in a row to clear",
+        "toClear": "to clear",
+        "reviewAll": "Review All ({{count}})",
+        "reviewAllDesc": "Quiz through all your mistakes",
+        "allClear": "All clear!",
+        "noMistakes": "You have no mistakes yet.\nKeep practicing to see them here.",
+        "byTopic": "BY TOPIC",
+        "mistakeSingle": "{{count}} mistake",
+        "mistakePlural": "{{count}} mistakes",
+        "inProgress": "· {{count}} at 1/2"
     }
 }

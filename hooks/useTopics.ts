@@ -1,5 +1,6 @@
 import { CategoryConfig, generateRowPattern, PHASE_META } from '@/data/roadmap-config';
 import { supabase } from '@/lib/supabase';
+import { useUserStore } from '@/store/useUserStore';
 import { useEffect, useState } from 'react';
 
 interface TopicRow {
@@ -7,9 +8,11 @@ interface TopicRow {
     name: string | null;
     order: number | null;
     phase_id: number | null;
+    name_vn: string | null;
 }
 
 export function useTopics() {
+    const language = useUserStore((s) => s.language);
     const [categories, setCategories] = useState<CategoryConfig[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -49,13 +52,19 @@ export function useTopics() {
 
                     cats.push({
                         id: meta.id,
-                        title: meta.title,
+                        title: language === 'vi' && meta.title_vn ? meta.title_vn : meta.title,
                         phaseIndex: meta.phaseIndex,
-                        nodes: phaseTopics.map((t) => ({
-                            id: t.order ?? 0,
-                            label: t.name ?? 'Untitled',
-                            topicId: t.id,
-                        })),
+                        nodes: phaseTopics.map((t) => {
+                            const isVn = language === 'vi';
+                            const label = isVn && t.name_vn ? t.name_vn : t.name;
+                            return {
+                                id: t.order ?? 0,
+                                label: label ?? 'Untitled',
+                                labelEn: t.name ?? 'Untitled',
+                                labelVn: t.name_vn ?? t.name ?? 'Untitled',
+                                topicId: t.id,
+                            };
+                        }),
                         rowPattern: generateRowPattern(phaseTopics.length),
                     });
                 }
@@ -74,7 +83,7 @@ export function useTopics() {
 
         fetchTopics();
         return () => { cancelled = true; };
-    }, []);
+    }, [language]);
 
     return { categories, loading, error };
 }

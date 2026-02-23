@@ -5,7 +5,7 @@ import { Colors, Radius, Shadows, Spacing } from '@/constants/theme';
 import { useRevenueCat } from '@/hooks/useRevenueCat';
 import { useTopics } from '@/hooks/useTopics';
 import { track } from '@/lib/analytics';
-import { useUserStore } from '@/store/useUserStore';
+import { useIsStoreHydrated, useUserStore } from '@/store/useUserStore';
 import { useRouter } from 'expo-router';
 import { FlaskConical, Gem } from 'lucide-react-native';
 import React from 'react';
@@ -16,7 +16,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 export default function HomeScreen() {
   const router = useRouter();
   const { t } = useTranslation();
-  const { isPro } = useRevenueCat();
+  const { isPro, presentPaywall, isReady: isRevenueCatReady } = useRevenueCat();
   const colorScheme = useColorScheme() ?? 'light';
   const theme = Colors[colorScheme];
 
@@ -24,7 +24,17 @@ export default function HomeScreen() {
   const courseProgress = useUserStore((s) => s.courseProgress);
   const mistakes = useUserStore((s) => s.mistakes);
   const mistakeCount = mistakes.length;
+  const nodeProgress = useUserStore((s) => s.nodeProgress);
   const { categories, loading, error } = useTopics();
+  const isStoreHydrated = useIsStoreHydrated();
+
+  // Global "current" node = highest nodeId with any recorded progress across ALL sections.
+  // Falls back to 1 (first node) if the user hasn't started anything yet.
+  const allNodeIds = categories.flatMap(c => c.nodes.map(n => n.id));
+  const accessedGlobally = allNodeIds.filter(id => (nodeProgress[id] || 0) > 0);
+  const globalCurrentNodeId = accessedGlobally.length > 0
+    ? Math.max(...accessedGlobally)
+    : 1;
 
   const styles = StyleSheet.create({
     container: {
@@ -133,10 +143,10 @@ export default function HomeScreen() {
         {/* Roadmap Header */}
         <View style={styles.roadmapHeader}>
           <Typography variant="display" style={{ fontSize: 26 }}>
-            Road Map
+            {t('dashboard.roadMap')}
           </Typography>
           <Typography variant="caption" color="muted" style={{ marginTop: 2 }}>
-            {courseProgress}% completed
+            {t('dashboard.completedProgress', { progress: courseProgress })}
           </Typography>
         </View>
 
@@ -146,7 +156,7 @@ export default function HomeScreen() {
         </View>
 
         {/* Category Sections — chained via exit side */}
-        {loading ? (
+        {(!isStoreHydrated || !isRevenueCatReady || loading) ? (
           <View style={styles.loadingContainer}>
             <ActivityIndicator size="large" color={theme.primary} />
           </View>
@@ -163,6 +173,9 @@ export default function HomeScreen() {
                 startFromLeft={acc.startFromLeft}
                 isFirst={idx === 0}
                 isLast={idx === categories.length - 1}
+                isPro={isPro}
+                onPressPaywall={presentPaywall}
+                currentNodeId={globalCurrentNodeId}
               />
             );
             const exitSide = computeExitSide(cat.rowPattern, acc.startFromLeft);

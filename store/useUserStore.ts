@@ -1,6 +1,27 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useEffect, useState } from 'react';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
+
+/**
+ * Returns true once the Zustand user store has finished rehydrating from AsyncStorage.
+ * Keeps the roadmap from rendering with stale initial-state values before persisted
+ * progress is loaded.
+ */
+export function useIsStoreHydrated(): boolean {
+    const [hydrated, setHydrated] = useState(() => useUserStore.persist.hasHydrated());
+
+    useEffect(() => {
+        if (useUserStore.persist.hasHydrated()) {
+            setHydrated(true);
+            return;
+        }
+        const unsub = useUserStore.persist.onFinishHydration(() => setHydrated(true));
+        return unsub;
+    }, []);
+
+    return hydrated;
+}
 
 // --- Types ---
 export type NodeStatus = 'locked' | 'active' | 'completed' | 'starred';
@@ -16,7 +37,9 @@ export interface QuestionRecord {
 export interface MistakeRecord {
     questionId: string;
     topicId: string;
-    topicName: string;
+    topicName: string; // Legacy field (keep it for backwards compatibility with existing users)
+    topicNameEn?: string;
+    topicNameVn?: string;
     consecutiveCorrect: number; // 0 or 1; removed from list when reaches 2
 }
 
@@ -51,11 +74,15 @@ export interface UserState {
     soundEnabled: boolean;
     hapticsEnabled: boolean;
     fontScale: number; // 0.8 to 1.4
-    language: 'en' | 'ko' | 'vi';
+    language: 'en' | 'vi';
     reminderTime: string; // HH:mm format
     feedbackRating: number | null; // 1-5 or null
 
+    // Subscription (cached from RevenueCat for instant access)
+    isPro: boolean;
+
     // Actions
+    setIsPro: (val: boolean) => void;
     setName: (name: string) => void;
     addXp: (amount: number) => void;
     addGems: (amount: number) => void;
@@ -68,12 +95,12 @@ export interface UserState {
     likeQuestion: (questionId: string) => void;
     dislikeQuestion: (questionId: string) => void;
     recordAnswer: (questionId: string, correct: boolean, selectedOption: string) => void;
-    addMistake: (questionId: string, topicId: string, topicName: string) => void;
+    addMistake: (questionId: string, topicId: string, topicName: string, topicNameEn?: string, topicNameVn?: string) => void;
     recordMistakeAnswer: (questionId: string, isCorrect: boolean) => void;
     updateSetProgress: (topicId: string, setIndex: number, percentage: number) => void;
     resetProgress: () => void;
     setFontScale: (scale: number) => void;
-    setLanguage: (lang: 'en' | 'ko' | 'vi') => void;
+    setLanguage: (lang: 'en' | 'vi') => void;
     setReminderTime: (time: string) => void;
     setFeedbackRating: (rating: number) => void;
 }
@@ -115,6 +142,7 @@ const INITIAL_STATE = {
     reminderTime: '09:00',
     feedbackRating: null,
     topicSetProgress: {},
+    isPro: false,
 };
 
 // --- Store ---
@@ -123,6 +151,8 @@ export const useUserStore = create<UserState>()(
     persist(
         (set, get) => ({
             ...INITIAL_STATE,
+
+            setIsPro: (val) => set({ isPro: val }),
 
             setName: (name) => set({ name }),
 
@@ -237,14 +267,14 @@ export const useUserStore = create<UserState>()(
                     },
                 })),
 
-            addMistake: (questionId, topicId, topicName) =>
+            addMistake: (questionId, topicId, topicName, topicNameEn, topicNameVn) =>
                 set((state) => {
                     // Idempotent – skip if already tracked
                     if (state.mistakes.some((m) => m.questionId === questionId)) return state;
                     return {
                         mistakes: [
                             ...state.mistakes,
-                            { questionId, topicId, topicName, consecutiveCorrect: 0 },
+                            { questionId, topicId, topicName, topicNameEn, topicNameVn, consecutiveCorrect: 0 },
                         ],
                     };
                 }),

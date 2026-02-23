@@ -19,7 +19,7 @@ import {
     Type,
     X
 } from 'lucide-react-native';
-import React, { useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
     ActivityIndicator,
@@ -36,12 +36,14 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 export default function QuizScreen() {
     const router = useRouter();
     const { t } = useTranslation();
-    const { categoryId, topicId, offset, limit, topicName, setIndex: setIndexStr } = useLocalSearchParams<{
+    const { categoryId, topicId, offset, limit, topicName, topicNameEn, topicNameVn, setIndex: setIndexStr } = useLocalSearchParams<{
         categoryId: string;
         topicId: string;
         offset: string;
         limit: string;
         topicName: string;
+        topicNameEn: string;
+        topicNameVn: string;
         setIndex: string;
     }>();
     const colorScheme = useColorScheme() ?? 'light';
@@ -66,6 +68,7 @@ export default function QuizScreen() {
         nextQuestion,
         startNextRound,
         resetQuiz,
+        bypassSet,
     } = useQuizStore();
 
     // --- User Store (persistent) ---
@@ -97,6 +100,30 @@ export default function QuizScreen() {
             resetQuiz();
         };
     }, [topicId, offset, limit]);
+
+    // --- Debug bypass: tap 'Lesson Progress' label, then hold '%' for 5s (within 15s) ---
+    const bypassTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const bypassArmedAtRef = useRef<number | null>(null);
+
+    const handleArmBypass = useCallback(() => {
+        bypassArmedAtRef.current = Date.now();
+    }, []);
+
+    const handleMasteryPressIn = useCallback(() => {
+        const armedAt = bypassArmedAtRef.current;
+        if (!armedAt || Date.now() - armedAt > 15000) return;
+        bypassTimerRef.current = setTimeout(() => {
+            bypassArmedAtRef.current = null;
+            bypassSet();
+        }, 5000);
+    }, [bypassSet]);
+
+    const handleMasteryPressOut = useCallback(() => {
+        if (bypassTimerRef.current) {
+            clearTimeout(bypassTimerRef.current);
+            bypassTimerRef.current = null;
+        }
+    }, []);
 
     // --- Font Slider ---
     const [showFontMenu, setShowFontMenu] = React.useState(false);
@@ -163,7 +190,7 @@ export default function QuizScreen() {
             recordAnswer(question.id, result.isCorrect, optionId);
             // Track first-attempt wrong answers in the Mistakes list
             if (!result.isCorrect) {
-                addMistake(question.id, topicId || '', topicName || '');
+                addMistake(question.id, topicId || '', topicName || '', topicNameEn || '', topicNameVn || '');
             }
         }
     };
@@ -365,8 +392,16 @@ export default function QuizScreen() {
             {/* Progress Bar (Percentage) */}
             <View style={styles.progressContainer}>
                 <View style={[styles.progressBarInfo, { marginBottom: 4, flexDirection: 'row', justifyContent: 'space-between' }]}>
-                    <Typography variant="caption" color="muted">{t('quiz.lessonProgress')}</Typography>
-                    <Typography variant="caption" weight="bold" color="primary">{masteryPercentage}%</Typography>
+                    <TouchableOpacity onPress={handleArmBypass} activeOpacity={1}>
+                        <Typography variant="caption" color="muted">{t('quiz.lessonProgress')}</Typography>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        onPressIn={handleMasteryPressIn}
+                        onPressOut={handleMasteryPressOut}
+                        activeOpacity={1}
+                    >
+                        <Typography variant="caption" weight="bold" color="primary">{masteryPercentage}%</Typography>
+                    </TouchableOpacity>
                 </View>
                 <View style={[styles.progressBarTrack, { backgroundColor: theme.input }]}>
                     <View style={[styles.progressBarFill, { width: `${masteryPercentage}%`, backgroundColor: theme.primary }]} />
@@ -478,16 +513,16 @@ export default function QuizScreen() {
             <View style={styles.stickyBottom}>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chipsContainer} contentContainerStyle={styles.chipsContent}>
                     {isCurrentAnswerWrong && (
-                        <TouchableOpacity style={[styles.chip, styles.chipWrong]} onPress={() => handleAIChat('Why is my answer wrong?')}>
+                        <TouchableOpacity style={[styles.chip, styles.chipWrong]} onPress={() => handleAIChat(t('quiz.whyWrong'))}>
                             <HelpCircle size={16} color="#E8878C" />
                             <Typography variant="caption" style={[styles.chipText, { color: '#E8878C' }]}>{t('quiz.whyWrong')}</Typography>
                         </TouchableOpacity>
                     )}
-                    <TouchableOpacity style={[styles.chip, { borderColor: theme.border }]} onPress={() => handleAIChat('Give me a hint.')}>
+                    <TouchableOpacity style={[styles.chip, { borderColor: theme.border }]} onPress={() => handleAIChat(t('quiz.hint'))}>
                         <Lightbulb size={16} color="#F0C97E" />
                         <Typography variant="caption" style={styles.chipText}>{t('quiz.hint')}</Typography>
                     </TouchableOpacity>
-                    <TouchableOpacity style={[styles.chip, { borderColor: theme.border }]} onPress={() => handleAIChat('Explain.')}>
+                    <TouchableOpacity style={[styles.chip, { borderColor: theme.border }]} onPress={() => handleAIChat(t('quiz.explain'))}>
                         <BookOpen size={16} color={theme.primary} />
                         <Typography variant="caption" style={styles.chipText}>{t('quiz.explain')}</Typography>
                     </TouchableOpacity>

@@ -34,7 +34,7 @@ Deno.serve(async (req: Request) => {
     }
 
     try {
-        const { user_id, message, history, context } = await req.json();
+        const { user_id, message, history, context, language } = await req.json();
 
         if (!user_id || !message) {
             return new Response(
@@ -43,13 +43,19 @@ Deno.serve(async (req: Request) => {
             );
         }
 
-        // Build conversation messages for OpenAI
         const messages: { role: string; content: string }[] = [
             { role: "system", content: SYSTEM_PROMPT },
         ];
 
+        if (language === 'vi') {
+            messages[0].content += "\n\nCRITICAL: The user prefers to communicate in Vietnamese. You MUST reply in Vietnamese.";
+        }
+
         if (context) {
             messages.push({ role: "system", content: `Current Question Context:\n${context}` });
+        } else {
+            // Give a tiny allowance for greetings without context
+            messages.push({ role: "system", content: "Assume questions are about nails if ambiguous." });
         }
 
         // Add previous messages as context (last 10 messages from history)

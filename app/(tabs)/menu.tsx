@@ -30,7 +30,6 @@ import {
     Play,
     RotateCcw,
     ShieldCheck,
-    Users,
     X
 } from 'lucide-react-native';
 import React, { useState } from 'react';
@@ -98,7 +97,6 @@ export default function MenuScreen() {
 
     const LANGUAGES = [
         { code: 'en', label: 'English', flag: '🇬🇧' },
-        { code: 'ko', label: 'Korean', flag: '🇰🇷' },
         { code: 'vi', label: 'Vietnamese', flag: '🇻🇳' },
     ];
 
@@ -501,12 +499,6 @@ export default function MenuScreen() {
                 {/* Menu Group 1 */}
                 <View style={styles.menuGroup}>
                     <MenuItem
-                        icon={Users}
-                        label={t('menu.items.referFriends')}
-                        onPress={() => { }}
-                        badge="NEW"
-                    />
-                    <MenuItem
                         icon={Crown}
                         label={t('menu.items.achievements')}
                         onPress={() => { }}
@@ -514,25 +506,25 @@ export default function MenuScreen() {
                     {isPro && (
                         <MenuItem
                             icon={Headset}
-                            label="Manage Subscription"
+                            label={t('menu.items.manageSubscription')}
                             onPress={() => { track('tap_manage_subscription'); presentCustomerCenter(); }}
                         />
                     )}
                     {!isPro && (
                         <MenuItem
                             icon={Crown}
-                            label="Upgrade to Pro"
+                            label={t('menu.items.upgradeToPro')}
                             onPress={() => { track('tap_upgrade', { source: 'menu_item' }); handlePresentPaywall(); }}
                         />
                     )}
                     <MenuItem
                         icon={RotateCcw}
-                        label="Restore Purchases"
+                        label={t('menu.items.restorePurchases')}
                         onPress={async () => {
                             track('tap_restore_purchases');
                             const success = await restorePurchases();
                             if (success) {
-                                Alert.alert('Success', 'Purchases restored successfully.');
+                                Alert.alert(t('menu.restoreSuccessTitle'), t('menu.restoreSuccessMessage'));
                             }
                         }}
                         isLast
