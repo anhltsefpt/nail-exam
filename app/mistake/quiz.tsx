@@ -170,7 +170,7 @@ export default function MistakeQuizScreen() {
                 <Stack.Screen options={{ headerShown: false }} />
                 <ActivityIndicator size="large" color={theme.primary} />
                 <Typography variant="body" color="muted" style={{ marginTop: Spacing.m }}>
-                    Loading...
+                    {t('mistakeQuiz.loading')}
                 </Typography>
             </SafeAreaView>
         );
@@ -182,10 +182,10 @@ export default function MistakeQuizScreen() {
                 style={[styles.container, { backgroundColor: theme.background, justifyContent: 'center', alignItems: 'center', padding: Spacing.xl }]}
             >
                 <Stack.Screen options={{ headerShown: false }} />
-                <Typography variant="heading" weight="bold" align="center">Oops!</Typography>
+                <Typography variant="heading" weight="bold" align="center">{t('mistakeQuiz.oops')}</Typography>
                 <Typography variant="body" color="muted" align="center" style={{ marginTop: Spacing.s }}>{error}</Typography>
                 <TouchableOpacity style={[styles.summaryButton, { marginTop: Spacing.xl }]} onPress={() => router.back()}>
-                    <Typography variant="body" weight="bold" style={{ color: 'white' }}>Go Back</Typography>
+                    <Typography variant="body" weight="bold" style={{ color: 'white' }}>{t('mistakeQuiz.goBack')}</Typography>
                 </TouchableOpacity>
             </SafeAreaView>
         );
@@ -200,13 +200,13 @@ export default function MistakeQuizScreen() {
                 <Stack.Screen options={{ headerShown: false }} />
                 <AICharacter size={120} animated />
                 <Typography variant="heading" weight="bold" align="center" style={{ marginTop: Spacing.l, fontSize: 24 }}>
-                    All Clear! 🎉
+                    {t('mistakeQuiz.allClear')}
                 </Typography>
                 <Typography variant="body" color="muted" align="center" style={{ marginTop: Spacing.s, marginBottom: Spacing.xl }}>
-                    You've answered all mistakes correctly twice in a row!
+                    {t('mistakeQuiz.allClearSubtitle')}
                 </Typography>
                 <TouchableOpacity style={styles.summaryButton} onPress={() => router.back()}>
-                    <Typography variant="body" weight="bold" style={{ color: 'white' }}>Done</Typography>
+                    <Typography variant="body" weight="bold" style={{ color: 'white' }}>{t('mistakeQuiz.done')}</Typography>
                 </TouchableOpacity>
             </SafeAreaView>
         );
@@ -230,10 +230,10 @@ export default function MistakeQuizScreen() {
 
                 <View style={styles.headerCenter}>
                     <Typography variant="caption" color="muted">
-                        {mode === 'topic' ? topicName : 'All Mistakes'}
+                        {mode === 'topic' ? topicName : t('mistakeQuiz.allMistakes')}
                     </Typography>
                     <Typography variant="caption" weight="bold" color="muted">
-                        {sessionIds.length} remaining
+                        {sessionIds.length} {t('mistakeQuiz.remaining')}
                     </Typography>
                 </View>
 
@@ -362,10 +362,10 @@ export default function MistakeQuizScreen() {
                         >
                             <Typography variant="body" weight="bold" color={showResult ? 'inverted' : 'muted'}>
                                 {!showResult
-                                    ? 'Check Answer'
+                                    ? t('mistakeQuiz.checkAnswer')
                                     : isNextClear
-                                        ? '✓ Cleared!'
-                                        : 'Continue'}
+                                        ? t('mistakeQuiz.cleared')
+                                        : t('mistakeQuiz.continue')}
                             </Typography>
                         </LinearGradient>
                     </TouchableOpacity>

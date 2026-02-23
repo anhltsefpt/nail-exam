@@ -54,6 +54,7 @@ export default function AIChatScreen() {
     const { isPro, presentPaywall } = useRevenueCat();
     const gems = useUserStore((s) => s.gems);
     const deductGem = useUserStore((s) => s.deductGem);
+    const language = useUserStore((s) => s.language);
 
     // Message state
     const [messages, setMessages] = useState<DisplayMessage[]>([WELCOME_MESSAGE]);
@@ -255,7 +256,7 @@ export default function AIChatScreen() {
                     content: m.message,
                 }));
 
-            const aiResponse = await sendChatMessage(text, recentHistory, context);
+            const aiResponse = await sendChatMessage(text, recentHistory, context, language);
 
             const aiMsgId = (Date.now() + 1).toString();
             setStreamingMessageId(aiMsgId);
@@ -280,7 +281,7 @@ export default function AIChatScreen() {
         } finally {
             setIsSending(false);
         }
-    }, [isSending, isPro, deductGem, messages]);
+    }, [isSending, isPro, deductGem, messages, language]);
 
     const handleSend = useCallback(() => {
         if (!inputText.trim()) return;
@@ -300,10 +301,10 @@ export default function AIChatScreen() {
         }
     }, [isLoadingHistory, initialPrompt, autoSend, sendMessage]);
 
-    // Quick actions now prefill the input instead of sending directly
+    // Quick actions send the message immediately
     const handleQuickAction = (action: string) => {
         track('ai_quick_action', { action });
-        setInputText(action);
+        sendMessage(action);
     };
 
     return (

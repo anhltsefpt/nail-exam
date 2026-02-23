@@ -119,5 +119,23 @@
         "inputPlaceholder": "메시지를 입력하세요...",
         "analyzeProgress": "내 진도 분석",
         "studyTheory": "이론 공부하기"
+    },
+    "tabs": {
+        "home": "홈",
+        "mistakes": "오답",
+        "menu": "메뉴"
+    },
+    "mistakeQuiz": {
+        "allMistakes": "모든 오답",
+        "remaining": "남음",
+        "loading": "로딩 중...",
+        "oops": "앗!",
+        "goBack": "뒤로 가기",
+        "allClear": "모두 클리어! 🎉",
+        "allClearSubtitle": "모든 오답을 두 번 연속으로 맞혔습니다!",
+        "done": "완료",
+        "checkAnswer": "정답 확인",
+        "cleared": "✓ 클리어!",
+        "continue": "계속하기"
     }
 }

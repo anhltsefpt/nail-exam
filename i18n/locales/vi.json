@@ -119,5 +119,23 @@
         "inputPlaceholder": "Nhập tin nhắn của bạn...",
         "analyzeProgress": "Phân tích tiến độ",
         "studyTheory": "Học lý thuyết"
+    },
+    "tabs": {
+        "home": "Trang chủ",
+        "mistakes": "Lỗi sai",
+        "menu": "Menu"
+    },
+    "mistakeQuiz": {
+        "allMistakes": "Tất cả lỗi sai",
+        "remaining": "còn lại",
+        "loading": "Đang tải...",
+        "oops": "Ồ không!",
+        "goBack": "Quay lại",
+        "allClear": "Xuất sắc! 🎉",
+        "allClearSubtitle": "Bạn đã trả lời đúng tất cả câu sai hai lần liên tiếp!",
+        "done": "Xong",
+        "checkAnswer": "Kiểm tra đáp án",
+        "cleared": "✓ Đã xóa!",
+        "continue": "Tiếp tục"
     }
 }

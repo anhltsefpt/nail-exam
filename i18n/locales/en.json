@@ -119,5 +119,23 @@
         "inputPlaceholder": "Enter your message here...",
         "analyzeProgress": "Analyze my progress",
         "studyTheory": "Study Theory"
+    },
+    "tabs": {
+        "home": "Home",
+        "mistakes": "Mistakes",
+        "menu": "Menu"
+    },
+    "mistakeQuiz": {
+        "allMistakes": "All Mistakes",
+        "remaining": "remaining",
+        "loading": "Loading...",
+        "oops": "Oops!",
+        "goBack": "Go Back",
+        "allClear": "All Clear! 🎉",
+        "allClearSubtitle": "You've answered all mistakes correctly twice in a row!",
+        "done": "Done",
+        "checkAnswer": "Check Answer",
+        "cleared": "✓ Cleared!",
+        "continue": "Continue"
     }
 }
