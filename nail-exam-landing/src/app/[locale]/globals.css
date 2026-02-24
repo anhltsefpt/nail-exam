@@ -1,0 +1,55 @@
+@import "tailwindcss";
+
+@theme {
+  --color-rose: #E8567D;
+  --color-rose-light: #FCC4EC;
+  --color-rose-dark: #C24A62;
+  --color-rose-whisper: #FFF5F7;
+  
+  --color-ink: #2D2A26;
+  --color-body: #5C564E;
+  --color-muted: #9E9B8C;
+  --color-border-light: #C8C1B8;
+  --color-surface: #F0E8E8;
+  --color-canvas: #FAF8F6;
+  --color-white: #FFFFFF;
+
+  --color-success: #22C55E;
+  --color-success-bg: #DCFCE7;
+  --color-error: #EF4444;
+  --color-error-bg: #FEE2E2;
+  --color-warning: #F59E0B;
+  --color-warning-bg: #FEF3C7;
+  --color-info: #3B82F6;
+  --color-info-bg: #DBEAFE;
+  
+  --color-phase-1: #E8567D;
+  --color-phase-1-light: #FCC4EC;
+  --color-phase-2: #22C55E;
+  --color-phase-2-light: #DCFCE7;
+  --color-phase-3: #3B82F6;
+  --color-phase-3-light: #DBEAFE;
+  --color-phase-4: #16A34A;
+  --color-phase-4-light: #DCFCE7;
+
+  --color-star-gold: #FBBF24;
+}
+
+:root {
+  --background: var(--color-canvas);
+  --foreground: var(--color-ink);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}

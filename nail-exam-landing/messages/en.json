@@ -1,0 +1,60 @@
+{
+    "Header": {
+        "home": "Home",
+        "privacy": "Privacy",
+        "terms": "Terms"
+    },
+    "Hero": {
+        "title": "Pass Your Nail Tech Exam",
+        "titleHighlight": "the Right Way",
+        "subtitle": "Start by Learning, Then Practice With Real-Time Simulation. NailPrep helps you build real knowledge through structured lessons + a realistic exam simulator.",
+        "appStore": "Download on the",
+        "googlePlay": "GET IT ON",
+        "trustedBy": "Trusted by",
+        "traders": "students"
+    },
+    "Features": {
+        "whyHeader": "Why NailPrep?",
+        "whySubtitle": "We've built a complete platform that takes complete beginners and gives them the tools, feedback, and simulated environment to become confident licensed nail technicians.",
+        "stepBadge": "Step-by-Step",
+        "structuredTitle": "Structured Lessons Designed for Beginners",
+        "structuredDesc": "Don't guess what to learn next. Our curated roadmap guides you from the absolute basics to state board mastery in a proven sequence. Clear text, simple examples, and constant quizzes ensure the knowledge sticks.",
+        "learnMore": "Learn More",
+        "instantBadge": "Instant Help",
+        "smartTitle": "Learn Faster with Smart Feedback",
+        "smartDesc": "Stuck on a concept? Our AI Exam Tutor is built right into the app. Ask custom questions, get instant explanations on complex procedures, or analyze why your specific practice answer went wrong. It's like having an instructor in your pocket.",
+        "aiAssistant": "Exam Tutor",
+        "aiQuestion1": "Why can't I use an autoclave for pumice stones?",
+        "aiAnswer1": "Because pumice stones are porous and cannot be properly sterilized or disinfected. They are single-use disposable items.",
+        "aiQuestion2": "Can you explain it simpler?"
+    },
+    "Roadmap": {
+        "header": "Master the Material the Smart Way",
+        "subtitle": "Follow a clear, proven learning path.",
+        "step1": "General Anatomy",
+        "step2": "Nail Structure & Conditions",
+        "step3": "Chemistry & Safety",
+        "step4": "Manicuring & Pedicuring",
+        "step5": "Enhancements & Extensions",
+        "step6": "State Board Mastery",
+        "exploreCta": "Explore All Topics in NailPrep →"
+    },
+    "Simulator": {
+        "header": "Practice in real conditions — without the test anxiety.",
+        "subtitle": "Build confidence before test day.",
+        "card1Title": "Mock Board Exams",
+        "card1Desc": "Practice with realistic timed tests mimicking the official state board format.",
+        "card1Btn": "Try Simulator",
+        "card2Title": "Weakness Tracking",
+        "card2Desc": "Focus only on exactly what you missed to optimize your study time.",
+        "card2Btn": "View Feedback",
+        "card3Title": "Performance Overview",
+        "card3Desc": "Track your readiness score over time.",
+        "card3Btn": "View Overview"
+    },
+    "Footer": {
+        "rights": "© 2026 NailPrep. All rights reserved.",
+        "privacy": "Privacy Policy",
+        "terms": "Terms of Service"
+    }
+}
