@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@amplitude/analytics-react-native": "^1.5.38",
+    "@amplitude/experiment-react-native-client": "^1.6.3",
     "@amplitude/plugin-session-replay-react-native": "^0.4.6",
     "@expo/vector-icons": "^15.0.3",
     "@react-native-async-storage/async-storage": "2.2.0",

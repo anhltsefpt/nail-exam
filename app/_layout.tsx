@@ -2,15 +2,16 @@ import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native
 import * as Notifications from 'expo-notifications';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Text, useColorScheme } from 'react-native';
+import { StyleSheet, Text, useColorScheme, View } from 'react-native';
 import Purchases, { LOG_LEVEL } from 'react-native-purchases';
 import { ErrorBoundary } from '../components/ErrorBoundary';
 import { useRevenueCat } from '../hooks/useRevenueCat';
 import '../i18n'; // Initialize i18n
 import { identify, initAnalytics, setUserProperties } from '../lib/analytics';
 import { useUserStore } from '../store/useUserStore';
+import OnboardingScreen from './onboarding';
 
 // Disable system font scaling globally for all Text components
 (Text as any).defaultProps = (Text as any).defaultProps || {};
@@ -53,8 +54,12 @@ export default function RootLayout() {
 function RootLayoutNav() {
   const { i18n } = useTranslation();
   const language = useUserStore((state) => state.language);
+  const setLanguage = useUserStore((state) => state.setLanguage);
   const claimDailyGems = useUserStore((state) => state.claimDailyGems);
   const { isPro, customerInfo } = useRevenueCat();
+
+  // In-memory only — resets every time the app is opened
+  const [onboardingCompleted, setOnboardingCompleted] = useState(false);
 
   // Sync Amplitude identity with RevenueCat user
   useEffect(() => {
@@ -75,6 +80,11 @@ function RootLayoutNav() {
     claimDailyGems(isPro);
   }, []);
 
+  const handleOnboardingComplete = (selectedLang: 'en' | 'vi') => {
+    setLanguage(selectedLang);
+    setOnboardingCompleted(true);
+  };
+
   return (
     <>
       <Stack>
@@ -87,6 +97,14 @@ function RootLayoutNav() {
         <Stack.Screen name="mistake" options={{ headerShown: false }} />
       </Stack>
       <StatusBar style="auto" />
+
+      {/* Onboarding overlay — always shown on fresh app open, dismissed on completion */}
+      {!onboardingCompleted && (
+        <View style={StyleSheet.absoluteFillObject}>
+          <OnboardingScreen onComplete={handleOnboardingComplete} />
+        </View>
+      )}
     </>
   );
 }
+
