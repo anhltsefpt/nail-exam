@@ -7,7 +7,6 @@ import Purchases, {
     PurchasesOffering,
     PurchasesPackage,
 } from 'react-native-purchases';
-import RevenueCatUI, { PAYWALL_RESULT } from 'react-native-purchases-ui';
 
 const ENTITLEMENT_ID = 'Nail Exam Pro';
 
@@ -175,66 +174,6 @@ export function useRevenueCat() {
         }
     };
 
-    // --- Present RevenueCat native paywall ---
-    const presentPaywall = async (): Promise<boolean> => {
-        try {
-            const result: PAYWALL_RESULT = await RevenueCatUI.presentPaywall();
-            switch (result) {
-                case PAYWALL_RESULT.PURCHASED:
-                case PAYWALL_RESULT.RESTORED:
-                    return true;
-                case PAYWALL_RESULT.ERROR:
-                    Alert.alert(
-                        'Purchase Failed',
-                        'Something went wrong while processing your purchase. Please try again later.',
-                    );
-                    return false;
-                case PAYWALL_RESULT.NOT_PRESENTED:
-                    Alert.alert(
-                        'Unavailable',
-                        'The subscription options could not be loaded. Please check your connection and try again.',
-                    );
-                    return false;
-                case PAYWALL_RESULT.CANCELLED:
-                default:
-                    return false;
-            }
-        } catch (e: any) {
-            console.error('Paywall error:', e);
-            handlePurchaseError(e);
-            return false;
-        }
-    };
-
-    // --- Present paywall only if user doesn't have the entitlement ---
-    const presentPaywallIfNeeded = async (): Promise<boolean> => {
-        try {
-            const result: PAYWALL_RESULT = await RevenueCatUI.presentPaywallIfNeeded({
-                requiredEntitlementIdentifier: ENTITLEMENT_ID,
-            });
-            switch (result) {
-                case PAYWALL_RESULT.PURCHASED:
-                case PAYWALL_RESULT.RESTORED:
-                    return true;
-                default:
-                    return false;
-            }
-        } catch (e: any) {
-            console.error('Paywall error:', e);
-            handlePurchaseError(e);
-            return false;
-        }
-    };
-
-    // --- Present Customer Center ---
-    const presentCustomerCenter = async () => {
-        try {
-            await RevenueCatUI.presentCustomerCenter();
-        } catch (e) {
-            console.error('Customer Center error:', e);
-        }
-    };
-
     return {
         currentOffering,
         customerInfo,
@@ -242,11 +181,7 @@ export function useRevenueCat() {
         isReady,
         purchasePackage,
         restorePurchases,
-        presentPaywall,
-        presentPaywallIfNeeded,
-        presentCustomerCenter,
     };
 }
 
 export { ENTITLEMENT_ID };
-

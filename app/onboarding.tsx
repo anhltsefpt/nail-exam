@@ -1,6 +1,7 @@
 import { Colors } from '@/constants/theme';
-import { useRevenueCat } from '@/hooks/useRevenueCat';
+import { track } from '@/lib/analytics';
 import { Experiment } from '@amplitude/experiment-react-native-client';
+import { useRouter } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
@@ -195,7 +196,7 @@ interface OnboardingProps {
 export default function OnboardingScreen({ onComplete }: OnboardingProps) {
     const { t, i18n } = useTranslation();
     const insets = useSafeAreaInsets();
-    const { presentPaywall } = useRevenueCat();
+    const router = useRouter();
 
     const [enable_free_onboarding, setEnableFreeOnboarding] = useState(false);
 
@@ -260,7 +261,9 @@ export default function OnboardingScreen({ onComplete }: OnboardingProps) {
 
     const goNext = () => {
         Animated.timing(fadeAnim, { toValue: 0, duration: 180, useNativeDriver: true }).start(() => {
-            setStep((s) => s + 1);
+            const nextStep = step + 1;
+            setStep(nextStep);
+            track('onboarding_step_viewed', { step: nextStep, lang: lang ?? 'unknown' });
             Animated.timing(fadeAnim, { toValue: 1, duration: 220, useNativeDriver: true }).start();
         });
     };
@@ -274,18 +277,23 @@ export default function OnboardingScreen({ onComplete }: OnboardingProps) {
 
     const quizNext = () => {
         if (quizQ < 2) {
+            track('onboarding_quiz_answer', { question: quizQ + 1, correct: quizAns === MINI_QUIZ[quizQ].ans, lang: lang ?? 'unknown' });
             setQuizQ((q) => q + 1);
             setQuizAns(null);
             setQuizShow(false);
         } else {
+            track('onboarding_quiz_answer', { question: 3, correct: quizAns === MINI_QUIZ[quizQ].ans, lang: lang ?? 'unknown' });
+            track('onboarding_quiz_completed', { score: quizScore + (quizAns === MINI_QUIZ[quizQ].ans ? 1 : 0), lang: lang ?? 'unknown' });
             Animated.timing(fadeAnim, { toValue: 0, duration: 180, useNativeDriver: true }).start(() => {
                 setStep(8);
+                track('onboarding_step_viewed', { step: 8, lang: lang ?? 'unknown' });
                 Animated.timing(fadeAnim, { toValue: 1, duration: 220, useNativeDriver: true }).start();
             });
         }
     };
 
     const handleComplete = () => {
+        track('onboarding_completed', { lang: lang ?? 'en', quiz_score: quizScore });
         onComplete(lang ?? 'en');
     };
 
@@ -349,7 +357,7 @@ export default function OnboardingScreen({ onComplete }: OnboardingProps) {
 
                         {/* Bottom CTA */}
                         <View style={[styles.splashCta, { paddingBottom: insets.bottom + 24 }]}>
-                            <TouchableOpacity onPress={goNext} style={styles.splashBtn} activeOpacity={0.85}>
+                            <TouchableOpacity onPress={() => { track('onboarding_splash_cta_tapped', {}); goNext(); }} style={styles.splashBtn} activeOpacity={0.85}>
                                 <Text style={styles.splashBtnText}>{t('onboarding.splash.getStarted')}</Text>
                             </TouchableOpacity>
                             <Text style={styles.splashFree}>{t('onboarding.splash.freeInfo')}</Text>
@@ -372,7 +380,11 @@ export default function OnboardingScreen({ onComplete }: OnboardingProps) {
                             ].map((l) => (
                                 <TouchableOpacity
                                     key={l.code}
-                                    onPress={() => setLang(l.code)}
+                                    onPress={() => {
+                                        setLang(l.code);
+                                        i18n.changeLanguage(l.code); // Switch immediately on tap
+                                        track('onboarding_language_selected', { language: l.code });
+                                    }}
                                     activeOpacity={0.85}
                                     style={[
                                         styles.optionCard,
@@ -394,9 +406,6 @@ export default function OnboardingScreen({ onComplete }: OnboardingProps) {
                             ))}
                         </View>
                         <BottomCTA text={t('onboarding.continue')} onPress={() => {
-                            if (lang) {
-                                i18n.changeLanguage(lang);
-                            }
                             goNext();
                         }} disabled={!lang} />
                     </View>
@@ -419,7 +428,7 @@ export default function OnboardingScreen({ onComplete }: OnboardingProps) {
                             ].map((o) => (
                                 <TouchableOpacity
                                     key={o.id}
-                                    onPress={() => setExperience(o.id)}
+                                    onPress={() => { setExperience(o.id); track('onboarding_experience_selected', { value: o.id, lang: lang ?? 'unknown' }); }}
                                     activeOpacity={0.85}
                                     style={[styles.optionCardSm, experience === o.id && styles.optionCardSelected]}
                                 >
@@ -433,7 +442,7 @@ export default function OnboardingScreen({ onComplete }: OnboardingProps) {
                                 </TouchableOpacity>
                             ))}
                         </View>
-                        <BottomCTA text={t('onboarding.continue')} onPress={goNext} disabled={!experience} />
+                        <BottomCTA text={t('onboarding.continue')} onPress={() => { track('onboarding_experience_confirmed', { value: experience, lang: lang ?? 'unknown' }); goNext(); }} disabled={!experience} />
                     </View>
                 )}
 
@@ -454,7 +463,7 @@ export default function OnboardingScreen({ onComplete }: OnboardingProps) {
                             ].map((o) => (
                                 <TouchableOpacity
                                     key={o.id}
-                                    onPress={() => setExamDate(o.id)}
+                                    onPress={() => { setExamDate(o.id); track('onboarding_exam_date_selected', { value: o.id, lang: lang ?? 'unknown' }); }}
                                     activeOpacity={0.85}
                                     style={[styles.optionCardSm, examDate === o.id && styles.optionCardSelected]}
                                 >
@@ -468,7 +477,7 @@ export default function OnboardingScreen({ onComplete }: OnboardingProps) {
                                 </TouchableOpacity>
                             ))}
                         </View>
-                        <BottomCTA text={t('onboarding.continue')} onPress={goNext} disabled={!examDate} />
+                        <BottomCTA text={t('onboarding.continue')} onPress={() => { track('onboarding_exam_date_confirmed', { value: examDate, lang: lang ?? 'unknown' }); goNext(); }} disabled={!examDate} />
                     </View>
                 )}
 
@@ -489,7 +498,7 @@ export default function OnboardingScreen({ onComplete }: OnboardingProps) {
                             ].map((o) => (
                                 <TouchableOpacity
                                     key={o.id}
-                                    onPress={() => setStudyTime(o.id)}
+                                    onPress={() => { setStudyTime(o.id); track('onboarding_study_time_selected', { value: o.id, lang: lang ?? 'unknown' }); }}
                                     activeOpacity={0.85}
                                     style={[styles.optionCardSm, studyTime === o.id && styles.optionCardSelected]}
                                 >
@@ -503,7 +512,7 @@ export default function OnboardingScreen({ onComplete }: OnboardingProps) {
                                 </TouchableOpacity>
                             ))}
                         </View>
-                        <BottomCTA text={t('onboarding.studyTime.btn')} onPress={goNext} disabled={!studyTime} />
+                        <BottomCTA text={t('onboarding.studyTime.btn')} onPress={() => { track('onboarding_study_time_confirmed', { value: studyTime, lang: lang ?? 'unknown' }); goNext(); }} disabled={!studyTime} />
                     </View>
                 )}
 
@@ -597,7 +606,7 @@ export default function OnboardingScreen({ onComplete }: OnboardingProps) {
                                 <Text style={[styles.roadmapMeta, { marginTop: 6 }]}>{t('onboarding.plan.roadmapMeta')}</Text>
                             </View>
                         </View>
-                        <BottomCTA text={t('onboarding.plan.btn')} onPress={goNext} emoji="💪" />
+                        <BottomCTA text={t('onboarding.plan.btn')} onPress={() => { track('onboarding_plan_viewed', { pass_pct: passPct, lang: lang ?? 'unknown' }); goNext(); }} emoji="💪" />
                     </View>
                 )}
 
@@ -638,7 +647,7 @@ export default function OnboardingScreen({ onComplete }: OnboardingProps) {
                                 </View>
                             ))}
                         </View>
-                        <BottomCTA text={t('onboarding.showcase.btn')} onPress={goNext} emoji="⚡" />
+                        <BottomCTA text={t('onboarding.showcase.btn')} onPress={() => { track('onboarding_showcase_viewed', { lang: lang ?? 'unknown' }); goNext(); }} emoji="⚡" />
                     </View>
                 )}
 
@@ -822,8 +831,9 @@ export default function OnboardingScreen({ onComplete }: OnboardingProps) {
                             </>
                         ) : (
                             <TouchableOpacity
-                                onPress={async () => {
-                                    await presentPaywall();
+                                onPress={() => {
+                                    track('onboarding_paywall_cta_tapped', { lang: lang ?? 'en', quiz_score: quizScore });
+                                    router.push('/paywall');
                                     handleComplete();
                                 }}
                                 style={styles.startBtn}

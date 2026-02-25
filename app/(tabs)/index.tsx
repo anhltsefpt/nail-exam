@@ -16,7 +16,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 export default function HomeScreen() {
   const router = useRouter();
   const { t } = useTranslation();
-  const { isPro, presentPaywall, isReady: isRevenueCatReady } = useRevenueCat();
+  const { isPro, isReady: isRevenueCatReady } = useRevenueCat();
   const colorScheme = useColorScheme() ?? 'light';
   const theme = Colors[colorScheme];
 
@@ -174,7 +174,7 @@ export default function HomeScreen() {
                 isFirst={idx === 0}
                 isLast={idx === categories.length - 1}
                 isPro={isPro}
-                onPressPaywall={presentPaywall}
+                onPressPaywall={() => router.push('/paywall')}
                 currentNodeId={globalCurrentNodeId}
               />
             );

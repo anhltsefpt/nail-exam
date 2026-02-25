@@ -1,31 +1,28 @@
-import React from 'react';
-import { View } from 'react-native';
-import RevenueCatUI from 'react-native-purchases-ui';
+/**
+ * Paywall component — navigates to the custom paywall screen.
+ * Use `router.push('/paywall')` directly in your code,
+ * or render this component to trigger the paywall programmatically.
+ */
+import { useRouter } from 'expo-router';
+import { useEffect } from 'react';
 
 interface PaywallProps {
     onDismiss?: () => void;
 }
 
 /**
- * RevenueCat native paywall component.
- * Renders the paywall configured in the RevenueCat dashboard.
- * Use this when you want to embed the paywall inline rather than
- * presenting it as a modal via `presentPaywall()`.
+ * Immediately opens the custom paywall modal when rendered.
+ * Prefer calling `router.push('/paywall')` directly.
  */
 export function Paywall({ onDismiss }: PaywallProps) {
-    return (
-        <View style={{ flex: 1 }}>
-            <RevenueCatUI.Paywall
-                onDismiss={() => {
-                    onDismiss?.();
-                }}
-                onPurchaseCompleted={() => {
-                    onDismiss?.();
-                }}
-                onRestoreCompleted={() => {
-                    // Restore completed — paywall will handle UI
-                }}
-            />
-        </View>
-    );
+    const router = useRouter();
+
+    useEffect(() => {
+        router.push('/paywall');
+        return () => {
+            onDismiss?.();
+        };
+    }, []);
+
+    return null;
 }
