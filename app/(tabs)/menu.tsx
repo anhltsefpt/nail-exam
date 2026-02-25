@@ -14,18 +14,14 @@ import * as Notifications from 'expo-notifications';
 import { useRouter } from 'expo-router';
 import {
     AlertCircle,
-    ArrowRight,
     Bell,
     Bug,
-    Calendar,
     ChevronRight,
     Clock,
     Crown,
     FileText,
-    Gem,
     Globe,
     Headset,
-    MapPin,
     MessageSquare,
     Play,
     RotateCcw,
@@ -38,7 +34,6 @@ import {
     Alert,
     Modal,
     Platform,
-    SafeAreaView,
     ScrollView,
     StyleSheet,
     Switch,
@@ -48,6 +43,7 @@ import {
     useColorScheme,
     View
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function MenuScreen() {
     const router = useRouter();
@@ -58,33 +54,34 @@ export default function MenuScreen() {
     const theme = Colors[colorScheme];
     const [congratsVisible, setCongratsVisible] = useState(false);
 
-    const handlePresentPaywall = async () => {
+    const handlePresentPaywall = () => {
         track('tap_upgrade', { source: 'banner' });
-        const success = await presentPaywall();
-        if (success) {
-            setCongratsVisible(true);
-        }
+        router.push('/paywall');
     };
 
     // Store state
-    const gems = useUserStore((state) => state.gems);
     const streak = useUserStore((state) => state.streak);
     const language = useUserStore((state) => state.language);
     const reminderTime = useUserStore((state) => state.reminderTime);
-    const notificationsEnabled = useUserStore((state) => state.notificationsEnabled); // from store
+    const notificationsEnabled = useUserStore((state) => state.notificationsEnabled);
+    const questionHistory = useUserStore((state) => state.questionHistory);
+    const courseProgress = useUserStore((state) => state.courseProgress);
 
     // Actions
     const setLanguage = useUserStore((state) => state.setLanguage);
     const setReminderTime = useUserStore((state) => state.setReminderTime);
-    const _setNotificationsEnabled = useUserStore.setState; // Direct access or add action? 
-    // Actually we should add an action for toggling notifications to be clean, but for now we can use setState 
-    // or just assume we need to update the store value manually.
-    // Let's use the property from store directly. Wait, 'notificationsEnabled' is in store but we don't have a specific setter action exposed in interface?
-    // UserState interface has `notificationsEnabled` boolean but no `setNotificationsEnabled` action. 
-    // I should probably add it or just use `useUserStore.setState({ notificationsEnabled: val })`.
-    // I will use `useUserStore.setState` for now as it's cleaner than modifying store again.
-
     const resetProgress = useUserStore((state) => state.resetProgress);
+
+    // Derived stats (for pro progress card)
+    const allAnswers = Object.values(questionHistory);
+    const questionsAnswered = allAnswers.length;
+    const correctCount = allAnswers.filter(r => r.correct).length;
+    const accuracy = questionsAnswered > 0 ? Math.round((correctCount / questionsAnswered) * 100) : 0;
+    // Estimate 30s per question as study time
+    const totalSeconds = questionsAnswered * 30;
+    const studyHours = Math.floor(totalSeconds / 3600);
+    const studyMinutes = Math.floor((totalSeconds % 3600) / 60);
+    const studyTimeLabel = studyHours > 0 ? `${studyHours}h ${studyMinutes}m` : `${studyMinutes}m`;
 
     // Local state for UI
     const [languageModalVisible, setLanguageModalVisible] = useState(false);
@@ -419,19 +416,7 @@ export default function MenuScreen() {
     date.setMinutes(minutes || 0);
 
     return (
-        <SafeAreaView style={styles.container}>
-            {/* Header */}
-            <View style={styles.header}>
-                <TouchableOpacity onPress={() => router.back()} style={{ padding: 4 }}>
-                    <ArrowRight size={24} color={theme.text} style={{ transform: [{ rotate: '180deg' }] }} />
-                </TouchableOpacity>
-                <Typography variant="heading" style={{ fontSize: 18 }} tx="menu.title">Menu</Typography>
-                <View style={styles.gemBadge}>
-                    <Typography variant="caption" weight="bold" style={{ marginRight: 4, color: '#D97706' }}>{gems}</Typography>
-                    <Gem size={12} color="#D97706" fill="#FCD34D" />
-                </View>
-            </View>
-
+        <SafeAreaView style={styles.container} edges={['top']}>
             <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
                 {/* Premium Banner */}
                 {!isPro && (
@@ -475,34 +460,26 @@ export default function MenuScreen() {
                         <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 16 }}>
                             <View>
                                 <Text style={{ color: theme.textMuted, fontSize: 12, marginBottom: 4 }}>{t('menu.progress.questionsAnswered')}</Text>
-                                <Text style={{ color: theme.text, fontSize: 20, fontWeight: 'bold' }}>0</Text>
+                                <Text style={{ color: theme.text, fontSize: 20, fontWeight: 'bold' }}>{questionsAnswered}</Text>
                             </View>
                             <View>
                                 <Text style={{ color: theme.textMuted, fontSize: 12, marginBottom: 4 }}>{t('menu.progress.accuracy')}</Text>
-                                <Text style={{ color: theme.success, fontSize: 20, fontWeight: 'bold' }}>0%</Text>
+                                <Text style={{ color: theme.success, fontSize: 20, fontWeight: 'bold' }}>{accuracy}%</Text>
                             </View>
                             <View>
                                 <Text style={{ color: theme.textMuted, fontSize: 12, marginBottom: 4 }}>{t('menu.progress.studyTime')}</Text>
-                                <Text style={{ color: theme.text, fontSize: 20, fontWeight: 'bold' }}>0h</Text>
+                                <Text style={{ color: theme.text, fontSize: 20, fontWeight: 'bold' }}>{studyTimeLabel}</Text>
                             </View>
                         </View>
 
                         <View style={{ width: '100%', height: 6, backgroundColor: theme.input, borderRadius: 3 }}>
-                            <View style={{ width: '0%', height: '100%', backgroundColor: theme.primary, borderRadius: 3 }} />
+                            <View style={{ width: `${courseProgress}%`, height: '100%', backgroundColor: theme.primary, borderRadius: 3 }} />
                         </View>
-                        <Text style={{ color: theme.textMuted, fontSize: 10, marginTop: 6, textAlign: 'center' }}>
-                            {t('menu.progress.keepPracticing')}
-                        </Text>
                     </View>
                 </View>
 
                 {/* Menu Group 1 */}
                 <View style={styles.menuGroup}>
-                    <MenuItem
-                        icon={Crown}
-                        label={t('menu.items.achievements')}
-                        onPress={() => { }}
-                    />
                     {isPro && (
                         <MenuItem
                             icon={Headset}
@@ -531,8 +508,8 @@ export default function MenuScreen() {
                     />
                 </View>
 
-                {/* Settings Exam */}
-                <Typography variant="caption" style={styles.sectionTitle} tx="menu.items.settingsExam">Settings Exam</Typography>
+                {/* General Settings */}
+                <Typography variant="caption" style={styles.sectionTitle} tx="menu.items.generalSettings">General Settings</Typography>
                 <View style={styles.menuGroup}>
                     <MenuItem
                         icon={Globe}
@@ -548,27 +525,6 @@ export default function MenuScreen() {
                             </View>
                         }
                     />
-                    <MenuItem
-                        icon={MapPin}
-                        label={t('menu.items.changeState')}
-                        onPress={() => { }}
-                    />
-                    <MenuItem
-                        icon={FileText}
-                        label={t('menu.items.changeEndorsements')}
-                        onPress={() => { }}
-                    />
-                    <MenuItem
-                        icon={Calendar}
-                        label={t('menu.items.examDate')}
-                        onPress={() => { }}
-                        isLast
-                    />
-                </View>
-
-                {/* General Settings */}
-                <Typography variant="caption" style={styles.sectionTitle} tx="menu.items.generalSettings">General Settings</Typography>
-                <View style={styles.menuGroup}>
                     <MenuItem
                         icon={Bell}
                         label={t('menu.items.notification')}

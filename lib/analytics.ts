@@ -19,7 +19,7 @@ export async function initAnalytics(): Promise<void> {
     const key = getApiKey();
     if (!key || initialised) return;
     try {
-        await amplitude.init(key).promise;
+        await amplitude.init(key, undefined, { disableCookies: true }).promise;
         await amplitude.add(new SessionReplayPlugin()).promise;
         initialised = true;
     } catch (e) {

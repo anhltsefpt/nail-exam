@@ -4,12 +4,13 @@ import { QuickActionChip } from '@/components/ui/QuickActionChip';
 import { ThinkingIndicator } from '@/components/ui/ThinkingIndicator';
 import { TypewriterChatBubble } from '@/components/ui/TypewriterChatBubble';
 import { Colors, Radius, Spacing } from '@/constants/theme';
-import { fetchMessages, sendChatMessage } from '@/hooks/useChatHistory';
+import { sendChatMessage } from '@/hooks/useChatHistory';
 import { useRevenueCat } from '@/hooks/useRevenueCat';
 import { track } from '@/lib/analytics';
+import { useChatStore } from '@/store/useChatStore';
 import { useUserStore } from '@/store/useUserStore';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { ArrowDown, BarChart3, BookOpen, ChevronDown, Gem, Send, X } from 'lucide-react-native';
+import { ArrowDown, BarChart3, ChevronDown, Send, X } from 'lucide-react-native';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
@@ -29,20 +30,6 @@ import {
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
-type DisplayMessage = {
-    id: string;
-    variant: 'ai' | 'user';
-    message: string;
-    created_at?: string; // from DB, used for pagination cursor
-};
-
-const WELCOME_MESSAGE: DisplayMessage = {
-    id: 'welcome',
-    variant: 'ai',
-    message:
-        "Hello! I'm Mentora, your AI study assistant. I'm here to help you ace your Nail Technician exam! 💅\n\nAsk me anything about nail anatomy, sanitation, safety, or exam prep!",
-};
-
 const NEAR_BOTTOM_THRESHOLD = 150;
 const NEAR_TOP_THRESHOLD = 100;
 
@@ -51,18 +38,20 @@ export default function AIChatScreen() {
     const { t } = useTranslation();
     const insets = useSafeAreaInsets();
     const { context, initialPrompt, autoSend } = useLocalSearchParams<{ context?: string; initialPrompt?: string; autoSend?: string }>();
-    const { isPro, presentPaywall } = useRevenueCat();
-    const gems = useUserStore((s) => s.gems);
-    const deductGem = useUserStore((s) => s.deductGem);
+    const { isPro } = useRevenueCat();
     const language = useUserStore((s) => s.language);
+    const name = useUserStore((s) => s.name);
+    const streak = useUserStore((s) => s.streak);
+    const courseProgress = useUserStore((s) => s.courseProgress);
+    const questionHistory = useUserStore((s) => s.questionHistory);
+    const lastLoginDate = useUserStore((s) => s.lastLoginDate);
 
     // Message state
-    const [messages, setMessages] = useState<DisplayMessage[]>([WELCOME_MESSAGE]);
+    const messages = useChatStore((s) => s.messages);
+    const setMessages = useChatStore((s) => s.setMessages);
+
     const [inputText, setInputText] = useState('');
     const [isSending, setIsSending] = useState(false);
-    const [isLoadingHistory, setIsLoadingHistory] = useState(true);
-    const [hasMore, setHasMore] = useState(true);
-    const [isLoadingMore, setIsLoadingMore] = useState(false);
     const [streamingMessageId, setStreamingMessageId] = useState<string | null>(null);
 
     const hasAutoSentRef = useRef(false);
@@ -82,60 +71,21 @@ export default function AIChatScreen() {
                 {
                     id: 'context',
                     variant: 'ai',
-                    message: `I see you're working on:\n\n📝 ${context}\n\nHow can I help you with this question?`,
+                    message: t('aiChat.contextMessage', { context }),
                 },
             ]);
         }
         if (initialPrompt) {
             setInputText(initialPrompt);
         }
-    }, []);
-
-    // Load chat history from Supabase on mount
-    useEffect(() => {
-        let mounted = true;
-        (async () => {
-            try {
-                const { data, hasMore: more } = await fetchMessages();
-                if (!mounted) return;
-                if (data.length > 0) {
-                    const displayMsgs: DisplayMessage[] = data.map((m) => ({
-                        id: m.id,
-                        variant: m.role === 'assistant' ? 'ai' : 'user',
-                        message: m.content,
-                        created_at: m.created_at,
-                    }));
-                    setMessages([WELCOME_MESSAGE, ...displayMsgs]);
-                }
-                setHasMore(more);
-            } catch (e) {
-                console.error('Failed to load chat history:', e);
-            } finally {
-                if (mounted) setIsLoadingHistory(false);
-            }
-        })();
-        return () => { mounted = false; };
-    }, []);
-
-    // Auto-scroll to bottom when messages change (if near bottom)
-    useEffect(() => {
-        if (isNearBottomRef.current) {
-            setTimeout(() => {
-                scrollViewRef.current?.scrollToEnd({ animated: true });
-            }, 100);
-        } else {
-            setShowScrollButton(true);
-        }
-    }, [messages.length]);
+    }, [context, initialPrompt, t]);
 
     // Scroll to bottom on first load
     useEffect(() => {
-        if (!isLoadingHistory) {
-            setTimeout(() => {
-                scrollViewRef.current?.scrollToEnd({ animated: false });
-            }, 300);
-        }
-    }, [isLoadingHistory]);
+        setTimeout(() => {
+            scrollViewRef.current?.scrollToEnd({ animated: false });
+        }, 300);
+    }, []);
 
     const handleScroll = useCallback((event: NativeSyntheticEvent<NativeScrollEvent>) => {
         const { contentOffset, contentSize, layoutMeasurement } = event.nativeEvent;
@@ -149,92 +99,29 @@ export default function AIChatScreen() {
         if (nearBottom) {
             setShowScrollButton(false);
         }
-
-        // Load more when scrolled near the top
-        if (contentOffset.y < NEAR_TOP_THRESHOLD && hasMore && !isLoadingMore) {
-            handleLoadMore();
-        }
-    }, [hasMore, isLoadingMore]);
+    }, []);
 
     const scrollToBottom = useCallback(() => {
         scrollViewRef.current?.scrollToEnd({ animated: true });
         setShowScrollButton(false);
     }, []);
 
-    // Load older messages
-    const handleLoadMore = useCallback(async () => {
-        if (isLoadingMore || !hasMore) return;
-        setIsLoadingMore(true);
-
-        try {
-            // Find the oldest DB message's created_at to use as cursor
-            const dbMessages = messages.filter((m) => m.created_at);
-            const cursor = dbMessages.length > 0 ? dbMessages[0].created_at : undefined;
-
-            const { data, hasMore: more } = await fetchMessages(cursor);
-
-            if (data.length > 0) {
-                const olderMsgs: DisplayMessage[] = data.map((m) => ({
-                    id: m.id,
-                    variant: m.role === 'assistant' ? 'ai' : 'user',
-                    message: m.content,
-                    created_at: m.created_at,
-                }));
-
-                // Prepend older messages (after welcome)
-                setMessages((prev) => {
-                    const welcomeMsg = prev.find((m) => m.id === 'welcome');
-                    const rest = prev.filter((m) => m.id !== 'welcome');
-                    return [
-                        ...(welcomeMsg ? [welcomeMsg] : []),
-                        ...olderMsgs,
-                        ...rest,
-                    ];
-                });
-            }
-
-            setHasMore(more);
-        } catch (e) {
-            console.error('Load more error:', e);
-        } finally {
-            setIsLoadingMore(false);
-        }
-    }, [isLoadingMore, hasMore, messages]);
-
     // --- Send message logic ---
-    const sendMessage = useCallback(async (text: string) => {
+    const sendMessage = useCallback(async (text: string, overrideContext?: string) => {
         text = text.trim();
         if (!text || isSending) return;
 
-        // Gem gate for free users
-        if (!isPro) {
-            const success = deductGem();
-            if (!success) {
-                // Show in-chat upgrade prompt instead of Alert
-                setMessages((prev) => [
-                    ...prev,
-                    { id: Date.now().toString(), variant: 'user', message: text },
-                    {
-                        id: (Date.now() + 1).toString(),
-                        variant: 'ai',
-                        message: "💎 You've run out of gems! Complete quiz sets to earn more gems, or upgrade to Pro for unlimited AI coaching. ✨",
-                    },
-                ]);
-                isNearBottomRef.current = true;
-                return;
-            }
-        }
 
         // Add user message immediately
-        const userMsg: DisplayMessage = {
+        const userMsg = {
             id: Date.now().toString(),
-            variant: 'user',
+            variant: 'user' as const,
             message: text,
         };
 
         // We use a functional state update and return the new messages array
         // so we can build context off the absolute latest state (including this new user msg)
-        let latestMessages: DisplayMessage[] = [];
+        let latestMessages = messages;
         setMessages((prev) => {
             latestMessages = [...prev, userMsg];
             return latestMessages;
@@ -243,6 +130,11 @@ export default function AIChatScreen() {
         setIsSending(true);
         isNearBottomRef.current = true;
         setShowScrollButton(false);
+
+        // Always scroll to bottom when user sends a new message
+        setTimeout(() => {
+            scrollViewRef.current?.scrollToEnd({ animated: true });
+        }, 100);
 
         track('ai_send_message', { messageLength: text.length });
 
@@ -256,7 +148,7 @@ export default function AIChatScreen() {
                     content: m.message,
                 }));
 
-            const aiResponse = await sendChatMessage(text, recentHistory, context, language);
+            const aiResponse = await sendChatMessage(text, recentHistory, overrideContext || context, language);
 
             const aiMsgId = (Date.now() + 1).toString();
             setStreamingMessageId(aiMsgId);
@@ -281,7 +173,7 @@ export default function AIChatScreen() {
         } finally {
             setIsSending(false);
         }
-    }, [isSending, isPro, deductGem, messages, language]);
+    }, [isSending, isPro, messages, language]);
 
     const handleSend = useCallback(() => {
         if (!inputText.trim()) return;
@@ -291,20 +183,47 @@ export default function AIChatScreen() {
 
     // Auto-send effect
     useEffect(() => {
-        if (!isLoadingHistory && initialPrompt && autoSend === 'true' && !hasAutoSentRef.current) {
+        if (initialPrompt && autoSend === 'true' && !hasAutoSentRef.current) {
             hasAutoSentRef.current = true;
             // Slight delay to let UI settle and scroll to bottom naturally before sending
             setTimeout(() => {
-                sendMessage(initialPrompt);
+                sendMessage(initialPrompt, context);
                 setInputText(''); // Clear input if it was prefilled by the earlier effect
             }, 300);
         }
-    }, [isLoadingHistory, initialPrompt, autoSend, sendMessage]);
+    }, [initialPrompt, autoSend, context, sendMessage]);
 
     // Quick actions send the message immediately
     const handleQuickAction = (action: string) => {
         track('ai_quick_action', { action });
-        sendMessage(action);
+
+        let overrideContext: string | undefined;
+
+        if (action === t('aiChat.analyzeProgress')) {
+            const answeredQuestions = Object.values(questionHistory);
+            const totalAnswered = answeredQuestions.length;
+            const correctCount = answeredQuestions.filter(q => q.correct).length;
+            const accuracy = totalAnswered > 0 ? Math.round((correctCount / totalAnswered) * 100) : 0;
+            const daysSinceStart = lastLoginDate
+                ? Math.max(1, Math.ceil((Date.now() - new Date(lastLoginDate).getTime()) / (1000 * 60 * 60 * 24)))
+                : 1;
+            overrideContext = `User wants you to analyze their progress. Here are their raw stats. Please provide an encouraging analysis:
+- Name: ${name}
+- Study Streak: ${streak} days
+- Overall Course Progress: ${courseProgress}%
+- Total Questions Answered: ${totalAnswered}
+- Correct Answers: ${correctCount} / ${totalAnswered} (${accuracy}% accuracy)
+- Days Since First Study: ${daysSinceStart}`;
+        } else if (context) {
+            // If there is already a specific question context from the quiz screen, keep it! 
+            // Just let the message (hint/explain) speak for itself alongside the existing context.
+            overrideContext = context;
+        } else if (action === t('aiChat.studyTheory')) {
+            // Only use generic theory context if no specific question context exists
+            overrideContext = `User wants to study theory. Ask them which topic they want to focus on, or suggest a nail technician state board topic.`;
+        }
+
+        sendMessage(action, overrideContext);
     };
 
     return (
@@ -328,10 +247,7 @@ export default function AIChatScreen() {
                     </TouchableOpacity>
                 </View>
 
-                <View style={styles.gemBadge}>
-                    <Text style={styles.gemCount}>{isPro ? '∞' : gems}</Text>
-                    <Gem size={12} color="#D97706" fill="#FCD34D" />
-                </View>
+                <View />
             </View>
 
             {/* Content - KAV wraps everything below header */}
@@ -345,52 +261,45 @@ export default function AIChatScreen() {
                     <ScrollView
                         ref={scrollViewRef}
                         style={styles.messagesContainer}
-                        contentContainerStyle={styles.messagesContent}
+                        contentContainerStyle={[
+                            styles.messagesContent,
+                            { paddingBottom: isSending ? 400 : Spacing.xxl }
+                        ]}
                         keyboardDismissMode="interactive"
                         keyboardShouldPersistTaps="handled"
                         onScroll={handleScroll}
                         scrollEventThrottle={16}
+                        onContentSizeChange={() => {
+                            if (isNearBottomRef.current && !isSending) {
+                                scrollViewRef.current?.scrollToEnd({ animated: true });
+                            }
+                        }}
                     >
-                        {/* Loading more indicator */}
-                        {isLoadingMore && (
-                            <View style={styles.loadingMore}>
-                                <ActivityIndicator size="small" color={Colors.light.primary} />
-                            </View>
-                        )}
-
                         {/* AI Avatar */}
                         <View style={styles.avatarContainer}>
                             <AICharacter size={48} />
                         </View>
 
-                        {/* Loading state */}
-                        {isLoadingHistory ? (
-                            <View style={styles.loadingContainer}>
-                                <ActivityIndicator size="small" color={Colors.light.primary} />
-                                <Text style={styles.loadingText}>Loading conversation...</Text>
-                            </View>
-                        ) : (
-                            <>
-                                {messages.map((msg) => (
-                                    msg.id === streamingMessageId ? (
-                                        <TypewriterChatBubble
-                                            key={msg.id}
-                                            message={msg.message}
-                                            onComplete={() => setStreamingMessageId(null)}
-                                        />
-                                    ) : (
-                                        <ChatBubble key={msg.id} message={msg.message} variant={msg.variant} />
-                                    )
-                                ))}
+                        <>
+                            {messages.map((msg, index) => (
+                                msg.id === streamingMessageId ? (
+                                    <TypewriterChatBubble
+                                        key={index}
+                                        message={msg.message}
+                                        onComplete={() => setStreamingMessageId(null)}
+                                    />
+                                ) : (
+                                    <ChatBubble key={index} message={msg.message} variant={msg.variant} />
+                                )
+                            ))}
 
-                                {/* Thinking indicator with animated dots */}
-                                {isSending && (
-                                    <Animated.View entering={FadeIn.duration(200)} style={styles.typingContainer}>
-                                        <ThinkingIndicator />
-                                    </Animated.View>
-                                )}
-                            </>
-                        )}
+                            {/* Thinking indicator with animated dots */}
+                            {isSending && (
+                                <Animated.View entering={FadeIn.duration(200)} style={styles.typingContainer}>
+                                    <ThinkingIndicator />
+                                </Animated.View>
+                            )}
+                        </>
                     </ScrollView>
 
                     {/* Scroll to bottom button */}
@@ -418,11 +327,6 @@ export default function AIChatScreen() {
                             label={t('aiChat.analyzeProgress')}
                             icon={<BarChart3 size={16} color={Colors.light.primary} />}
                             onPress={() => handleQuickAction(t('aiChat.analyzeProgress'))}
-                        />
-                        <QuickActionChip
-                            label={t('aiChat.studyTheory')}
-                            icon={<BookOpen size={16} color={Colors.light.primary} />}
-                            onPress={() => handleQuickAction(t('aiChat.studyTheory'))}
                         />
                     </ScrollView>
                 </View>
@@ -574,20 +478,5 @@ const styles = StyleSheet.create({
     sendButtonActive: {
         backgroundColor: Colors.light.primaryLight,
     },
-    gemBadge: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: '#FFFBEB',
-        paddingHorizontal: 8,
-        paddingVertical: 4,
-        borderRadius: 12,
-        borderWidth: 1,
-        borderColor: '#FEF3C7',
-    },
-    gemCount: {
-        fontSize: 13,
-        fontWeight: '700',
-        color: '#D97706',
-        marginRight: 4,
-    },
+
 });

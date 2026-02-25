@@ -121,11 +121,12 @@
         "explain": "Giải thích"
     },
     "aiChat": {
-        "title": "Mentora",
-        "info": "Thông tin Mentora",
-        "inputPlaceholder": "Nhập tin nhắn của bạn...",
+        "title": "Mentora AI",
+        "info": "Thử nghiệm",
         "analyzeProgress": "Phân tích tiến độ",
-        "studyTheory": "Học lý thuyết"
+        "studyTheory": "Học lý thuyết",
+        "inputPlaceholder": "Hỏi Mentora bất cứ điều gì...",
+        "contextMessage": "Tôi thấy bạn đang làm phần:\n\n📝 {{context}}\n\nTôi có thể giúp gì cho bạn với câu hỏi này?"
     },
     "tabs": {
         "home": "Trang chủ",
@@ -304,6 +305,33 @@
             "btnFree": "Học Ngay — Miễn Phí",
             "btnPremium": "Hoặc dùng thử Premium 3 ngày",
             "btnTryForFree": "Dùng Thử Miễn Phí - 3 Ngày"
+        }
+    },
+    "paywall": {
+        "title": "NailPrep",
+        "premium": "Premium",
+        "subtitle": "Mở khóa mọi tính năng",
+        "features": {
+            "aiTitle": "Trợ lý học tập AI",
+            "aiDesc": "Nhận giải thích tức thì cho mọi câu hỏi. Như một gia sư luôn bên cạnh bạn 24/7.",
+            "examsTitle": "Thi thử không giới hạn",
+            "examsDesc": "Các bài thi mô phỏng định dạng và thời gian thực của kỳ thi NIC.",
+            "questionsTitle": "805 câu hỏi từ chuyên gia",
+            "questionsDesc": "Được biên soạn bởi chuyên gia cấp phép. Cập nhật cho các kỳ thi mới nhất."
+        },
+        "pricing": {
+            "perYear": "/năm",
+            "perMonth": "/tháng",
+            "perWeek": "/tuần",
+            "freeTrial": "{{duration}} dùng thử miễn phí",
+            "thenAutoRenews": "sau đó tự động gia hạn"
+        },
+        "cta": {
+            "tryForFree": "Dùng Thử Miễn Phí",
+            "startFreeTrial": "Bắt Đầu Dùng Thử",
+            "legal": "Hủy bất cứ lúc nào · Gói tự động gia hạn",
+            "restorePurchases": "Khôi phục giao dịch",
+            "freePlan": "Gói miễn phí"
         }
     }
 }

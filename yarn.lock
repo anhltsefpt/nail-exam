@@ -6252,13 +6252,6 @@ react-native-markdown-display@^7.0.2:
     prop-types "^15.7.2"
     react-native-fit-image "^1.5.5"
 
-react-native-purchases-ui@^9.7.6:
-  version "9.7.6"
-  resolved "https://registry.npmjs.org/react-native-purchases-ui/-/react-native-purchases-ui-9.7.6.tgz"
-  integrity sha512-hstcxtQ2f1znGwAwk6e/3andAmAe0kpFPu2eGfy57qzL9gBWYpJ25UWoyxE3ht18gzh7/nv7r0XybXtunY0krA==
-  dependencies:
-    "@revenuecat/purchases-typescript-internal" "17.31.0"
-
 react-native-purchases@^9.7.6:
   version "9.7.6"
   resolved "https://registry.npmjs.org/react-native-purchases/-/react-native-purchases-9.7.6.tgz"

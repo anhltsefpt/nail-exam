@@ -7,7 +7,7 @@ import { useTopics } from '@/hooks/useTopics';
 import { track } from '@/lib/analytics';
 import { useIsStoreHydrated, useUserStore } from '@/store/useUserStore';
 import { useRouter } from 'expo-router';
-import { FlaskConical, Gem } from 'lucide-react-native';
+import { FlaskConical } from 'lucide-react-native';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, ScrollView, StyleSheet, TouchableOpacity, useColorScheme, View } from 'react-native';
@@ -20,7 +20,7 @@ export default function HomeScreen() {
   const colorScheme = useColorScheme() ?? 'light';
   const theme = Colors[colorScheme];
 
-  const gems = useUserStore((s) => s.gems);
+
   const courseProgress = useUserStore((s) => s.courseProgress);
   const mistakes = useUserStore((s) => s.mistakes);
   const mistakeCount = mistakes.length;
@@ -63,16 +63,7 @@ export default function HomeScreen() {
       alignItems: 'center',
       justifyContent: 'center',
     },
-    gemBadge: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      backgroundColor: '#FFFBEB',
-      paddingHorizontal: 8,
-      paddingVertical: 2,
-      borderRadius: Radius.full,
-      borderWidth: 1,
-      borderColor: '#FEF3C7',
-    },
+
     roadmapHeader: {
       paddingHorizontal: Spacing.l,
       paddingTop: Spacing.l,
@@ -128,14 +119,7 @@ export default function HomeScreen() {
               </Typography>
             </View>
           </View>
-          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <View style={styles.gemBadge}>
-              <Typography variant="caption" weight="bold" style={{ marginRight: 4, color: '#D97706' }}>
-                {gems}
-              </Typography>
-              <Gem size={12} color="#D97706" fill="#FCD34D" />
-            </View>
-          </View>
+          <View />
         </View>
       </View>
 
@@ -189,7 +173,17 @@ export default function HomeScreen() {
       </ScrollView>
 
       {/* Floating AI Button */}
-      <TouchableOpacity style={styles.fab} onPress={() => { track('tap_ai_chat', { source: 'fab' }); router.push('/ai-chat'); }}>
+      <TouchableOpacity
+        style={styles.fab}
+        onPress={() => {
+          track('tap_ai_chat', { source: 'fab' });
+          if (isPro) {
+            router.push('/ai-chat');
+          } else {
+            router.push('/paywall');
+          }
+        }}
+      >
         <AICharacter size={60} animated />
       </TouchableOpacity>
     </SafeAreaView>

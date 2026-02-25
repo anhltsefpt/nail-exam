@@ -114,11 +114,12 @@
         "explain": "설명"
     },
     "aiChat": {
-        "title": "Mentora",
-        "info": "Mentora 정보",
-        "inputPlaceholder": "메시지를 입력하세요...",
-        "analyzeProgress": "내 진도 분석",
-        "studyTheory": "이론 공부하기"
+        "title": "Mentora AI",
+        "info": "베타",
+        "analyzeProgress": "내 진행률 분석",
+        "studyTheory": "이론 공부",
+        "inputPlaceholder": "Mentora에게 무엇이든 물어보세요...",
+        "contextMessage": "회원님이 작업 중인 내용은 다음과 같습니다:\n\n📝 {{context}}\n\n이 질문에 대해 어떻게 도와드릴까요?"
     },
     "tabs": {
         "home": "홈",
@@ -272,6 +273,33 @@
             "btnFree": "Start Learning — Free",
             "btnPremium": "Try Premium free for 3 days",
             "btnTryForFree": "3일 무료 체험하기"
+        }
+    },
+    "paywall": {
+        "title": "NailPrep",
+        "premium": "Premium",
+        "subtitle": "모든 기능 잠금 해제",
+        "features": {
+            "aiTitle": "AI 학습 도우미",
+            "aiDesc": "모든 문제에 대한 즉각적인 설명을 제공합니다. 언제나 함께하는 튜터 역할을 합니다.",
+            "examsTitle": "무제한 모의 시험",
+            "examsDesc": "실제 NIC 시험 형식과 시간을 재현한 현실적인 시험입니다.",
+            "questionsTitle": "805개의 전문가 질문",
+            "questionsDesc": "전문 네일 기술자가 작성했습니다. 최신 시험 내용으로 업데이트되었습니다."
+        },
+        "pricing": {
+            "perYear": "/년",
+            "perMonth": "/월",
+            "perWeek": "/주",
+            "freeTrial": "{{duration}} 무료 체험",
+            "thenAutoRenews": "이후 자동 갱신"
+        },
+        "cta": {
+            "tryForFree": "무료로 체험하기",
+            "startFreeTrial": "무료 체험 시작",
+            "legal": "언제든 취소 가능 · 요금제는 자동 갱신됩니다",
+            "restorePurchases": "구매 복원",
+            "freePlan": "무료 플랜"
         }
     }
 }

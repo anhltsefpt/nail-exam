@@ -48,9 +48,7 @@ export interface UserState {
     name: string;
     streak: number;
     xp: number;
-    gems: number;
     lastLoginDate: string | null;
-    lastDailyClaimDate: string | null;
 
     // Study Progress
     courseProgress: number; // 0-100 (Overall)
@@ -81,13 +79,13 @@ export interface UserState {
     // Subscription (cached from RevenueCat for instant access)
     isPro: boolean;
 
+    // Onboarding
+    hasCompletedOnboarding: boolean;
+
     // Actions
     setIsPro: (val: boolean) => void;
     setName: (name: string) => void;
     addXp: (amount: number) => void;
-    addGems: (amount: number) => void;
-    deductGem: () => boolean;
-    claimDailyGems: (isPro: boolean) => number;
     unlockNode: (nodeId: number) => void;
     updateNodeProgress: (nodeId: number, percentage: number) => void;
     completeNode: (nodeId: number) => void;
@@ -103,6 +101,7 @@ export interface UserState {
     setLanguage: (lang: 'en' | 'vi') => void;
     setReminderTime: (time: string) => void;
     setFeedbackRating: (rating: number) => void;
+    setHasCompletedOnboarding: () => void;
 }
 
 // --- Initial State ---
@@ -121,9 +120,7 @@ const INITIAL_STATE = {
     name: 'Student',
     streak: 1,
     xp: 0,
-    gems: 0,
     lastLoginDate: new Date().toISOString(),
-    lastDailyClaimDate: null as string | null,
     courseProgress: 0,
     nodeProgress: {},
     nodeStatus: INITIAL_NODE_STATUS,
@@ -143,6 +140,7 @@ const INITIAL_STATE = {
     feedbackRating: null,
     topicSetProgress: {},
     isPro: false,
+    hasCompletedOnboarding: false,
 };
 
 // --- Store ---
@@ -154,30 +152,11 @@ export const useUserStore = create<UserState>()(
 
             setIsPro: (val) => set({ isPro: val }),
 
+            setHasCompletedOnboarding: () => set({ hasCompletedOnboarding: true }),
+
             setName: (name) => set({ name }),
 
             addXp: (amount) => set((state) => ({ xp: state.xp + amount })),
-
-            addGems: (amount) => set((state) => ({ gems: state.gems + amount })),
-
-            deductGem: () => {
-                const { gems } = get();
-                if (gems <= 0) return false;
-                set({ gems: gems - 1 });
-                return true;
-            },
-
-            claimDailyGems: (isPro) => {
-                const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
-                const { lastDailyClaimDate } = get();
-                if (lastDailyClaimDate === today) return 0;
-                const amount = isPro ? 40 : 5;
-                set((state) => ({
-                    gems: state.gems + amount,
-                    lastDailyClaimDate: today,
-                }));
-                return amount;
-            },
 
             unlockNode: (nodeId) =>
                 set((state) => ({

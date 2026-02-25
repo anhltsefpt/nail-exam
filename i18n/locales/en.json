@@ -121,11 +121,12 @@
         "explain": "Explain"
     },
     "aiChat": {
-        "title": "Mentora",
-        "info": "Mentora Information",
-        "inputPlaceholder": "Enter your message here...",
+        "title": "Mentora AI",
+        "info": "Beta",
         "analyzeProgress": "Analyze my progress",
-        "studyTheory": "Study Theory"
+        "studyTheory": "Study theory",
+        "inputPlaceholder": "Ask Mentora anything...",
+        "contextMessage": "I see you're working on:\n\n📝 {{context}}\n\nHow can I help you with this question?"
     },
     "tabs": {
         "home": "Home",
@@ -304,6 +305,33 @@
             "btnFree": "Start Learning — Free",
             "btnPremium": "Try Premium free for 3 days",
             "btnTryForFree": "Try For Free - 3 Days"
+        }
+    },
+    "paywall": {
+        "title": "NailPrep",
+        "premium": "Premium",
+        "subtitle": "Unlock all features",
+        "features": {
+            "aiTitle": "AI Study Buddy",
+            "aiDesc": "Get instant explanations for every question. Like having a tutor 24/7.",
+            "examsTitle": "Unlimited Mock Exams",
+            "examsDesc": "Realistic timed exams that mirror the actual NIC test format.",
+            "questionsTitle": "805 Expert Questions",
+            "questionsDesc": "Written by licensed nail technicians. Updated for current exams."
+        },
+        "pricing": {
+            "perYear": "/year",
+            "perMonth": "/month",
+            "perWeek": "/week",
+            "freeTrial": "{{duration}} free trial",
+            "thenAutoRenews": "then auto-renews"
+        },
+        "cta": {
+            "tryForFree": "Try for Free",
+            "startFreeTrial": "Start Free Trial",
+            "legal": "Cancel anytime · Plans renew automatically",
+            "restorePurchases": "Restore Purchases",
+            "freePlan": "Free plan"
         }
     }
 }

@@ -83,7 +83,6 @@ export default function QuizScreen() {
     const completeNode = useUserStore((state) => state.completeNode);
     const updateNodeProgress = useUserStore((state) => state.updateNodeProgress);
     const updateSetProgress = useUserStore((state) => state.updateSetProgress);
-    const addGems = useUserStore((state) => state.addGems);
     const fontScale = useUserStore((state) => state.fontScale);
     const setFontScale = useUserStore((state) => state.setFontScale);
 
@@ -210,8 +209,6 @@ export default function QuizScreen() {
             completeNode(nodeId);
             updateNodeProgress(nodeId, 100);
         }
-        // Reward gems for completing a set
-        addGems(2);
     };
 
     // Trigger persistent store updates when round completes
@@ -223,11 +220,24 @@ export default function QuizScreen() {
 
     const handleAIChat = (prompt?: string) => {
         let chatContext = 'Quiz Context';
+        console.log('123', prompt)
         if (currentQuestion) {
-            chatContext = `Question: ${currentQuestion.text}\n\nOptions:\n${currentQuestion.options.map(o => `- ${o.text}`).join('\n')}`;
+            const correctOption = currentQuestion.options.find(o => o.id === currentQuestion.correctOptionId);
+            chatContext = [
+                `[FOCUS: The user is asking about THIS specific exam question. Only help with this question.]`,
+                ``,
+                `Question: ${currentQuestion.text}`,
+                ``,
+                `Answer Choices:`,
+                ...currentQuestion.options.map((o, i) => `  ${String.fromCharCode(65 + i)}) ${o.text}`),
+                ``,
+                `Correct Answer: ${correctOption ? correctOption.text : 'Unknown'}`,
+            ].join('\n');
+
             if (selectedOptionId) {
                 const selectedText = currentQuestion.options.find(o => o.id === selectedOptionId)?.text;
-                chatContext += `\n\nUser selected: ${selectedText}`;
+                const isCorrect = selectedOptionId === currentQuestion.correctOptionId;
+                chatContext += `\n\nUser selected: ${selectedText} (${isCorrect ? 'Correct ✓' : 'Incorrect ✗'})`;
             }
         }
 
@@ -302,10 +312,6 @@ export default function QuizScreen() {
                     <Typography variant="caption" color="muted">{t('quiz.totalMastery')}</Typography>
                 </View>
 
-                <View style={[styles.statCard, { backgroundColor: '#FFFBEB', borderColor: '#FEF3C7', marginTop: 0, marginBottom: Spacing.xl }]}>
-                    <Typography variant="title" style={{ color: '#D97706' }}>+2 💎</Typography>
-                    <Typography variant="caption" style={{ color: '#B8941F' }}>Gems earned!</Typography>
-                </View>
 
                 {isPerfect ? (
                     <TouchableOpacity style={styles.summaryButton} onPress={() => router.back()}>

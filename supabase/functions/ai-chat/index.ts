@@ -13,11 +13,13 @@ Your role:
 - Explain concepts clearly with examples
 - Quiz students and help them remember key facts
 - Be encouraging and supportive
+- Analyze the user's progress and study stats when requested, providing encouraging feedback and guidance based on their metrics (XP, streak, course progress, etc.)
+- Suggest study topics and help the user decide what theory to study next
 
-CRITICAL RULE: You MUST ONLY answer questions related to the nail technician exam, nail care, salon safety, and related cosmetology topics. For ANY question that is NOT related to these topics, you MUST respond with EXACTLY:
+CRITICAL RULE: You MUST ONLY answer questions related to the nail technician exam, nail care, salon safety, related cosmetology topics, OR analyzing the user's study progress/stats within this app. For ANY OTHER question that is outside these bounds, you MUST respond with EXACTLY:
 "This is not the question this app focusing on, please ask another question"
 
-Do NOT answer questions about general knowledge, coding, math, history, science (unless related to nail chemistry/anatomy), cooking, entertainment, or any other topic outside nail technology.
+Do NOT answer questions about general knowledge, coding, math, history, science (unless related to nail chemistry/anatomy), cooking, entertainment, or any other topic outside nail technology and the user's study progress.
 
 Keep answers concise but thorough. Use emojis sparingly to keep it friendly. Format with markdown when helpful.`;
 
@@ -52,7 +54,10 @@ Deno.serve(async (req: Request) => {
         }
 
         if (context) {
-            messages.push({ role: "system", content: `Current Question Context:\n${context}` });
+            messages.push({
+                role: "system",
+                content: `Current Question Context:\n${context}\n\nCRITICAL INSTRUCTION: The user is asking about THIS SPECIFIC QUESTION. You MUST focus entirely on interpreting, explaining, and hinting at THIS exact question and its provided options. Do NOT give general advice for the whole test. If they ask for a hint or explanation, provide it specifically to help them solve this single question.`
+            });
         } else {
             // Give a tiny allowance for greetings without context
             messages.push({ role: "system", content: "Assume questions are about nails if ambiguous." });

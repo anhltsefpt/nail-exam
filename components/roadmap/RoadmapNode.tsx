@@ -1,5 +1,5 @@
 import { Colors } from '@/constants/theme';
-import { Crown, Lock } from 'lucide-react-native';
+import { Check, Crown, Lock } from 'lucide-react-native';
 import React, { useEffect } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Animated, {
@@ -42,6 +42,7 @@ export function RoadmapNode({ node, index, phaseColor, phaseLightColor, isPremiu
     const isCompleted = node.status === 'completed';
     const isLocked = node.status === 'locked';
     const isAccessible = node.status === 'accessible';
+    const isFullyComplete = node.progress >= 100;
 
     useEffect(() => {
         const delay = 200 + index * 150;
@@ -117,6 +118,12 @@ export function RoadmapNode({ node, index, phaseColor, phaseLightColor, isPremiu
                             </>
                         )}
                     </View>
+                    {/* Green check badge when topic is 100% mastered */}
+                    {isFullyComplete && (
+                        <View style={styles.checkBadge}>
+                            <Check size={10} color="#FFF" strokeWidth={3} />
+                        </View>
+                    )}
                 </Animated.View>
             </TouchableOpacity>
             <Text
@@ -207,6 +214,16 @@ const styles = StyleSheet.create({
         top: -4,
         right: -4,
         backgroundColor: '#F59E0B',
+        borderRadius: 10,
+        padding: 3,
+        borderWidth: 2,
+        borderColor: '#FFF',
+    },
+    checkBadge: {
+        position: 'absolute',
+        top: -4,
+        right: -4,
+        backgroundColor: '#22C55E',
         borderRadius: 10,
         padding: 3,
         borderWidth: 2,

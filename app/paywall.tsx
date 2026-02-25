@@ -2,6 +2,7 @@ import { Colors } from '@/constants/theme';
 import { useRevenueCat } from '@/hooks/useRevenueCat';
 import { useRouter } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
     ActivityIndicator,
     Animated,
@@ -74,6 +75,7 @@ function PlanCard({
 export default function PaywallScreen() {
     const router = useRouter();
     const insets = useSafeAreaInsets();
+    const { t } = useTranslation();
     const { currentOffering, purchasePackage, restorePurchases, isReady } = useRevenueCat();
 
     const packages = currentOffering?.availablePackages ?? [];
@@ -120,20 +122,20 @@ export default function PaywallScreen() {
         const intro = pack.product.introPrice;
         if (!intro) return null;
         const { periodNumberOfUnits, periodUnit } = intro;
-        return `${periodNumberOfUnits}-${periodUnit.toLowerCase()} free trial`;
+        return t('paywall.pricing.freeTrial', { duration: `${periodNumberOfUnits}-${periodUnit.toLowerCase()}` });
     };
 
     const ctaLabel = (): string => {
-        if (!selectedPack) return 'Try for Free';
-        return getTrialLabel(selectedPack) ? 'Start Free Trial' : 'Try for Free';
+        if (!selectedPack) return t('paywall.cta.tryForFree');
+        return getTrialLabel(selectedPack) ? t('paywall.cta.startFreeTrial') : t('paywall.cta.tryForFree');
     };
 
     const trialLabel = selectedPack ? getTrialLabel(selectedPack) : null;
 
     const FEATURES = [
-        { icon: '🤖', title: 'AI Study Buddy', desc: 'Get instant explanations for every question. Like having a tutor 24/7.', accent: C.primary },
-        { icon: '⚡', title: 'Unlimited Mock Exams', desc: 'Realistic timed exams that mirror the actual NIC test format.', accent: '#8B5CF6' },
-        { icon: '✅', title: '805 Expert Questions', desc: 'Written by licensed nail technicians. Updated for current exams.', accent: '#0891B2' },
+        { icon: '🤖', title: t('paywall.features.aiTitle'), desc: t('paywall.features.aiDesc'), accent: C.primary },
+        { icon: '⚡', title: t('paywall.features.examsTitle'), desc: t('paywall.features.examsDesc'), accent: '#8B5CF6' },
+        { icon: '✅', title: t('paywall.features.questionsTitle'), desc: t('paywall.features.questionsDesc'), accent: '#0891B2' },
     ];
 
     return (
@@ -141,7 +143,7 @@ export default function PaywallScreen() {
 
             {/* ── Header: title + close ── */}
             <View style={s.header}>
-                <Text style={s.headerTitle}>NailPrep <Text style={{ color: C.primary }}>Premium</Text></Text>
+                <Text style={s.headerTitle}>{t('paywall.title')} <Text style={{ color: C.primary }}>{t('paywall.premium')}</Text></Text>
                 <TouchableOpacity onPress={handleClose} hitSlop={12} style={s.closeBtn}>
                     <Text style={s.closeBtnText}>✕</Text>
                 </TouchableOpacity>
@@ -163,7 +165,7 @@ export default function PaywallScreen() {
             </Animated.View>
 
             {/* ── Subtitle ── */}
-            <Text style={s.subtitle}>Unlock all features</Text>
+            <Text style={s.subtitle}>{t('paywall.subtitle')}</Text>
 
             {/* ── Features ── */}
             <View style={s.features}>
@@ -189,15 +191,15 @@ export default function PaywallScreen() {
                             <Text style={s.pricePeriod}>
                                 {(() => {
                                     const sub = selectedPack.product.subscriptionPeriod ?? '';
-                                    if (sub.includes('Y')) return '/year';
-                                    if (sub.includes('M')) return '/month';
-                                    if (sub.includes('W')) return '/week';
+                                    if (sub.includes('Y')) return t('paywall.pricing.perYear');
+                                    if (sub.includes('M')) return t('paywall.pricing.perMonth');
+                                    if (sub.includes('W')) return t('paywall.pricing.perWeek');
                                     return '';
                                 })()}
                             </Text>
                         </View>
                         {trialLabel && (
-                            <Text style={s.trialLabel}>🎁 {trialLabel} · then auto-renews</Text>
+                            <Text style={s.trialLabel}>🎁 {trialLabel} · {t('paywall.pricing.thenAutoRenews')}</Text>
                         )}
                     </>
                 ) : null}
@@ -217,18 +219,18 @@ export default function PaywallScreen() {
                     }
                 </TouchableOpacity>
 
-                <Text style={s.legal}>Cancel anytime · Plans renew automatically</Text>
+                <Text style={s.legal}>{t('paywall.cta.legal')}</Text>
 
                 <View style={s.footerLinks}>
                     <TouchableOpacity onPress={handleRestore} disabled={restoring}>
                         {restoring
                             ? <ActivityIndicator size="small" color={C.textMuted} />
-                            : <Text style={s.footerLink}>Restore Purchases</Text>
+                            : <Text style={s.footerLink}>{t('paywall.cta.restorePurchases')}</Text>
                         }
                     </TouchableOpacity>
                     <Text style={[s.footerLink, { color: C.border }]}>·</Text>
                     <TouchableOpacity onPress={handleClose}>
-                        <Text style={s.footerLink}>Free plan</Text>
+                        <Text style={s.footerLink}>{t('paywall.cta.freePlan')}</Text>
                     </TouchableOpacity>
                 </View>
             </View>

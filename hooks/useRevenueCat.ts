@@ -174,6 +174,36 @@ export function useRevenueCat() {
         }
     };
 
+    // --- Present the RevenueCat paywall ---
+    // NOTE: requires react-native-purchases-ui to be installed for native paywall.
+    // Falls back gracefully — callers should navigate to /paywall if this isn't available.
+    const presentPaywall = async (): Promise<boolean> => {
+        try {
+            // @ts-ignore — presentPaywall may not exist if purchases-ui isn't linked
+            const RevCatUI = require('react-native-purchases-ui');
+            const result = await RevCatUI.default.presentPaywall();
+            return result === RevCatUI.PAYWALL_RESULT.PURCHASED || result === RevCatUI.PAYWALL_RESULT.RESTORED;
+        } catch (e) {
+            console.warn('RevenueCatUI not available, paywall not shown:', e);
+            return false;
+        }
+    };
+
+    // --- Present paywall only if not already pro ---
+    const presentPaywallIfNeeded = async (): Promise<boolean> => {
+        if (isPro) return true;
+        return presentPaywall();
+    };
+
+    // --- Present RevenueCat Customer Center ---
+    const presentCustomerCenter = async (): Promise<void> => {
+        try {
+            await Purchases.showManageSubscriptions();
+        } catch (e) {
+            console.error('Error presenting customer center', e);
+        }
+    };
+
     return {
         currentOffering,
         customerInfo,
@@ -181,6 +211,9 @@ export function useRevenueCat() {
         isReady,
         purchasePackage,
         restorePurchases,
+        presentPaywall,
+        presentPaywallIfNeeded,
+        presentCustomerCenter,
     };
 }
 

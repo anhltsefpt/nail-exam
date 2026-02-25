@@ -1,5 +1,6 @@
 import { Colors } from '@/constants/theme';
 import { track } from '@/lib/analytics';
+import { useUserStore } from '@/store/useUserStore';
 import { Experiment } from '@amplitude/experiment-react-native-client';
 import { useRouter } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
@@ -197,6 +198,7 @@ export default function OnboardingScreen({ onComplete }: OnboardingProps) {
     const { t, i18n } = useTranslation();
     const insets = useSafeAreaInsets();
     const router = useRouter();
+    const setStoreLanguage = useUserStore((state) => state.setLanguage);
 
     const [enable_free_onboarding, setEnableFreeOnboarding] = useState(false);
 
@@ -382,7 +384,6 @@ export default function OnboardingScreen({ onComplete }: OnboardingProps) {
                                     key={l.code}
                                     onPress={() => {
                                         setLang(l.code);
-                                        i18n.changeLanguage(l.code); // Switch immediately on tap
                                         track('onboarding_language_selected', { language: l.code });
                                     }}
                                     activeOpacity={0.85}
@@ -406,6 +407,10 @@ export default function OnboardingScreen({ onComplete }: OnboardingProps) {
                             ))}
                         </View>
                         <BottomCTA text={t('onboarding.continue')} onPress={() => {
+                            if (lang) {
+                                i18n.changeLanguage(lang);
+                                setStoreLanguage(lang);
+                            }
                             goNext();
                         }} disabled={!lang} />
                     </View>
