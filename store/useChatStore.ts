@@ -11,7 +11,7 @@ const WELCOME_MESSAGE: DisplayMessage = {
     id: 'welcome',
     variant: 'ai',
     message:
-        "Hello! I'm Mentora, your AI study assistant. I'm here to help you ace your Nail Technician exam! 💅\n\nAsk me anything about nail anatomy, sanitation, safety, or exam prep!",
+        "Hello! I'm your AI Assistant, here to help you ace your Nail Technician exam! 💅\n\nAsk me anything about nail anatomy, sanitation, safety, or exam prep!",
 };
 
 interface ChatState {

@@ -111,14 +111,15 @@
         "finishRound": "라운드 종료",
         "whyWrong": "왜 틀렸나요?",
         "hint": "힌트",
-        "explain": "설명"
+        "explain": "설명",
+        "diveDeep": "심층 분석"
     },
     "aiChat": {
-        "title": "Mentora AI",
+        "title": "AI Assistant",
         "info": "베타",
         "analyzeProgress": "내 진행률 분석",
         "studyTheory": "이론 공부",
-        "inputPlaceholder": "Mentora에게 무엇이든 물어보세요...",
+        "inputPlaceholder": "AI에게 무엇이든 물어보세요...",
         "contextMessage": "회원님이 작업 중인 내용은 다음과 같습니다:\n\n📝 {{context}}\n\n이 질문에 대해 어떻게 도와드릴까요?"
     },
     "tabs": {

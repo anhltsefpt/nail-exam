@@ -118,14 +118,15 @@
         "finishRound": "Kết thúc vòng",
         "whyWrong": "Tại sao tôi sai?",
         "hint": "Gợi ý",
-        "explain": "Giải thích"
+        "explain": "Giải thích",
+        "diveDeep": "Phân tích sâu"
     },
     "aiChat": {
-        "title": "Mentora AI",
+        "title": "AI Assistant",
         "info": "Thử nghiệm",
         "analyzeProgress": "Phân tích tiến độ",
         "studyTheory": "Học lý thuyết",
-        "inputPlaceholder": "Hỏi Mentora bất cứ điều gì...",
+        "inputPlaceholder": "Hỏi AI bất cứ điều gì...",
         "contextMessage": "Tôi thấy bạn đang làm phần:\n\n📝 {{context}}\n\nTôi có thể giúp gì cho bạn với câu hỏi này?"
     },
     "tabs": {

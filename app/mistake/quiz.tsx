@@ -4,7 +4,7 @@ import { Colors, Radius, Spacing } from '@/constants/theme';
 import { useMistakeQuestions } from '@/hooks/useMistakeQuestions';
 import { track } from '@/lib/analytics';
 import { MistakeRecord, useUserStore } from '@/store/useUserStore';
-import { LinearGradient } from 'expo-linear-gradient';
+
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { ArrowLeft, BookOpen, Check, HelpCircle, Lightbulb, X } from 'lucide-react-native';
 import React, { useCallback, useMemo, useRef, useState } from 'react';
@@ -168,7 +168,7 @@ export default function MistakeQuizScreen() {
     if (loading) {
         return (
             <SafeAreaView
-                style={[styles.container, { backgroundColor: theme.background, justifyContent: 'center', alignItems: 'center' }]}
+                style={[styles.container, { backgroundColor: '#F2F2F2', justifyContent: 'center', alignItems: 'center' }]}
             >
                 <Stack.Screen options={{ headerShown: false }} />
                 <ActivityIndicator size="large" color={theme.primary} />
@@ -182,7 +182,7 @@ export default function MistakeQuizScreen() {
     if (error) {
         return (
             <SafeAreaView
-                style={[styles.container, { backgroundColor: theme.background, justifyContent: 'center', alignItems: 'center', padding: Spacing.xl }]}
+                style={[styles.container, { backgroundColor: '#F2F2F2', justifyContent: 'center', alignItems: 'center', padding: Spacing.xl }]}
             >
                 <Stack.Screen options={{ headerShown: false }} />
                 <Typography variant="heading" weight="bold" align="center">{t('mistakeQuiz.oops')}</Typography>
@@ -198,7 +198,7 @@ export default function MistakeQuizScreen() {
     if (isComplete || sessionIds.length === 0) {
         return (
             <SafeAreaView
-                style={[styles.container, { backgroundColor: theme.background, justifyContent: 'center', alignItems: 'center', padding: Spacing.xl }]}
+                style={[styles.container, { backgroundColor: '#F2F2F2', justifyContent: 'center', alignItems: 'center', padding: Spacing.xl }]}
             >
                 <Stack.Screen options={{ headerShown: false }} />
                 <AICharacter size={120} animated />
@@ -352,25 +352,18 @@ export default function MistakeQuizScreen() {
                     </TouchableOpacity>
 
                     <TouchableOpacity
-                        style={[styles.continueButton, !showResult && styles.continueButtonDisabled]}
+                        style={[styles.continueButton, showResult ? styles.continueButtonActive : styles.continueButtonDisabled]}
                         onPress={handleContinue}
                         disabled={!showResult}
                         activeOpacity={0.8}
                     >
-                        <LinearGradient
-                            colors={showResult ? ['#C4607A', '#B0566D'] : ['#E6E1E2', '#D1CACC']}
-                            start={{ x: 0, y: 0 }}
-                            end={{ x: 1, y: 0 }}
-                            style={styles.continueGradient}
-                        >
-                            <Typography variant="body" weight="bold" color={showResult ? 'inverted' : 'muted'}>
-                                {!showResult
-                                    ? t('mistakeQuiz.checkAnswer')
-                                    : isNextClear
-                                        ? t('mistakeQuiz.cleared')
-                                        : t('mistakeQuiz.continue')}
-                            </Typography>
-                        </LinearGradient>
+                        <Typography variant="body" weight="bold" color={showResult ? 'inverted' : 'muted'}>
+                            {!showResult
+                                ? t('mistakeQuiz.checkAnswer')
+                                : isNextClear
+                                    ? t('mistakeQuiz.cleared')
+                                    : t('mistakeQuiz.continue')}
+                        </Typography>
                     </TouchableOpacity>
                 </View>
             </View>
@@ -422,9 +415,9 @@ const styles = StyleSheet.create({
         gap: Spacing.m,
     },
     aiButton: {},
-    continueButton: { flex: 1, borderRadius: Radius.full, overflow: 'hidden' },
-    continueButtonDisabled: { opacity: 0.7 },
-    continueGradient: { paddingVertical: Spacing.l, alignItems: 'center', justifyContent: 'center' },
+    continueButton: { flex: 1, borderRadius: Radius.full, paddingVertical: Spacing.l, alignItems: 'center', justifyContent: 'center' },
+    continueButtonActive: { backgroundColor: '#C4607A', shadowColor: '#C4607A', shadowOpacity: 0.25, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 4 },
+    continueButtonDisabled: { backgroundColor: '#E6E1E2' },
     summaryButton: {
         backgroundColor: '#C4607A',
         paddingVertical: Spacing.m,

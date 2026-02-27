@@ -91,7 +91,7 @@ export default function TopicDetailScreen() {
     };
 
     return (
-        <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]} edges={['bottom']}>
+        <SafeAreaView style={[styles.container, { backgroundColor: '#F2F2F2' }]} edges={['bottom']}>
             <Stack.Screen options={{ headerShown: false }} />
 
             {/* Header with phase color */}

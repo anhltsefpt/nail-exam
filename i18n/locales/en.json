@@ -118,14 +118,15 @@
         "finishRound": "Finish Round",
         "whyWrong": "Why is my answer wrong?",
         "hint": "Hint",
-        "explain": "Explain"
+        "explain": "Explain",
+        "diveDeep": "Dive Deep"
     },
     "aiChat": {
-        "title": "Mentora AI",
+        "title": "AI Assistant",
         "info": "Beta",
         "analyzeProgress": "Analyze my progress",
         "studyTheory": "Study theory",
-        "inputPlaceholder": "Ask Mentora anything...",
+        "inputPlaceholder": "Ask AI anything...",
         "contextMessage": "I see you're working on:\n\n📝 {{context}}\n\nHow can I help you with this question?"
     },
     "tabs": {

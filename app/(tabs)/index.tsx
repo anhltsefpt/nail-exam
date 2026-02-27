@@ -1,13 +1,12 @@
 import { AICharacter } from '@/components/AICharacter';
 import { CategorySection, computeExitSide } from '@/components/roadmap/CategorySection';
 import { Typography } from '@/components/ui/Typography';
-import { Colors, Radius, Shadows, Spacing } from '@/constants/theme';
+import { Colors, Shadows, Spacing } from '@/constants/theme';
 import { useRevenueCat } from '@/hooks/useRevenueCat';
 import { useTopics } from '@/hooks/useTopics';
 import { track } from '@/lib/analytics';
 import { useIsStoreHydrated, useUserStore } from '@/store/useUserStore';
 import { useRouter } from 'expo-router';
-import { FlaskConical } from 'lucide-react-native';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, ScrollView, StyleSheet, TouchableOpacity, useColorScheme, View } from 'react-native';
@@ -40,28 +39,6 @@ export default function HomeScreen() {
     container: {
       flex: 1,
       backgroundColor: theme.backgroundSubtle,
-    },
-    stickyHeader: {
-      backgroundColor: theme.background,
-      paddingHorizontal: Spacing.l,
-      paddingTop: 4,
-      borderBottomWidth: 1,
-      borderBottomColor: theme.border,
-      paddingBottom: 8,
-      zIndex: 10,
-    },
-    headerRow: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-    },
-    logoBox: {
-      width: 28,
-      height: 28,
-      backgroundColor: theme.primary,
-      borderRadius: Radius.m,
-      alignItems: 'center',
-      justifyContent: 'center',
     },
 
     roadmapHeader: {
@@ -102,26 +79,7 @@ export default function HomeScreen() {
   });
 
   return (
-    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
-      {/* Sticky Header */}
-      <View style={styles.stickyHeader}>
-        <View style={styles.headerRow}>
-          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <View style={styles.logoBox}>
-              <FlaskConical size={16} color="white" />
-            </View>
-            <View style={{ marginLeft: 8 }}>
-              <Typography variant="caption" color="muted" style={{ fontSize: 10, lineHeight: 12 }}>
-                {t('dashboard.title')}
-              </Typography>
-              <Typography variant="body" weight="bold" style={{ fontSize: 14, lineHeight: 20 }}>
-                {t('dashboard.subtitle')}
-              </Typography>
-            </View>
-          </View>
-          <View />
-        </View>
-      </View>
+    <SafeAreaView style={styles.container} edges={['left', 'right']}>
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
         {/* Roadmap Header */}

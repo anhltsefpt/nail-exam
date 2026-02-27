@@ -4,18 +4,15 @@ import { Colors, Radius, Spacing } from '@/constants/theme';
 import { track } from '@/lib/analytics';
 import { useQuizStore } from '@/store/useQuizStore';
 import { useUserStore } from '@/store/useUserStore';
-import { LinearGradient } from 'expo-linear-gradient';
+
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import {
     ArrowLeft,
-    Bookmark,
     BookOpen,
     Check,
     HelpCircle,
     Lightbulb,
     RefreshCw,
-    ThumbsDown,
-    ThumbsUp,
     Type,
     X
 } from 'lucide-react-native';
@@ -72,12 +69,6 @@ export default function QuizScreen() {
     } = useQuizStore();
 
     // --- User Store (persistent) ---
-    const savedQuestions = useUserStore((state) => state.savedQuestions);
-    const likedQuestions = useUserStore((state) => state.likedQuestions);
-    const dislikedQuestions = useUserStore((state) => state.dislikedQuestions);
-    const toggleSavedQuestion = useUserStore((state) => state.toggleSavedQuestion);
-    const likeQuestion = useUserStore((state) => state.likeQuestion);
-    const dislikeQuestion = useUserStore((state) => state.dislikeQuestion);
     const recordAnswer = useUserStore((state) => state.recordAnswer);
     const addMistake = useUserStore((state) => state.addMistake);
     const completeNode = useUserStore((state) => state.completeNode);
@@ -173,9 +164,6 @@ export default function QuizScreen() {
 
     // --- Handlers ---
     const currentQuestion = activeQuestions[currentIndex];
-    const isSaved = currentQuestion ? savedQuestions.includes(currentQuestion.id) : false;
-    const isLiked = currentQuestion ? likedQuestions.includes(currentQuestion.id) : false;
-    const isDisliked = currentQuestion ? dislikedQuestions.includes(currentQuestion.id) : false;
 
     const handleOptionSelect = (optionId: string) => {
         if (showResult || isRoundComplete) return;
@@ -255,7 +243,7 @@ export default function QuizScreen() {
     // --- Loading / Error States ---
     if (isLoading) {
         return (
-            <SafeAreaView style={[styles.container, { backgroundColor: theme.background, justifyContent: 'center', alignItems: 'center' }]}>
+            <SafeAreaView style={[styles.container, { backgroundColor: '#F2F2F2', justifyContent: 'center', alignItems: 'center' }]}>
                 <Stack.Screen options={{ headerShown: false }} />
                 <ActivityIndicator size="large" color={theme.primary} />
                 <Typography variant="body" color="muted" style={{ marginTop: Spacing.m }}>
@@ -267,7 +255,7 @@ export default function QuizScreen() {
 
     if (error) {
         return (
-            <SafeAreaView style={[styles.container, { backgroundColor: theme.background, justifyContent: 'center', alignItems: 'center', padding: Spacing.xl }]}>
+            <SafeAreaView style={[styles.container, { backgroundColor: '#F2F2F2', justifyContent: 'center', alignItems: 'center', padding: Spacing.xl }]}>
                 <Stack.Screen options={{ headerShown: false }} />
                 <Typography variant="heading" weight="bold" align="center">
                     {t('quiz.errorTitle', { defaultValue: 'Oops!' })}
@@ -292,7 +280,7 @@ export default function QuizScreen() {
         const isPerfect = roundMistakes.length === 0;
 
         return (
-            <SafeAreaView style={[styles.container, { backgroundColor: theme.background, justifyContent: 'center', alignItems: 'center', padding: Spacing.xl }]}>
+            <SafeAreaView style={[styles.container, { backgroundColor: '#F2F2F2', justifyContent: 'center', alignItems: 'center', padding: Spacing.xl }]}>
                 <Stack.Screen options={{ headerShown: false }} />
 
                 <AICharacter size={120} animated />
@@ -336,7 +324,7 @@ export default function QuizScreen() {
     const isCurrentAnswerWrong = showResult && selectedOptionId !== currentQuestion.correctOptionId;
 
     return (
-        <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]} edges={['top']}>
+        <SafeAreaView style={[styles.container, { backgroundColor: '#F2F2F2' }]} edges={['top']}>
             <Stack.Screen options={{ headerShown: false }} />
 
             {/* Header */}
@@ -420,17 +408,6 @@ export default function QuizScreen() {
                     <Typography variant="caption" color="muted" weight="medium">
                         {t('quiz.questionProgress', { current: currentIndex + 1, total: activeQuestions.length })}
                     </Typography>
-                    <View style={styles.questionActions}>
-                        <TouchableOpacity onPress={() => { track('quiz_like', { questionId: currentQuestion.id }); likeQuestion(currentQuestion.id); }} style={[styles.actionButton, isLiked && styles.actionButtonActive]}>
-                            <ThumbsUp size={18} color={isLiked ? theme.primary : theme.textMuted} />
-                        </TouchableOpacity>
-                        <TouchableOpacity onPress={() => { track('quiz_dislike', { questionId: currentQuestion.id }); dislikeQuestion(currentQuestion.id); }} style={[styles.actionButton, isDisliked && styles.actionButtonActive]}>
-                            <ThumbsDown size={18} color={isDisliked ? theme.error : theme.textMuted} />
-                        </TouchableOpacity>
-                        <TouchableOpacity onPress={() => { track('quiz_save', { questionId: currentQuestion.id }); toggleSavedQuestion(currentQuestion.id); }} style={[styles.actionButton, isSaved && styles.actionButtonActive]}>
-                            <Bookmark size={18} color={isSaved ? theme.primary : theme.textMuted} fill={isSaved ? theme.primary : 'transparent'} />
-                        </TouchableOpacity>
-                    </View>
                 </View>
 
                 {/* Question Text */}
@@ -528,9 +505,9 @@ export default function QuizScreen() {
                         <Lightbulb size={16} color="#F0C97E" />
                         <Typography variant="caption" style={styles.chipText}>{t('quiz.hint')}</Typography>
                     </TouchableOpacity>
-                    <TouchableOpacity style={[styles.chip, { borderColor: theme.border }]} onPress={() => handleAIChat(t('quiz.explain'))}>
+                    <TouchableOpacity style={[styles.chip, { borderColor: theme.border }]} onPress={() => handleAIChat(t('quiz.diveDeep'))}>
                         <BookOpen size={16} color={theme.primary} />
-                        <Typography variant="caption" style={styles.chipText}>{t('quiz.explain')}</Typography>
+                        <Typography variant="caption" style={styles.chipText}>{t('quiz.diveDeep')}</Typography>
                     </TouchableOpacity>
                 </ScrollView>
 
@@ -540,23 +517,16 @@ export default function QuizScreen() {
                     </TouchableOpacity>
 
                     <TouchableOpacity
-                        style={[styles.continueButton, !showResult && styles.continueButtonDisabled]}
+                        style={[styles.continueButton, showResult ? styles.continueButtonActive : styles.continueButtonDisabled]}
                         onPress={handleContinue}
                         disabled={!showResult}
                         activeOpacity={0.8}
                     >
-                        <LinearGradient
-                            colors={showResult ? ['#C4607A', '#B0566D'] : ['#E6E1E2', '#D1CACC']}
-                            start={{ x: 0, y: 0 }}
-                            end={{ x: 1, y: 0 }}
-                            style={styles.continueGradient}
-                        >
-                            <Typography variant="body" weight="bold" color={showResult ? 'inverted' : 'muted'}>
-                                {showResult
-                                    ? (currentIndex < activeQuestions.length - 1 ? t('quiz.nextQuestion') : t('quiz.finishRound'))
-                                    : t('quiz.checkAnswer')}
-                            </Typography>
-                        </LinearGradient>
+                        <Typography variant="body" weight="bold" color={showResult ? 'inverted' : 'muted'}>
+                            {showResult
+                                ? (currentIndex < activeQuestions.length - 1 ? t('quiz.nextQuestion') : t('quiz.finishRound'))
+                                : t('quiz.checkAnswer')}
+                        </Typography>
                     </TouchableOpacity>
                 </View>
             </View>
@@ -583,10 +553,7 @@ const styles = StyleSheet.create({
     progressBarInfo: { flexDirection: 'row', justifyContent: 'space-between' },
     content: { flex: 1 },
     contentContainer: { padding: Spacing.l, paddingBottom: Spacing.xl },
-    questionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Spacing.m },
-    questionActions: { flexDirection: 'row', gap: Spacing.s },
-    actionButton: { padding: Spacing.xs, borderRadius: Radius.m },
-    actionButtonActive: { backgroundColor: 'rgba(242, 167, 179, 0.1)' },
+    questionHeader: { marginBottom: Spacing.m },
     questionText: { marginBottom: Spacing.xl, lineHeight: 32 },
     optionsContainer: { gap: Spacing.m },
     option: { flexDirection: 'row', alignItems: 'center', padding: Spacing.l, borderRadius: Radius.l, borderWidth: 1, backgroundColor: '#FAF8F8' },
@@ -604,9 +571,9 @@ const styles = StyleSheet.create({
     chipText: { marginLeft: Spacing.xs },
     footer: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: Spacing.l, paddingVertical: Spacing.m, paddingBottom: Spacing.xl, gap: Spacing.m },
     aiButton: {},
-    continueButton: { flex: 1, borderRadius: Radius.full, overflow: 'hidden' },
-    continueButtonDisabled: { opacity: 0.7 },
-    continueGradient: { paddingVertical: Spacing.l, alignItems: 'center', justifyContent: 'center' },
+    continueButton: { flex: 1, borderRadius: Radius.full, paddingVertical: Spacing.l, alignItems: 'center', justifyContent: 'center' },
+    continueButtonActive: { backgroundColor: '#C4607A', shadowColor: '#C4607A', shadowOpacity: 0.25, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 4 },
+    continueButtonDisabled: { backgroundColor: '#E6E1E2' },
     statCard: { padding: Spacing.l, borderRadius: Radius.l, borderWidth: 1, alignItems: 'center', marginBottom: Spacing.xl, width: '100%' },
     summaryButton: { backgroundColor: '#F2A7B3', paddingVertical: Spacing.m, paddingHorizontal: Spacing.xl, borderRadius: Radius.full, flexDirection: 'row', alignItems: 'center' },
     explanationCard: { marginTop: Spacing.l, padding: Spacing.l, borderRadius: Radius.l, borderWidth: 1 },

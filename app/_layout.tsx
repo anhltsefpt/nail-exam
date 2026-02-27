@@ -5,7 +5,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, Text, useColorScheme, View } from 'react-native';
-import Purchases, { LOG_LEVEL } from 'react-native-purchases';
+import Purchases, { LOG_LEVEL, STOREKIT_VERSION } from 'react-native-purchases';
 import { ErrorBoundary } from '../components/ErrorBoundary';
 import { useRevenueCat } from '../hooks/useRevenueCat';
 import '../i18n'; // Initialize i18n
@@ -22,7 +22,10 @@ import OnboardingScreen from './onboarding';
 const rcApiKey = process.env.EXPO_PUBLIC_RC_API_KEY;
 if (rcApiKey) {
   Purchases.setLogLevel(LOG_LEVEL.DEBUG);
-  Purchases.configure({ apiKey: rcApiKey });
+  Purchases.configure({
+    apiKey: rcApiKey,
+    storeKitVersion: STOREKIT_VERSION.STOREKIT_2,
+  });
 }
 
 // Initialize Amplitude analytics
