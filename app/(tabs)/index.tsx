@@ -45,6 +45,7 @@ export default function HomeScreen() {
       paddingHorizontal: Spacing.l,
       paddingTop: Spacing.l,
       paddingBottom: Spacing.s,
+      backgroundColor: theme.backgroundSubtle,
     },
     progressBarContainer: {
       height: 6,
@@ -79,9 +80,9 @@ export default function HomeScreen() {
   });
 
   return (
-    <SafeAreaView style={styles.container} edges={['left', 'right']}>
+    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
 
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+      <ScrollView contentContainerStyle={styles.scrollContent} stickyHeaderIndices={[0]}>
         {/* Roadmap Header */}
         <View style={styles.roadmapHeader}>
           <Typography variant="display" style={{ fontSize: 26 }}>

@@ -78,7 +78,7 @@ export default function MistakesScreen() {
     };
 
     return (
-        <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]} edges={['top']}>
+        <SafeAreaView style={[styles.container, { backgroundColor: '#F2F2F2' }]} edges={['top']}>
             {/* Custom Top Nav */}
             <View style={[styles.topNav, { borderBottomColor: theme.border, backgroundColor: theme.background }]}>
                 {/* Empty left spacer */}

@@ -222,7 +222,7 @@ export default function MistakeQuizScreen() {
     const isNextClear = consecutiveCorrect >= 2;
 
     return (
-        <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]} edges={['top']}>
+        <SafeAreaView style={[styles.container, { backgroundColor: '#F2F2F2' }]} edges={['top']}>
             <Stack.Screen options={{ headerShown: false }} />
 
             {/* Header */}

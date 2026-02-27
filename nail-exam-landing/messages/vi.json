@@ -30,14 +30,10 @@
     },
     "Roadmap": {
         "header": "Làm Chủ Kiến Thức Một Cách Thông Minh",
-        "subtitle": "Theo một lộ trình học tập rõ ràng, đã được chứng minh.",
-        "step1": "Giải phẫu cơ bản",
-        "step2": "Cấu trúc Móng & Tình trạng",
-        "step3": "Hóa học & An toàn",
-        "step4": "Cắt da tay chân",
-        "step5": "Đắp bột & Nối móng",
-        "step6": "Thành thạo Đề thi Bang",
-        "exploreCta": "Khám phá tất cả các Cặp chủ đề trong NailPrep →"
+        "subtitle": "Theo lộ trình học 4 giai đoạn rõ ràng, được thiết kế để chinh phục kỳ thi của Bang.",
+        "badge": "Chương trình học",
+        "exploreCta": "Khám phá tất cả chủ đề trong NailPrep →",
+        "ctaHint": "Hàng nghìn học viên đã vượt qua kỳ thi của Bang với NailPrep."
     },
     "Simulator": {
         "header": "Thực hành trong điều kiện thực tế — không còn nỗi lo phòng thi.",

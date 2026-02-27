@@ -30,14 +30,10 @@
     },
     "Roadmap": {
         "header": "Master the Material the Smart Way",
-        "subtitle": "Follow a clear, proven learning path.",
-        "step1": "General Anatomy",
-        "step2": "Nail Structure & Conditions",
-        "step3": "Chemistry & Safety",
-        "step4": "Manicuring & Pedicuring",
-        "step5": "Enhancements & Extensions",
-        "step6": "State Board Mastery",
-        "exploreCta": "Explore All Topics in NailPrep →"
+        "subtitle": "Follow a clear, proven 4-phase learning path designed for state board success.",
+        "badge": "Curriculum",
+        "exploreCta": "Explore All Topics in NailPrep →",
+        "ctaHint": "Join thousands of students who passed their state board exam with NailPrep."
     },
     "Simulator": {
         "header": "Practice in real conditions — without the test anxiety.",

@@ -1,4 +1,5 @@
 import { useTranslations } from 'next-intl';
+import Image from 'next/image';
 
 export default function FeaturesZigZag() {
     const t = useTranslations('Features');
@@ -17,19 +18,14 @@ export default function FeaturesZigZag() {
 
                 {/* Feature 1: Structured Lessons */}
                 <div className="flex flex-col md:flex-row items-center gap-12 lg:gap-20 mb-32">
-                    <div className="flex-1 w-full bg-canvas rounded-3xl p-8 relative overflow-hidden h-[400px] shadow-sm border border-border-light hidden md:block">
-                        <div className="absolute -right-8 -bottom-8 w-[80%] h-[120%] bg-white rounded-t-3xl border border-border-light shadow-xl p-6 flex flex-col gap-4">
-                            <div className="h-4 w-1/3 bg-surface rounded-full mb-2"></div>
-                            {[1, 2, 3].map((i) => (
-                                <div key={i} className="w-full p-4 border border-surface rounded-2xl flex gap-4 items-center">
-                                    <div className="w-10 h-10 rounded-full bg-info-bg text-info flex items-center justify-center font-bold">{i}</div>
-                                    <div className="flex-1">
-                                        <div className="h-3 w-3/4 bg-ink/10 rounded-full mb-2"></div>
-                                        <div className="h-2 w-1/2 bg-surface rounded-full"></div>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
+                    <div className="flex-1 w-full bg-canvas rounded-3xl relative overflow-hidden h-[400px] shadow-sm border border-border-light hidden md:flex items-end justify-center">
+                        <Image
+                            src="/dashboard.png"
+                            alt="NailPrep roadmap dashboard"
+                            width={210}
+                            height={455}
+                            className="object-contain object-bottom drop-shadow-xl"
+                        />
                     </div>
 
                     <div className="flex-1">
@@ -47,18 +43,14 @@ export default function FeaturesZigZag() {
 
                 {/* Feature 2: Smart Feedback */}
                 <div className="flex flex-col md:flex-row-reverse items-center gap-12 lg:gap-20">
-                    <div className="flex-1 w-full bg-canvas rounded-3xl p-8 relative overflow-hidden h-[400px] shadow-sm border border-border-light hidden md:block">
-                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] h-[90%] bg-white rounded-3xl border border-border-light shadow-xl p-4 flex flex-col">
-                            <div className="border-b border-surface pb-3 mb-4 flex gap-2 items-center">
-                                <div className="w-6 h-6 rounded-full bg-info text-white flex justify-center items-center text-xs">AI</div>
-                                <span className="font-semibold text-sm">{t('aiAssistant')}</span>
-                            </div>
-                            <div className="flex flex-col gap-3">
-                                <div className="self-end bg-surface p-3 rounded-2xl rounded-tr-sm max-w-[80%] text-[11px] font-medium">{t('aiQuestion1')}</div>
-                                <div className="self-start bg-info-bg p-3 rounded-2xl rounded-tl-sm max-w-[80%] text-[11px] font-medium border border-info/20 text-info leading-relaxed">{t('aiAnswer1')}</div>
-                                <div className="self-end bg-surface p-3 rounded-2xl rounded-tr-sm max-w-[80%] text-[11px] font-medium mt-2">{t('aiQuestion2')}</div>
-                            </div>
-                        </div>
+                    <div className="flex-1 w-full bg-canvas rounded-3xl relative overflow-hidden h-[400px] shadow-sm border border-border-light hidden md:flex items-center justify-center">
+                        <Image
+                            src="/chat-img.png"
+                            alt="NailPrep AI chat screen"
+                            width={392}
+                            height={307}
+                            className="object-contain drop-shadow-xl rounded-2xl"
+                        />
                     </div>
 
                     <div className="flex-1">

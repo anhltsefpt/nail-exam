@@ -460,15 +460,15 @@ export default function MenuScreen() {
                         <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 16 }}>
                             <View>
                                 <Text style={{ color: theme.textMuted, fontSize: 12, marginBottom: 4 }}>{t('menu.progress.questionsAnswered')}</Text>
-                                <Text style={{ color: theme.text, fontSize: 20, fontWeight: 'bold' }}>{questionsAnswered}</Text>
+                                <Text style={{ color: theme.text, fontSize: 20, fontWeight: 'bold' }}>{isPro ? questionsAnswered : '***'}</Text>
                             </View>
                             <View>
                                 <Text style={{ color: theme.textMuted, fontSize: 12, marginBottom: 4 }}>{t('menu.progress.accuracy')}</Text>
-                                <Text style={{ color: theme.success, fontSize: 20, fontWeight: 'bold' }}>{accuracy}%</Text>
+                                <Text style={{ color: theme.success, fontSize: 20, fontWeight: 'bold' }}>{isPro ? accuracy : '**'}%</Text>
                             </View>
                             <View>
                                 <Text style={{ color: theme.textMuted, fontSize: 12, marginBottom: 4 }}>{t('menu.progress.studyTime')}</Text>
-                                <Text style={{ color: theme.text, fontSize: 20, fontWeight: 'bold' }}>{studyTimeLabel}</Text>
+                                <Text style={{ color: theme.text, fontSize: 20, fontWeight: 'bold' }}>{isPro ? studyTimeLabel : '***'}</Text>
                             </View>
                         </View>
 

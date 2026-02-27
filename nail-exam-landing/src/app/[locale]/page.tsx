@@ -3,7 +3,6 @@ import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
 import Roadmap from "@/components/Roadmap";
-import SimulatorCards from "@/components/SimulatorCards";
 
 export default function Home() {
   return (
@@ -12,7 +11,6 @@ export default function Home() {
       <Hero />
       <FeaturesZigZag />
       <Roadmap />
-      <SimulatorCards />
       <Footer />
     </main>
   );

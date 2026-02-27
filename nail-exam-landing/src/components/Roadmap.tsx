@@ -1,64 +1,173 @@
 import { useTranslations } from 'next-intl';
 
+const phases = [
+    {
+        phaseIndex: 1,
+        id: 'high-yield-foundations',
+        title: 'High-Yield Foundations',
+        subtitle: 'Build the knowledge base that covers the majority of exam questions.',
+        icon: '🧱',
+        accent: 'phase-1',
+        topics: [
+            'Anatomy & Nail Structure',
+            'Sanitation & Disinfection',
+            'State Board Laws & Rules',
+            'Safety Practices',
+        ],
+    },
+    {
+        phaseIndex: 2,
+        id: 'core-procedures',
+        title: 'Core Procedures',
+        subtitle: 'Master the hands-on techniques tested in the practical exam.',
+        icon: '💅',
+        accent: 'phase-2',
+        topics: [
+            'Manicure & Pedicure Steps',
+            'Nail Extensions & Acrylics',
+            'Gel Application',
+            'Equipment Handling',
+        ],
+    },
+    {
+        phaseIndex: 3,
+        id: 'chemistry-theory',
+        title: 'Chemistry & Theory',
+        subtitle: 'Understand how products work at a molecular level.',
+        icon: '⚗️',
+        accent: 'phase-3',
+        topics: [
+            'Monomer & Polymer Science',
+            'pH & Cosmetic Chemistry',
+            'Allergies & Contraindications',
+            'Product Ingredients',
+        ],
+    },
+    {
+        phaseIndex: 4,
+        id: 'quick-wins',
+        title: 'Quick Wins',
+        subtitle: 'Lock in easy points with rapid review of frequently tested facts.',
+        icon: '⚡',
+        accent: 'phase-4',
+        topics: [
+            'Business & Client Relations',
+            'Nail Disorders & Diseases',
+            'Infection Control Recap',
+            'Exam-Day Tips',
+        ],
+    },
+];
+
+const accentMap: Record<string, { bg: string; light: string; text: string; border: string; badge: string }> = {
+    'phase-1': {
+        bg: 'bg-phase-1',
+        light: 'bg-phase-1-light',
+        text: 'text-phase-1',
+        border: 'border-phase-1/30',
+        badge: 'bg-phase-1/10 text-phase-1',
+    },
+    'phase-2': {
+        bg: 'bg-phase-2',
+        light: 'bg-phase-2-light',
+        text: 'text-phase-2',
+        border: 'border-phase-2/30',
+        badge: 'bg-phase-2/10 text-phase-2',
+    },
+    'phase-3': {
+        bg: 'bg-phase-3',
+        light: 'bg-phase-3-light',
+        text: 'text-phase-3',
+        border: 'border-phase-3/30',
+        badge: 'bg-phase-3/10 text-phase-3',
+    },
+    'phase-4': {
+        bg: 'bg-phase-4',
+        light: 'bg-phase-4-light',
+        text: 'text-phase-4',
+        border: 'border-phase-4/30',
+        badge: 'bg-phase-4/10 text-phase-4',
+    },
+};
+
 export default function Roadmap() {
     const t = useTranslations('Roadmap');
 
-    const steps = [
-        { num: 1, title: t('step1'), color: "bg-phase-1", textColor: "text-white" },
-        { num: 2, title: t('step2'), color: "bg-phase-2", textColor: "text-white" },
-        { num: 3, title: t('step3'), color: "bg-phase-3", textColor: "text-white" },
-        { num: 4, title: t('step4'), color: "bg-phase-4", textColor: "text-white" },
-        { num: 5, title: t('step5'), color: "bg-ink", textColor: "text-white" },
-        { num: 6, title: t('step6'), color: "bg-info", textColor: "text-white" },
-    ];
-
     return (
-        <section className="py-24 bg-canvas">
+        <section className="py-24 bg-white">
             <div className="container mx-auto px-4 max-w-6xl">
+
+                {/* Header */}
                 <div className="text-center mb-16">
-                    <h2 className="text-4xl md:text-5xl font-bold tracking-tight text-ink mb-4">{t('header')}</h2>
-                    <p className="text-xl text-body">{t('subtitle')}</p>
+                    <span className="inline-block bg-rose/10 text-rose text-sm font-semibold px-4 py-1.5 rounded-full mb-4">
+                        {t('badge')}
+                    </span>
+                    <h2 className="text-4xl md:text-5xl font-bold tracking-tight text-ink mb-4">
+                        {t('header')}
+                    </h2>
+                    <p className="text-xl text-body max-w-2xl mx-auto">
+                        {t('subtitle')}
+                    </p>
                 </div>
 
-                {/* Desktop Roadmap curve mockup */}
-                <div className="hidden md:flex flex-col items-center relative py-10">
+                {/* Phase Cards Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
+                    {phases.map((phase, i) => {
+                        const c = accentMap[phase.accent];
+                        return (
+                            <div
+                                key={phase.id}
+                                className={`relative rounded-2xl border ${c.border} bg-white p-6 lg:p-8 shadow-sm hover:shadow-md transition-shadow flex flex-col gap-5`}
+                            >
+                                {/* Phase number — top right */}
+                                <span className={`absolute top-5 right-5 text-xs font-bold uppercase tracking-widest ${c.text} opacity-60`}>
+                                    Phase {phase.phaseIndex}
+                                </span>
 
-                    <div className="flex flex-wrap justify-center gap-8 lg:gap-16 relative z-10 w-full">
-                        {steps.map((step, index) => (
-                            <div key={step.num} className={`relative flex flex-col items-center ${index % 2 === 0 ? '-translate-y-6' : 'translate-y-6'}`}>
-                                <div className={`w-14 h-14 rounded-full flex items-center justify-center font-bold text-xl mb-4 shadow-lg ${step.color} ${step.textColor}`}>
-                                    {step.num}
+                                {/* Icon + Title */}
+                                <div className="flex items-center gap-4">
+                                    <div className={`w-14 h-14 rounded-2xl ${c.light} flex items-center justify-center text-2xl shrink-0`}>
+                                        {phase.icon}
+                                    </div>
+                                    <div>
+                                        <h3 className="text-xl font-bold text-ink leading-tight">{phase.title}</h3>
+                                        <p className="text-sm text-body mt-0.5">{phase.subtitle}</p>
+                                    </div>
                                 </div>
-                                <div className="bg-white px-4 py-2 rounded-lg shadow-sm font-semibold border border-surface text-ink text-sm w-36 text-center">
-                                    {step.title}
+
+                                {/* Connector line between cards (desktop only) */}
+                                {i < phases.length - 1 && (
+                                    <div className="hidden" />
+                                )}
+
+                                {/* Topic chips */}
+                                <div className="flex flex-wrap gap-2">
+                                    {phase.topics.map(topic => (
+                                        <span
+                                            key={topic}
+                                            className={`text-xs font-medium px-3 py-1.5 rounded-full ${c.badge}`}
+                                        >
+                                            {topic}
+                                        </span>
+                                    ))}
+                                </div>
+
+                                {/* Progress bar decoration */}
+                                <div className="h-1.5 w-full rounded-full bg-surface overflow-hidden">
+                                    <div
+                                        className={`h-full rounded-full ${c.bg} transition-all`}
+                                        style={{ width: `${25 * phase.phaseIndex}%` }}
+                                    />
                                 </div>
                             </div>
-                        ))}
-                    </div>
-
-                    <div className="absolute top-1/2 left-0 w-full h-32 -translate-y-1/2 z-0 opacity-20 pointer-events-none">
-                        <svg width="100%" height="100%" viewBox="0 0 1000 100" preserveAspectRatio="none">
-                            <path d="M0,50 Q250,150 500,50 T1000,50" fill="none" stroke="currentColor" strokeWidth="4" className="text-rose" />
-                        </svg>
-                    </div>
+                        );
+                    })}
                 </div>
 
-                {/* Mobile vertical version */}
-                <div className="md:hidden flex flex-col gap-6 items-center px-4">
-                    {steps.map((step) => (
-                        <div key={step.num} className="flex items-center gap-4 w-full">
-                            <div className={`w-12 h-12 rounded-full flex shrink-0 items-center justify-center font-bold text-lg shadow-sm ${step.color} ${step.textColor}`}>
-                                {step.num}
-                            </div>
-                            <div className="bg-white p-4 rounded-xl shadow-sm border border-surface flex-1 font-semibold text-ink text-sm">
-                                {step.title}
-                            </div>
-                        </div>
-                    ))}
-                </div>
-
-                <div className="mt-20 flex justify-center text-center">
-                    <button className="text-white bg-rose hover:bg-rose-dark font-semibold text-lg px-8 py-4 rounded-xl transition-all shadow-md hover:shadow-lg">
+                {/* Bottom CTA */}
+                <div className="mt-16 flex flex-col items-center gap-3 text-center">
+                    <p className="text-body text-sm">{t('ctaHint')}</p>
+                    <button className="text-white bg-rose hover:bg-rose-dark font-semibold text-lg px-8 py-4 rounded-xl transition-all shadow-md hover:shadow-lg hover:scale-105 active:scale-100">
                         {t('exploreCta')}
                     </button>
                 </div>
