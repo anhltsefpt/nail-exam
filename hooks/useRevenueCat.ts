@@ -3,12 +3,13 @@ import { useEffect, useState } from 'react';
 import { Alert } from 'react-native';
 import Purchases, {
     CustomerInfo,
+    PRODUCT_CATEGORY,
     PURCHASES_ERROR_CODE,
-    PurchasesOffering,
-    PurchasesPackage,
+    PurchasesStoreProduct,
 } from 'react-native-purchases';
 
 const ENTITLEMENT_ID = 'Nail Exam Pro';
+const PRODUCT_ID = 'com.nail.exam.practice.test.1week';
 
 /**
  * Maps a RevenueCat PurchasesError to a user-facing alert.
@@ -105,7 +106,7 @@ function handlePurchaseError(e: any): void {
 }
 
 export function useRevenueCat() {
-    const [currentOffering, setCurrentOffering] = useState<PurchasesOffering | null>(null);
+    const [product, setProduct] = useState<PurchasesStoreProduct | null>(null);
     const [customerInfo, setCustomerInfo] = useState<CustomerInfo | null>(null);
     const [isPro, setIsPro] = useState(false);
     const [isReady, setIsReady] = useState(false);
@@ -113,9 +114,10 @@ export function useRevenueCat() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const offerings = await Purchases.getOfferings();
-                if (offerings.current !== null && offerings.current.availablePackages.length !== 0) {
-                    setCurrentOffering(offerings.current);
+                const products = await Purchases.getProducts([PRODUCT_ID], PRODUCT_CATEGORY.SUBSCRIPTION);
+                console.log('Products: ', products)
+                if (products.length > 0) {
+                    setProduct(products[0]);
                 }
 
                 const info = await Purchases.getCustomerInfo();
@@ -150,10 +152,10 @@ export function useRevenueCat() {
         }
     }, [customerInfo]);
 
-    // --- Purchase a specific package ---
-    const purchasePackage = async (pack: PurchasesPackage) => {
+    // --- Purchase a specific product ---
+    const purchaseProduct = async (storeProduct: PurchasesStoreProduct) => {
         try {
-            const { customerInfo } = await Purchases.purchasePackage(pack);
+            const { customerInfo } = await Purchases.purchaseStoreProduct(storeProduct);
             setCustomerInfo(customerInfo);
             return true;
         } catch (e: any) {
@@ -205,11 +207,11 @@ export function useRevenueCat() {
     };
 
     return {
-        currentOffering,
+        product,
         customerInfo,
         isPro,
         isReady,
-        purchasePackage,
+        purchaseProduct,
         restorePurchases,
         presentPaywall,
         presentPaywallIfNeeded,

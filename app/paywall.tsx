@@ -11,7 +11,6 @@ import {
     TouchableOpacity,
     View,
 } from 'react-native';
-import { PurchasesPackage } from 'react-native-purchases';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 // ─── Design tokens ────────────────────────────────────────────────────────────
@@ -26,69 +25,15 @@ function FeatureIcon({ icon, accent }: { icon: string; accent: string }) {
     );
 }
 
-// ─── Plan card (radio-style, side by side) ────────────────────────────────────
-function PlanCard({
-    pack,
-    isSelected,
-    onSelect,
-}: {
-    pack: PurchasesPackage;
-    isSelected: boolean;
-    onSelect: () => void;
-}) {
-    const sub = pack.product.subscriptionPeriod ?? '';
-    const periodShort = sub.includes('Y') ? 'Year' : sub.includes('M') ? 'Month' : sub.includes('W') ? 'Week' : '';
-    const billingLabel = sub.includes('Y') ? 'Billed Yearly' : sub.includes('M') ? 'Billed Monthly' : '';
-
-    return (
-        <TouchableOpacity
-            onPress={onSelect}
-            activeOpacity={0.85}
-            style={[
-                s.planCard,
-                isSelected && s.planCardSelected,
-            ]}
-        >
-            {/* Top row: label + radio */}
-            <View style={s.planCardHeader}>
-                <Text style={[s.planCardLabel, isSelected && s.planCardLabelSelected]}>
-                    {periodShort}
-                </Text>
-                <View style={[s.radio, isSelected && s.radioSelected]}>
-                    {isSelected && <View style={s.radioDot} />}
-                </View>
-            </View>
-
-            <Text style={[s.planCardPrice, isSelected && s.planCardPriceSelected]}>
-                {pack.product.priceString}/{periodShort}
-            </Text>
-            {billingLabel ? (
-                <Text style={[s.planCardBilling, isSelected && s.planCardBillingSelected]}>
-                    {billingLabel}
-                </Text>
-            ) : null}
-        </TouchableOpacity>
-    );
-}
-
 // ─── Main Screen ──────────────────────────────────────────────────────────────
 export default function PaywallScreen() {
     const router = useRouter();
     const insets = useSafeAreaInsets();
     const { t } = useTranslation();
-    const { currentOffering, purchasePackage, restorePurchases, isReady } = useRevenueCat();
+    const { product, purchaseProduct, restorePurchases, isReady } = useRevenueCat();
 
-    const packages = currentOffering?.availablePackages ?? [];
-    const [selectedPack, setSelectedPack] = useState<PurchasesPackage | null>(null);
     const [purchasing, setPurchasing] = useState(false);
     const [restoring, setRestoring] = useState(false);
-
-    // Always use only the first package
-    useEffect(() => {
-        if (packages.length > 0) {
-            setSelectedPack(packages[0]);
-        }
-    }, [packages]);
 
     // Subtle entrance animation on the badge
     const animIn = useRef(new Animated.Value(0)).current;
@@ -104,9 +49,9 @@ export default function PaywallScreen() {
     const handleClose = () => router.back();
 
     const handlePurchase = async () => {
-        if (!selectedPack) return;
+        if (!product) return;
         setPurchasing(true);
-        const success = await purchasePackage(selectedPack);
+        const success = await purchaseProduct(product);
         setPurchasing(false);
         if (success) router.back();
     };
@@ -117,20 +62,6 @@ export default function PaywallScreen() {
         setRestoring(false);
         if (success) router.back();
     };
-
-    const getTrialLabel = (pack: PurchasesPackage): string | null => {
-        const intro = pack.product.introPrice;
-        if (!intro) return null;
-        const { periodNumberOfUnits, periodUnit } = intro;
-        return t('paywall.pricing.freeTrial', { duration: `${periodNumberOfUnits}-${periodUnit.toLowerCase()}` });
-    };
-
-    const ctaLabel = (): string => {
-        if (!selectedPack) return t('paywall.cta.tryForFree');
-        return getTrialLabel(selectedPack) ? t('paywall.cta.startFreeTrial') : t('paywall.cta.tryForFree');
-    };
-
-    const trialLabel = selectedPack ? getTrialLabel(selectedPack) : null;
 
     const FEATURES = [
         { icon: '🤖', title: t('paywall.features.aiTitle'), desc: t('paywall.features.aiDesc'), accent: C.primary },
@@ -184,38 +115,33 @@ export default function PaywallScreen() {
             <View style={s.priceSummary}>
                 {!isReady ? (
                     <ActivityIndicator color={C.primary} />
-                ) : selectedPack ? (
-                    <>
-                        <View style={s.priceRow}>
-                            <Text style={s.priceAmount}>{selectedPack.product.priceString}</Text>
-                            <Text style={s.pricePeriod}>
-                                {(() => {
-                                    const sub = selectedPack.product.subscriptionPeriod ?? '';
-                                    if (sub.includes('Y')) return t('paywall.pricing.perYear');
-                                    if (sub.includes('M')) return t('paywall.pricing.perMonth');
-                                    if (sub.includes('W')) return t('paywall.pricing.perWeek');
-                                    return '';
-                                })()}
-                            </Text>
-                        </View>
-                        {trialLabel && (
-                            <Text style={s.trialLabel}>🎁 {trialLabel} · {t('paywall.pricing.thenAutoRenews')}</Text>
-                        )}
-                    </>
+                ) : product ? (
+                    <View style={s.priceRow}>
+                        <Text style={s.priceAmount}>{product.priceString}</Text>
+                        <Text style={s.pricePeriod}>
+                            {(() => {
+                                const sub = product.subscriptionPeriod ?? '';
+                                if (sub.includes('Y')) return t('paywall.pricing.perYear');
+                                if (sub.includes('M')) return t('paywall.pricing.perMonth');
+                                if (sub.includes('W')) return t('paywall.pricing.perWeek');
+                                return '';
+                            })()}
+                        </Text>
+                    </View>
                 ) : null}
             </View>
 
             {/* ── CTA button ── */}
             <View style={s.ctaArea}>
                 <TouchableOpacity
-                    style={[s.ctaBtn, { opacity: purchasing || !selectedPack ? 0.6 : 1 }]}
+                    style={[s.ctaBtn, { opacity: purchasing || !product ? 0.6 : 1 }]}
                     onPress={handlePurchase}
-                    disabled={purchasing || !selectedPack}
+                    disabled={purchasing || !product}
                     activeOpacity={0.85}
                 >
                     {purchasing
                         ? <ActivityIndicator color="#fff" />
-                        : <Text style={s.ctaBtnText}>{ctaLabel()}</Text>
+                        : <Text style={s.ctaBtnText}>{t('paywall.cta.tryForFree')}</Text>
                     }
                 </TouchableOpacity>
 
@@ -338,89 +264,12 @@ const s = StyleSheet.create({
         lineHeight: 17,
     },
 
-    // Plans
-    plans: {
-        marginBottom: 20,
-    },
-    noPlans: {
-        fontSize: 13,
-        color: C.textMuted,
-        textAlign: 'center',
-        paddingVertical: 16,
-    },
-    planRow: {
-        flexDirection: 'row',
-        gap: 12,
-    },
-    planCard: {
-        flex: 1,
-        borderRadius: 14,
-        borderWidth: 1.5,
-        borderColor: C.border,
-        padding: 14,
-    },
-    planCardSelected: {
-        borderColor: C.primary,
-        backgroundColor: C.primary + '06',
-    },
-    planCardHeader: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: 8,
-    },
-    planCardLabel: {
-        fontSize: 13,
-        fontWeight: '600',
-        color: C.textSecondary,
-    },
-    planCardLabelSelected: {
-        color: C.text,
-    },
-    planCardPrice: {
-        fontSize: 18,
-        fontWeight: '900',
-        color: C.text,
-        marginBottom: 2,
-    },
-    planCardPriceSelected: {
-        color: C.text,
-    },
-    planCardBilling: {
-        fontSize: 11,
-        color: C.textMuted,
-    },
-    planCardBillingSelected: {
-        color: C.textSecondary,
-    },
-
-    // Radio
-    radio: {
-        width: 18,
-        height: 18,
-        borderRadius: 9,
-        borderWidth: 1.5,
-        borderColor: C.border,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    radioSelected: {
-        borderColor: C.primary,
-    },
-    radioDot: {
-        width: 10,
-        height: 10,
-        borderRadius: 5,
-        backgroundColor: C.primary,
-    },
-
     // CTA
     ctaArea: { gap: 10 },
     priceSummary: { alignItems: 'center', paddingVertical: 12, gap: 4 },
     priceRow: { flexDirection: 'row', alignItems: 'baseline', gap: 3 },
     priceAmount: { fontSize: 28, fontWeight: '900', color: C.text },
     pricePeriod: { fontSize: 14, fontWeight: '500', color: C.textMuted },
-    trialLabel: { fontSize: 12, color: C.success, fontWeight: '600' },
     ctaBtn: {
         backgroundColor: C.primary,
         paddingVertical: 16,
