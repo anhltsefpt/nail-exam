@@ -52,3 +52,14 @@ export function setUserProperties(
     }
     amplitude.identify(identifyObj);
 }
+
+// ── Getters ─────────────────────────────────────────────
+/** Returns the Amplitude Device ID (needed to set $amplitudeDeviceId on RevenueCat). */
+export function getDeviceId(): string | undefined {
+    return amplitude.getDeviceId();
+}
+
+/** Returns the Amplitude User ID currently set. */
+export function getAmplitudeUserId(): string | undefined {
+    return amplitude.getUserId();
+}

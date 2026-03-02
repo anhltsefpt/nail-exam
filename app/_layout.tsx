@@ -9,7 +9,7 @@ import Purchases, { LOG_LEVEL, STOREKIT_VERSION } from 'react-native-purchases';
 import { ErrorBoundary } from '../components/ErrorBoundary';
 import { useRevenueCat } from '../hooks/useRevenueCat';
 import '../i18n'; // Initialize i18n
-import { identify, initAnalytics, setUserProperties } from '../lib/analytics';
+import { getAmplitudeUserId, getDeviceId, identify, initAnalytics, setUserProperties } from '../lib/analytics';
 import { useUserStore } from '../store/useUserStore';
 import OnboardingScreen from './onboarding';
 
@@ -64,11 +64,29 @@ function RootLayoutNav() {
   const hasCompletedOnboarding = useUserStore((state) => state.hasCompletedOnboarding);
   const setHasCompletedOnboarding = useUserStore((state) => state.setHasCompletedOnboarding);
 
-  // Sync Amplitude identity with RevenueCat user
+  // Two-way identity sync: Amplitude ↔ RevenueCat
+  // Per https://www.revenuecat.com/docs/integrations/third-party-integrations/amplitude
   useEffect(() => {
-    if (customerInfo?.originalAppUserId) {
-      identify(customerInfo.originalAppUserId);
+    if (!customerInfo?.originalAppUserId) return;
+
+    const rcUserId = customerInfo.originalAppUserId;
+
+    // 1. Set Amplitude userId = RC App User ID so client events are merged
+    identify(rcUserId);
+
+    // 2. Set RC subscriber attributes with Amplitude identifiers
+    //    so RevenueCat server-side events land on the right Amplitude user
+    const amplitudeDeviceId = getDeviceId();
+    const amplitudeUserId = getAmplitudeUserId() ?? rcUserId;
+
+    const attrs: Record<string, string> = {
+      $amplitudeUserId: amplitudeUserId,
+    };
+    if (amplitudeDeviceId) {
+      attrs.$amplitudeDeviceId = amplitudeDeviceId;
     }
+    Purchases.setAttributes(attrs);
+
     setUserProperties({ isPro, language });
   }, [customerInfo, isPro, language]);
 
