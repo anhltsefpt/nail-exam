@@ -207,25 +207,22 @@ export default function QuizScreen() {
     }, [isRoundComplete]);
 
     const handleAIChat = (prompt?: string) => {
-        let chatContext = 'Quiz Context';
-        console.log('123', prompt)
+        let chatContext = t('quiz.aiChatContext');
         if (currentQuestion) {
             const correctOption = currentQuestion.options.find(o => o.id === currentQuestion.correctOptionId);
             chatContext = [
-                `[FOCUS: The user is asking about THIS specific exam question. Only help with this question.]`,
+                `${t('quiz.aiChatQuestion')}: ${currentQuestion.text}`,
                 ``,
-                `Question: ${currentQuestion.text}`,
-                ``,
-                `Answer Choices:`,
+                `${t('quiz.aiChatAnswerChoices')}:`,
                 ...currentQuestion.options.map((o, i) => `  ${String.fromCharCode(65 + i)}) ${o.text}`),
                 ``,
-                `Correct Answer: ${correctOption ? correctOption.text : 'Unknown'}`,
+                `${t('quiz.aiChatCorrectAnswer')}: ${correctOption ? correctOption.text : t('quiz.aiChatUnknown')}`,
             ].join('\n');
 
             if (selectedOptionId) {
                 const selectedText = currentQuestion.options.find(o => o.id === selectedOptionId)?.text;
                 const isCorrect = selectedOptionId === currentQuestion.correctOptionId;
-                chatContext += `\n\nUser selected: ${selectedText} (${isCorrect ? 'Correct ✓' : 'Incorrect ✗'})`;
+                chatContext += `\n\n${t('quiz.aiChatUserSelected')}: ${selectedText} (${isCorrect ? t('quiz.aiChatCorrect') : t('quiz.aiChatIncorrect')})`;
             }
         }
 

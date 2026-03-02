@@ -112,7 +112,15 @@
         "whyWrong": "왜 틀렸나요?",
         "hint": "힌트",
         "explain": "설명",
-        "diveDeep": "심층 분석"
+        "diveDeep": "심층 분석",
+        "aiChatContext": "퀴즈 컨텍스트",
+        "aiChatQuestion": "문제",
+        "aiChatAnswerChoices": "답안 선택지",
+        "aiChatCorrectAnswer": "정답",
+        "aiChatUnknown": "알 수 없음",
+        "aiChatUserSelected": "사용자 선택",
+        "aiChatCorrect": "정답 ✓",
+        "aiChatIncorrect": "오답 ✗"
     },
     "aiChat": {
         "title": "AI Assistant",

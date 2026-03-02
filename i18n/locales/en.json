@@ -119,7 +119,15 @@
         "whyWrong": "Why is my answer wrong?",
         "hint": "Hint",
         "explain": "Explain",
-        "diveDeep": "Dive Deep"
+        "diveDeep": "Dive Deep",
+        "aiChatContext": "Quiz Context",
+        "aiChatQuestion": "Question",
+        "aiChatAnswerChoices": "Answer Choices",
+        "aiChatCorrectAnswer": "Correct Answer",
+        "aiChatUnknown": "Unknown",
+        "aiChatUserSelected": "User selected",
+        "aiChatCorrect": "Correct ✓",
+        "aiChatIncorrect": "Incorrect ✗"
     },
     "aiChat": {
         "title": "AI Assistant",

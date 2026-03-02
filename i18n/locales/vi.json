@@ -119,7 +119,15 @@
         "whyWrong": "Tại sao tôi sai?",
         "hint": "Gợi ý",
         "explain": "Giải thích",
-        "diveDeep": "Phân tích sâu"
+        "diveDeep": "Phân tích sâu",
+        "aiChatContext": "Ngữ cảnh Quiz",
+        "aiChatQuestion": "Câu hỏi",
+        "aiChatAnswerChoices": "Các lựa chọn",
+        "aiChatCorrectAnswer": "Đáp án đúng",
+        "aiChatUnknown": "Không xác định",
+        "aiChatUserSelected": "Người dùng đã chọn",
+        "aiChatCorrect": "Đúng ✓",
+        "aiChatIncorrect": "Sai ✗"
     },
     "aiChat": {
         "title": "AI Assistant",
