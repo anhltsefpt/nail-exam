@@ -267,6 +267,7 @@
             "aiDesc": "Trả lời sai? Chạm 'Giải Thích' — AI sẽ gỡ rối giúp bạn.",
             "bilingual": "Học bằng Tiếng Việt",
             "bilingualDesc": "Mọi câu hỏi và giải thích đều có sẵn bằng Tiếng Việt.",
+            "aiPaywallHint": "Nhấn để mở khóa ✨",
             "btn": "Thử Một Câu Hỏi Nhanh"
         },
         "miniQuiz": {
@@ -313,7 +314,16 @@
             "badgePro": "PRO",
             "btnFree": "Học Ngay — Miễn Phí",
             "btnPremium": "Hoặc dùng thử Premium 3 ngày",
-            "btnTryForFree": "Dùng Thử Miễn Phí - 3 Ngày"
+            "btnTryForFree": "Dùng Thử Miễn Phí - 3 Ngày",
+            "btnStartLearning": "Bắt Đầu Học 🚀"
+        },
+        "proUnlocked": {
+            "title": "Bạn đã là Pro! 🎉",
+            "subtitle": "AI giải thích, thi thử không giới hạn & nhiều hơn nữa — tất cả đã mở khóa.",
+            "feat1": "AI giải thích mọi đáp án",
+            "feat2": "Thi thử không giới hạn",
+            "feat3": "Lộ trình học ưu tiên",
+            "cta": "Bắt Đầu Trắc Nghiệm Nhanh"
         }
     },
     "paywall": {

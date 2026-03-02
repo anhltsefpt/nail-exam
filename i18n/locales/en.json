@@ -267,6 +267,7 @@
             "aiDesc": "Got it wrong? Tap \"Explain\" — AI tells you why in simple language.",
             "bilingual": "Study in Vietnamese",
             "bilingualDesc": "Every question and explanation available in Tiếng Việt.",
+            "aiPaywallHint": "Tap to unlock ✨",
             "btn": "Try a Quick Quiz"
         },
         "miniQuiz": {
@@ -313,7 +314,16 @@
             "badgePro": "PRO",
             "btnFree": "Start Learning — Free",
             "btnPremium": "Try Premium free for 3 days",
-            "btnTryForFree": "Try For Free - 3 Days"
+            "btnTryForFree": "Try For Free - 3 Days",
+            "btnStartLearning": "Start Learning 🚀"
+        },
+        "proUnlocked": {
+            "title": "You're now Pro! 🎉",
+            "subtitle": "AI explanations, mock exams & more — all unlocked.",
+            "feat1": "AI explains every answer",
+            "feat2": "Unlimited mock exams",
+            "feat3": "Priority study plan",
+            "cta": "Start the Quick Quiz"
         }
     },
     "paywall": {

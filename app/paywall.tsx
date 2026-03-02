@@ -107,15 +107,23 @@ export default function PaywallScreen() {
         if (!selectedPack) return;
         setPurchasing(true);
         const success = await purchasePackage(selectedPack);
+        if (success) {
+            // Navigate back immediately — don't setPurchasing(false) first
+            // to avoid a visible re-render before dismissal
+            router.back();
+            return;
+        }
         setPurchasing(false);
-        if (success) router.back();
     };
 
     const handleRestore = async () => {
         setRestoring(true);
         const success = await restorePurchases();
+        if (success) {
+            router.back();
+            return;
+        }
         setRestoring(false);
-        if (success) router.back();
     };
 
     const getTrialLabel = (pack: PurchasesPackage): string | null => {

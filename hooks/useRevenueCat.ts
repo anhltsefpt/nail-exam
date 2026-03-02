@@ -8,7 +8,7 @@ import Purchases, {
     PurchasesPackage,
 } from 'react-native-purchases';
 
-const ENTITLEMENT_ID = 'Nail Exam Pro';
+const ENTITLEMENT_ID = __DEV__ ? 'Nail Exam Pro' : 'pro';
 
 /**
  * Maps a RevenueCat PurchasesError to a user-facing alert.
@@ -109,6 +109,7 @@ export function useRevenueCat() {
     const [customerInfo, setCustomerInfo] = useState<CustomerInfo | null>(null);
     const [isPro, setIsPro] = useState(false);
     const [isReady, setIsReady] = useState(false);
+    const [debugInfo, setDebugInfo] = useState<string>('');
 
     useEffect(() => {
         const fetchData = async () => {
@@ -120,6 +121,15 @@ export function useRevenueCat() {
 
                 const info = await Purchases.getCustomerInfo();
                 setCustomerInfo(info);
+                setDebugInfo(JSON.stringify({
+                    entitlementId: ENTITLEMENT_ID,
+                    activeEntitlements: info.entitlements.active,
+                    allEntitlements: info.entitlements.all,
+                    activeSubscriptions: info.activeSubscriptions,
+                    allPurchasedProductIdentifiers: info.allPurchasedProductIdentifiers,
+                    originalAppUserId: info.originalAppUserId,
+                    managementURL: info.managementURL,
+                }, null, 2));
             } catch (e) {
                 console.error('Error fetching RevenueCat data', e);
             } finally {
@@ -209,6 +219,7 @@ export function useRevenueCat() {
         customerInfo,
         isPro,
         isReady,
+        debugInfo,
         purchasePackage,
         restorePurchases,
         presentPaywall,
