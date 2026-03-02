@@ -1,9 +1,10 @@
 import { Colors } from '@/constants/theme';
+import { ENTITLEMENT_ID } from '@/hooks/useRevenueCat';
 import { track } from '@/lib/analytics';
 import { useUserStore } from '@/store/useUserStore';
 import { Experiment } from '@amplitude/experiment-react-native-client';
-import { useRouter } from 'expo-router';
-import { useEffect, useRef, useState } from 'react';
+import { useFocusEffect, useRouter } from 'expo-router';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
     Animated,
@@ -14,6 +15,7 @@ import {
     TouchableOpacity,
     View
 } from 'react-native';
+import Purchases from 'react-native-purchases';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 // ==================== DESIGN TOKENS ====================
@@ -231,6 +233,8 @@ export default function OnboardingScreen({ onComplete }: OnboardingProps) {
     const [quizAns, setQuizAns] = useState<string | null>(null);
     const [quizShow, setQuizShow] = useState(false);
     const [quizScore, setQuizScore] = useState(0);
+    const [paywallPending, setPaywallPending] = useState(false);
+    const [showProSuccess, setShowProSuccess] = useState(false);
 
     const MINI_QUIZ = [
         {
@@ -269,6 +273,30 @@ export default function OnboardingScreen({ onComplete }: OnboardingProps) {
             Animated.timing(fadeAnim, { toValue: 1, duration: 220, useNativeDriver: true }).start();
         });
     };
+
+    // When we return from the paywall (opened from AI card), check if purchase succeeded
+    useFocusEffect(
+        useCallback(() => {
+            if (!paywallPending) return;
+            const checkPurchase = async () => {
+                try {
+                    const info = await Purchases.getCustomerInfo();
+                    const paid = info.entitlements.active[ENTITLEMENT_ID] !== undefined;
+                    setPaywallPending(false);
+                    if (paid) {
+                        track('onboarding_paywall_purchase_success', { lang: lang ?? 'unknown' });
+                        setShowProSuccess(true);
+                    } else {
+                        track('onboarding_paywall_dismissed_from_showcase', { lang: lang ?? 'unknown' });
+                        // Stay on step 6
+                    }
+                } catch {
+                    setPaywallPending(false);
+                }
+            };
+            checkPurchase();
+        }, [paywallPending])
+    );
 
     const pickQuizAns = (letter: string) => {
         if (quizShow) return;
@@ -616,7 +644,7 @@ export default function OnboardingScreen({ onComplete }: OnboardingProps) {
                 )}
 
                 {/* ==================== STEP 6: FEATURE SHOWCASE ==================== */}
-                {step === 6 && (
+                {step === 6 && !showProSuccess && (
                     <View style={styles.stepContainer}>
                         <View style={[styles.stepBody, { justifyContent: 'center' }]}>
                             <View style={{ alignItems: 'center', marginBottom: 24 }}>
@@ -629,19 +657,33 @@ export default function OnboardingScreen({ onComplete }: OnboardingProps) {
                                     icon: '🗺️', color: T.rose, bg: T.roseWhisper,
                                     title: t('onboarding.showcase.roadmap'),
                                     desc: t('onboarding.showcase.roadmapDesc'),
+                                    onTap: undefined as (() => void) | undefined,
                                 },
                                 {
                                     icon: '🤖', color: '#8B5CF6', bg: '#EDE9FE',
                                     title: t('onboarding.showcase.ai'),
                                     desc: t('onboarding.showcase.aiDesc'),
+                                    onTap: () => {
+                                        track('onboarding_ai_feature_tapped', { lang: lang ?? 'unknown' });
+                                        track('onboarding_paywall_opened_from_showcase', { lang: lang ?? 'unknown' });
+                                        setPaywallPending(true);
+                                        router.push('/paywall');
+                                    },
                                 },
                                 {
                                     icon: '🇻🇳', color: '#0891B2', bg: '#ECFEFF',
                                     title: t('onboarding.showcase.bilingual'),
                                     desc: t('onboarding.showcase.bilingualDesc'),
+                                    onTap: undefined as (() => void) | undefined,
                                 },
                             ].map((f, i) => (
-                                <View key={i} style={styles.featureCard}>
+                                <TouchableOpacity
+                                    key={i}
+                                    style={[styles.featureCard, f.onTap && { borderColor: '#8B5CF6', borderWidth: 2 }]}
+                                    activeOpacity={f.onTap ? 0.75 : 1}
+                                    onPress={f.onTap}
+                                    disabled={!f.onTap}
+                                >
                                     <View style={[styles.featureIcon, { backgroundColor: f.bg }]}>
                                         <Text style={styles.featureIconEmoji}>{f.icon}</Text>
                                     </View>
@@ -649,10 +691,51 @@ export default function OnboardingScreen({ onComplete }: OnboardingProps) {
                                         <Text style={styles.featureTitle}>{f.title}</Text>
                                         <Text style={styles.featureDesc}>{f.desc}</Text>
                                     </View>
-                                </View>
+                                    {f.onTap && (
+                                        <Text style={{ fontSize: 11, color: '#8B5CF6', fontWeight: '700' }}>
+                                            {t('onboarding.showcase.aiPaywallHint')}
+                                        </Text>
+                                    )}
+                                </TouchableOpacity>
                             ))}
                         </View>
                         <BottomCTA text={t('onboarding.showcase.btn')} onPress={() => { track('onboarding_showcase_viewed', { lang: lang ?? 'unknown' }); goNext(); }} emoji="⚡" />
+                    </View>
+                )}
+
+                {/* ==================== STEP 6.5: PRO UNLOCKED ==================== */}
+                {showProSuccess && step === 6 && (
+                    <View style={styles.stepContainer}>
+                        <View style={[styles.stepBody, { justifyContent: 'center', alignItems: 'center' }]}>
+                            {/* Crown badge */}
+                            <View style={styles.proUnlockedBadge}>
+                                <Text style={styles.proUnlockedBadgeEmoji}>👑</Text>
+                            </View>
+                            <Text style={styles.proUnlockedTitle}>{t('onboarding.proUnlocked.title')}</Text>
+                            <Text style={styles.proUnlockedSub}>{t('onboarding.proUnlocked.subtitle')}</Text>
+
+                            {/* Unlocked features */}
+                            <View style={styles.proUnlockedFeatures}>
+                                {[
+                                    { icon: '🤖', label: t('onboarding.proUnlocked.feat1') },
+                                    { icon: '🏆', label: t('onboarding.proUnlocked.feat3') },
+                                ].map((f, i) => (
+                                    <View key={i} style={styles.proUnlockedPill}>
+                                        <Text style={styles.proUnlockedPillIcon}>{f.icon}</Text>
+                                        <Text style={styles.proUnlockedPillText}>{f.label}</Text>
+                                    </View>
+                                ))}
+                            </View>
+                        </View>
+                        <BottomCTA
+                            text={t('onboarding.proUnlocked.cta')}
+                            emoji="⚡"
+                            onPress={() => {
+                                track('onboarding_pro_unlocked_quiz_started', { lang: lang ?? 'unknown' });
+                                setShowProSuccess(false);
+                                goNext();
+                            }}
+                        />
                     </View>
                 )}
 
@@ -802,7 +885,7 @@ export default function OnboardingScreen({ onComplete }: OnboardingProps) {
                         </View>
 
                         {/* What you get */}
-                        <Text style={styles.planHeader}>{t('onboarding.results.planHeader')}</Text>
+                        <Text style={styles.resultsPlanHeader}>{t('onboarding.results.planHeader')}</Text>
                         {[
                             { icon: '🗺️', text: t('onboarding.results.planRoadmap'), free: true },
                             { icon: '❓', text: t('onboarding.results.planQuestions'), free: true },
@@ -822,31 +905,13 @@ export default function OnboardingScreen({ onComplete }: OnboardingProps) {
                         ))}
 
                         {/* CTA */}
-                        {enable_free_onboarding ? (
-                            <>
-                                <TouchableOpacity onPress={handleComplete} style={styles.startBtn} activeOpacity={0.85}>
-                                    <Text style={styles.startBtnText}>{t('onboarding.results.btnFree')}</Text>
-                                </TouchableOpacity>
-
-                                <TouchableOpacity onPress={handleComplete} style={styles.premiumLink} activeOpacity={0.8}>
-                                    <Text style={styles.premiumLinkEmoji}>👑</Text>
-                                    <Text style={styles.premiumLinkText}>{t('onboarding.results.btnPremium')}</Text>
-                                    <Text style={styles.premiumLinkArrow}>→</Text>
-                                </TouchableOpacity>
-                            </>
-                        ) : (
-                            <TouchableOpacity
-                                onPress={() => {
-                                    track('onboarding_paywall_cta_tapped', { lang: lang ?? 'en', quiz_score: quizScore });
-                                    router.push('/paywall');
-                                    handleComplete();
-                                }}
-                                style={styles.startBtn}
-                                activeOpacity={0.85}
-                            >
-                                <Text style={styles.startBtnText}>{t('onboarding.results.btnTryForFree', 'Try For Free – 3 Days')}</Text>
-                            </TouchableOpacity>
-                        )}
+                        <TouchableOpacity
+                            onPress={handleComplete}
+                            style={styles.startBtn}
+                            activeOpacity={0.85}
+                        >
+                            <Text style={styles.startBtnText}>{t('onboarding.results.btnStartLearning')}</Text>
+                        </TouchableOpacity>
                     </View>
                 )}
             </Animated.View>
@@ -1529,7 +1594,7 @@ const styles = StyleSheet.create({
         lineHeight: 17,
         textAlign: 'center',
     },
-    planHeader: {
+    resultsPlanHeader: {
         fontSize: 10,
         fontWeight: '700',
         color: T.muted,
@@ -1605,5 +1670,59 @@ const styles = StyleSheet.create({
         color: `${T.muted}90`,
         textAlign: 'center',
         marginBottom: 4,
+    },
+
+    // --- Pro Unlocked step ---
+    proUnlockedBadge: {
+        width: 96,
+        height: 96,
+        borderRadius: 28,
+        backgroundColor: '#8B5CF6',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginBottom: 20,
+        shadowColor: '#8B5CF6',
+        shadowOffset: { width: 0, height: 8 },
+        shadowOpacity: 0.35,
+        shadowRadius: 20,
+        elevation: 10,
+    },
+    proUnlockedBadgeEmoji: { fontSize: 44 },
+    proUnlockedTitle: {
+        fontSize: 26,
+        fontWeight: '800',
+        color: T.ink,
+        letterSpacing: -0.5,
+        marginBottom: 8,
+        textAlign: 'center',
+    },
+    proUnlockedSub: {
+        fontSize: 14,
+        color: T.body,
+        textAlign: 'center',
+        marginBottom: 28,
+        lineHeight: 20,
+        paddingHorizontal: 8,
+    },
+    proUnlockedFeatures: {
+        width: '100%',
+        gap: 10,
+    },
+    proUnlockedPill: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 12,
+        backgroundColor: '#F3F0FF',
+        borderRadius: 14,
+        paddingVertical: 12,
+        paddingHorizontal: 16,
+        borderWidth: 1,
+        borderColor: '#DDD6FE',
+    },
+    proUnlockedPillIcon: { fontSize: 20 },
+    proUnlockedPillText: {
+        fontSize: 14,
+        fontWeight: '600',
+        color: '#5B21B6',
     },
 });
