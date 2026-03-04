@@ -21,7 +21,6 @@ import {
     Crown,
     FileText,
     Globe,
-    Headset,
     MessageSquare,
     Play,
     RotateCcw,
@@ -49,7 +48,7 @@ export default function MenuScreen() {
     const router = useRouter();
     const { t, i18n } = useTranslation();
 
-    const { isPro, presentPaywall, presentCustomerCenter, restorePurchases } = useRevenueCat();
+    const { isPro, presentPaywall, restorePurchases } = useRevenueCat();
     const colorScheme = useColorScheme() ?? 'light';
     const theme = Colors[colorScheme];
     const [congratsVisible, setCongratsVisible] = useState(false);
@@ -480,13 +479,7 @@ export default function MenuScreen() {
 
                 {/* Menu Group 1 */}
                 <View style={styles.menuGroup}>
-                    {isPro && (
-                        <MenuItem
-                            icon={Headset}
-                            label={t('menu.items.manageSubscription')}
-                            onPress={() => { track('tap_manage_subscription'); presentCustomerCenter(); }}
-                        />
-                    )}
+
                     {!isPro && (
                         <MenuItem
                             icon={Crown}
