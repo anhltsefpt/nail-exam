@@ -350,7 +350,9 @@
             "startFreeTrial": "Bắt Đầu Dùng Thử",
             "legal": "Hủy bất cứ lúc nào · Gói tự động gia hạn",
             "restorePurchases": "Khôi phục giao dịch",
-            "freePlan": "Gói miễn phí"
+            "freePlan": "Gói miễn phí",
+            "termsOfUse": "Điều khoản sử dụng",
+            "privacyPolicy": "Chính sách bảo mật"
         }
     }
 }

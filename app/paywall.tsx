@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import {
     ActivityIndicator,
     Animated,
+    Linking,
     StyleSheet,
     Text,
     TouchableOpacity,
@@ -239,6 +240,16 @@ export default function PaywallScreen() {
                     <Text style={[s.footerLink, { color: C.border }]}>·</Text>
                     <TouchableOpacity onPress={handleClose}>
                         <Text style={s.footerLink}>{t('paywall.cta.freePlan')}</Text>
+                    </TouchableOpacity>
+                </View>
+
+                <View style={s.footerLinks}>
+                    <TouchableOpacity onPress={() => Linking.openURL('https://nail-prep.com/en/terms')}>
+                        <Text style={s.footerLink}>{t('paywall.cta.termsOfUse')}</Text>
+                    </TouchableOpacity>
+                    <Text style={[s.footerLink, { color: C.border }]}>·</Text>
+                    <TouchableOpacity onPress={() => Linking.openURL('https://nail-prep.com/en/privacy')}>
+                        <Text style={s.footerLink}>{t('paywall.cta.privacyPolicy')}</Text>
                     </TouchableOpacity>
                 </View>
             </View>

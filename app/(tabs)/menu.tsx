@@ -31,6 +31,7 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
     Alert,
+    Linking,
     Modal,
     Platform,
     ScrollView,
@@ -554,12 +555,12 @@ export default function MenuScreen() {
                     <MenuItem
                         icon={FileText}
                         label={t('menu.items.termsOfUse')}
-                        onPress={() => { }}
+                        onPress={() => Linking.openURL('https://nail-prep.com/en/terms')}
                     />
                     <MenuItem
                         icon={ShieldCheck}
                         label={t('menu.items.privacyPolicy')}
-                        onPress={() => { }}
+                        onPress={() => Linking.openURL('https://nail-prep.com/en/privacy')}
                     />
                     <MenuItem
                         icon={AlertCircle}

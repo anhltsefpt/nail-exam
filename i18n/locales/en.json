@@ -350,7 +350,9 @@
             "startFreeTrial": "Start Free Trial",
             "legal": "Cancel anytime · Plans renew automatically",
             "restorePurchases": "Restore Purchases",
-            "freePlan": "Free plan"
+            "freePlan": "Free plan",
+            "termsOfUse": "Terms of Use",
+            "privacyPolicy": "Privacy Policy"
         }
     }
 }
