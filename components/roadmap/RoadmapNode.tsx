@@ -148,7 +148,7 @@ const styles = StyleSheet.create({
         height: WRAPPER_SIZE,
         alignItems: 'center',
         justifyContent: 'center',
-        zIndex: 10,
+        zIndex: 1,
     },
     nodeInner: {
         alignItems: 'center',

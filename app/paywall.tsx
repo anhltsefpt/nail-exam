@@ -1,5 +1,6 @@
 import { Colors } from '@/constants/theme';
 import { useRevenueCat } from '@/hooks/useRevenueCat';
+import { track } from '@/lib/analytics';
 import { useRouter } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -94,6 +95,7 @@ export default function PaywallScreen() {
     // Subtle entrance animation on the badge
     const animIn = useRef(new Animated.Value(0)).current;
     useEffect(() => {
+        track('paywall_viewed');
         Animated.spring(animIn, {
             toValue: 1,
             tension: 55,
@@ -102,28 +104,37 @@ export default function PaywallScreen() {
         }).start();
     }, []);
 
-    const handleClose = () => router.back();
+    const handleClose = (method: string = 'unknown') => {
+        track('paywall_closed', { method });
+        router.back();
+    };
 
     const handlePurchase = async () => {
         if (!selectedPack) return;
+        track('paywall_purchase_initiated', { package_id: selectedPack.identifier });
         setPurchasing(true);
         const success = await purchasePackage(selectedPack);
         if (success) {
+            track('paywall_purchase_success', { package_id: selectedPack.identifier });
             // Navigate back immediately — don't setPurchasing(false) first
             // to avoid a visible re-render before dismissal
             router.back();
             return;
         }
+        track('paywall_purchase_failed', { package_id: selectedPack.identifier });
         setPurchasing(false);
     };
 
     const handleRestore = async () => {
+        track('paywall_restore_initiated');
         setRestoring(true);
         const success = await restorePurchases();
         if (success) {
+            track('paywall_restore_success');
             router.back();
             return;
         }
+        track('paywall_restore_failed');
         setRestoring(false);
     };
 
@@ -153,7 +164,7 @@ export default function PaywallScreen() {
             {/* ── Header: title + close ── */}
             <View style={s.header}>
                 <Text style={s.headerTitle}>{t('paywall.title')} <Text style={{ color: C.primary }}>{t('paywall.premium')}</Text></Text>
-                <TouchableOpacity onPress={handleClose} hitSlop={12} style={s.closeBtn}>
+                <TouchableOpacity onPress={() => handleClose('x_button')} hitSlop={12} style={s.closeBtn}>
                     <Text style={s.closeBtnText}>✕</Text>
                 </TouchableOpacity>
             </View>
@@ -238,17 +249,17 @@ export default function PaywallScreen() {
                         }
                     </TouchableOpacity>
                     <Text style={[s.footerLink, { color: C.border }]}>·</Text>
-                    <TouchableOpacity onPress={handleClose}>
+                    <TouchableOpacity onPress={() => handleClose('free_plan_button')}>
                         <Text style={s.footerLink}>{t('paywall.cta.freePlan')}</Text>
                     </TouchableOpacity>
                 </View>
 
                 <View style={s.footerLinks}>
-                    <TouchableOpacity onPress={() => Linking.openURL('https://nail-prep.com/en/terms')}>
+                    <TouchableOpacity onPress={() => { track('paywall_terms_clicked'); Linking.openURL('https://nail-prep.com/en/terms'); }}>
                         <Text style={s.footerLink}>{t('paywall.cta.termsOfUse')}</Text>
                     </TouchableOpacity>
                     <Text style={[s.footerLink, { color: C.border }]}>·</Text>
-                    <TouchableOpacity onPress={() => Linking.openURL('https://nail-prep.com/en/privacy')}>
+                    <TouchableOpacity onPress={() => { track('paywall_privacy_clicked'); Linking.openURL('https://nail-prep.com/en/privacy'); }}>
                         <Text style={s.footerLink}>{t('paywall.cta.privacyPolicy')}</Text>
                     </TouchableOpacity>
                 </View>

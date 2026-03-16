@@ -41,11 +41,15 @@ export default function HomeScreen() {
       backgroundColor: theme.backgroundSubtle,
     },
 
+    stickyHeaderGroup: {
+      backgroundColor: theme.backgroundSubtle,
+      zIndex: 9999,
+      paddingBottom: Spacing.m,
+    },
     roadmapHeader: {
       paddingHorizontal: Spacing.l,
       paddingTop: Spacing.l,
       paddingBottom: Spacing.s,
-      backgroundColor: theme.backgroundSubtle,
     },
     progressBarContainer: {
       height: 6,
@@ -53,7 +57,6 @@ export default function HomeScreen() {
       marginHorizontal: Spacing.l,
       borderRadius: 3,
       overflow: 'hidden',
-      marginBottom: Spacing.m,
     },
     progressBarFill: {
       height: '100%',
@@ -83,19 +86,22 @@ export default function HomeScreen() {
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
 
       <ScrollView contentContainerStyle={styles.scrollContent} stickyHeaderIndices={[0]}>
-        {/* Roadmap Header */}
-        <View style={styles.roadmapHeader}>
-          <Typography variant="display" style={{ fontSize: 26 }}>
-            {t('dashboard.roadMap')}
-          </Typography>
-          <Typography variant="caption" color="muted" style={{ marginTop: 2 }}>
-            {t('dashboard.completedProgress', { progress: courseProgress })}
-          </Typography>
-        </View>
+        {/* Sticky Header Group */}
+        <View style={styles.stickyHeaderGroup}>
+          {/* Roadmap Header */}
+          <View style={styles.roadmapHeader}>
+            <Typography variant="display" style={{ fontSize: 26 }}>
+              {t('dashboard.roadMap')}
+            </Typography>
+            <Typography variant="caption" color="muted" style={{ marginTop: 2 }}>
+              {t('dashboard.completedProgress', { progress: courseProgress })}
+            </Typography>
+          </View>
 
-        {/* Progress Bar */}
-        <View style={styles.progressBarContainer}>
-          <View style={[styles.progressBarFill, { width: `${Math.max(courseProgress, 2)}%` }]} />
+          {/* Progress Bar */}
+          <View style={styles.progressBarContainer}>
+            <View style={[styles.progressBarFill, { width: `${Math.max(courseProgress, 2)}%` }]} />
+          </View>
         </View>
 
         {/* Category Sections — chained via exit side */}

@@ -358,7 +358,6 @@ const styles = StyleSheet.create({
         paddingVertical: 12,
         paddingHorizontal: 20,
         borderRadius: 16,
-        zIndex: 20,
     },
     bannerTitle: { color: '#FFF', fontSize: 13, fontWeight: '700', textAlign: 'center' },
     mapContainer: { position: 'relative', marginHorizontal: 16 },
