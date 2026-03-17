@@ -17,8 +17,8 @@ interface TypewriterChatBubbleProps {
 export function TypewriterChatBubble({
     message,
     onComplete,
-    chunkSize = 2,
-    speed = 20,
+    chunkSize = 8,
+    speed = 16,
     style,
 }: TypewriterChatBubbleProps) {
     const [displayedLength, setDisplayedLength] = useState(0);

@@ -173,7 +173,6 @@ export default function QuizScreen() {
         if (!question) return;
         const result = useQuizStore.getState().submitAnswer();
         if (result) {
-            track('quiz_answer', { questionId: question.id, correct: result.isCorrect, topicId });
             recordAnswer(question.id, result.isCorrect, optionId);
             // Track first-attempt wrong answers in the Mistakes list
             if (!result.isCorrect) {
@@ -184,7 +183,6 @@ export default function QuizScreen() {
 
     const handleContinue = () => {
         if (!showResult || isRoundComplete) return;
-        track('quiz_continue', { questionIndex: currentIndex });
         nextQuestion();
     };
 

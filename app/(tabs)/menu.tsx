@@ -5,7 +5,7 @@ import { Typography } from '@/components/ui/Typography';
 import { Colors, Radius, Spacing } from '@/constants/theme';
 
 import { useRevenueCat } from '@/hooks/useRevenueCat';
-import { track } from '@/lib/analytics';
+import { setUserProperties, track } from '@/lib/analytics';
 import { useUserStore } from '@/store/useUserStore';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import Constants from 'expo-constants';
@@ -55,7 +55,6 @@ export default function MenuScreen() {
     const [congratsVisible, setCongratsVisible] = useState(false);
 
     const handlePresentPaywall = () => {
-        track('tap_upgrade', { source: 'banner' });
         router.push('/paywall');
     };
 
@@ -102,7 +101,12 @@ export default function MenuScreen() {
     };
 
     const handleLanguageChange = (langCode: string) => {
+        if (langCode === language) {
+            setLanguageModalVisible(false);
+            return;
+        }
         track('change_language', { language: langCode });
+        setUserProperties({ language: langCode });
         setLanguage(langCode as any);
         i18n.changeLanguage(langCode);
         setLanguageModalVisible(false);
@@ -166,12 +170,10 @@ export default function MenuScreen() {
     };
 
     const confirmResetProgress = () => {
-        track('tap_reset_progress');
         setResetModalVisible(true);
     };
 
     const handleResetProgress = () => {
-        track('confirm_reset_progress');
         resetProgress();
         setResetModalVisible(false);
     };
@@ -485,14 +487,13 @@ export default function MenuScreen() {
                         <MenuItem
                             icon={Crown}
                             label={t('menu.items.upgradeToPro')}
-                            onPress={() => { track('tap_upgrade', { source: 'menu_item' }); handlePresentPaywall(); }}
+                            onPress={() => { handlePresentPaywall(); }}
                         />
                     )}
                     <MenuItem
                         icon={RotateCcw}
                         label={t('menu.items.restorePurchases')}
                         onPress={async () => {
-                            track('tap_restore_purchases');
                             const success = await restorePurchases();
                             if (success) {
                                 Alert.alert(t('menu.restoreSuccessTitle'), t('menu.restoreSuccessMessage'));
@@ -588,12 +589,12 @@ export default function MenuScreen() {
                     <MenuItem
                         icon={MessageSquare}
                         label={t('menu.items.interfaceEvaluation')}
-                        onPress={() => { track('tap_feedback'); setFeedbackModalVisible(true); }}
+                        onPress={() => { setFeedbackModalVisible(true); }}
                     />
                     <MenuItem
                         icon={Bug}
                         label={t('menu.items.reportBug')}
-                        onPress={() => { track('tap_bug_report'); setBugReportModalVisible(true); }}
+                        onPress={() => { setBugReportModalVisible(true); }}
                         isLast
                     />
                 </View>

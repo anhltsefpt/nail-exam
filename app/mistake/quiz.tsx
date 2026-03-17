@@ -98,7 +98,7 @@ export default function MistakeQuizScreen() {
             const isCorrect = optionId === currentQuestion.correctOptionId;
             const qId = currentQuestion.id;
 
-            track('mistake_quiz_answer', { questionId: qId, isCorrect });
+
 
             // Update consecutive counter locally
             const prev = consecutiveRef.current[qId] ?? 0;
@@ -153,7 +153,7 @@ export default function MistakeQuizScreen() {
             }
         }
 
-        track('mistake_quiz_ai_chat', { prompt: prompt || 'open' });
+        track('quiz_ai_chat', { prompt: prompt || 'open' });
         router.push({
             pathname: '/ai-chat',
             params: {

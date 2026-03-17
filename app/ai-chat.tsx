@@ -136,7 +136,7 @@ export default function AIChatScreen() {
             scrollViewRef.current?.scrollToEnd({ animated: true });
         }, 100);
 
-        track('ai_send_message', { messageLength: text.length });
+        track('ai_send_message', { message: text.substring(0, 100) });
 
         try {
             // Build history from recent messages for context

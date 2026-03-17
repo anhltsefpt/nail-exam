@@ -1,6 +1,6 @@
 import { Colors } from '@/constants/theme';
 import { ENTITLEMENT_ID } from '@/hooks/useRevenueCat';
-import { track } from '@/lib/analytics';
+import { setUserProperties, track } from '@/lib/analytics';
 import { useUserStore } from '@/store/useUserStore';
 import { Experiment } from '@amplitude/experiment-react-native-client';
 import { useFocusEffect, useRouter } from 'expo-router';
@@ -269,7 +269,6 @@ export default function OnboardingScreen({ onComplete }: OnboardingProps) {
         Animated.timing(fadeAnim, { toValue: 0, duration: 180, useNativeDriver: true }).start(() => {
             const nextStep = step + 1;
             setStep(nextStep);
-            track('onboarding_step_viewed', { step: nextStep, lang: lang ?? 'unknown' });
             Animated.timing(fadeAnim, { toValue: 1, duration: 220, useNativeDriver: true }).start();
         });
     };
@@ -284,7 +283,6 @@ export default function OnboardingScreen({ onComplete }: OnboardingProps) {
                     const paid = info.entitlements.active[ENTITLEMENT_ID] !== undefined;
                     setPaywallPending(false);
                     if (paid) {
-                        track('onboarding_paywall_purchase_success', { lang: lang ?? 'unknown' });
                         setShowProSuccess(true);
                     } else {
                         track('onboarding_paywall_dismissed_from_showcase', { lang: lang ?? 'unknown' });
@@ -316,7 +314,6 @@ export default function OnboardingScreen({ onComplete }: OnboardingProps) {
             track('onboarding_quiz_completed', { score: quizScore + (quizAns === MINI_QUIZ[quizQ].ans ? 1 : 0), lang: lang ?? 'unknown' });
             Animated.timing(fadeAnim, { toValue: 0, duration: 180, useNativeDriver: true }).start(() => {
                 setStep(8);
-                track('onboarding_step_viewed', { step: 8, lang: lang ?? 'unknown' });
                 Animated.timing(fadeAnim, { toValue: 1, duration: 220, useNativeDriver: true }).start();
             });
         }
@@ -438,6 +435,7 @@ export default function OnboardingScreen({ onComplete }: OnboardingProps) {
                             if (lang) {
                                 i18n.changeLanguage(lang);
                                 setStoreLanguage(lang);
+                                setUserProperties({ language: lang });
                             }
                             goNext();
                         }} disabled={!lang} />
@@ -461,7 +459,7 @@ export default function OnboardingScreen({ onComplete }: OnboardingProps) {
                             ].map((o) => (
                                 <TouchableOpacity
                                     key={o.id}
-                                    onPress={() => { setExperience(o.id); track('onboarding_experience_selected', { value: o.id, lang: lang ?? 'unknown' }); }}
+                                    onPress={() => { setExperience(o.id); }}
                                     activeOpacity={0.85}
                                     style={[styles.optionCardSm, experience === o.id && styles.optionCardSelected]}
                                 >
@@ -496,7 +494,7 @@ export default function OnboardingScreen({ onComplete }: OnboardingProps) {
                             ].map((o) => (
                                 <TouchableOpacity
                                     key={o.id}
-                                    onPress={() => { setExamDate(o.id); track('onboarding_exam_date_selected', { value: o.id, lang: lang ?? 'unknown' }); }}
+                                    onPress={() => { setExamDate(o.id); }}
                                     activeOpacity={0.85}
                                     style={[styles.optionCardSm, examDate === o.id && styles.optionCardSelected]}
                                 >
@@ -531,7 +529,7 @@ export default function OnboardingScreen({ onComplete }: OnboardingProps) {
                             ].map((o) => (
                                 <TouchableOpacity
                                     key={o.id}
-                                    onPress={() => { setStudyTime(o.id); track('onboarding_study_time_selected', { value: o.id, lang: lang ?? 'unknown' }); }}
+                                    onPress={() => { setStudyTime(o.id); }}
                                     activeOpacity={0.85}
                                     style={[styles.optionCardSm, studyTime === o.id && styles.optionCardSelected]}
                                 >
@@ -639,7 +637,7 @@ export default function OnboardingScreen({ onComplete }: OnboardingProps) {
                                 <Text style={[styles.roadmapMeta, { marginTop: 6 }]}>{t('onboarding.plan.roadmapMeta')}</Text>
                             </View>
                         </View>
-                        <BottomCTA text={t('onboarding.plan.btn')} onPress={() => { track('onboarding_plan_viewed', { pass_pct: passPct, lang: lang ?? 'unknown' }); goNext(); }} emoji="💪" />
+                        <BottomCTA text={t('onboarding.plan.btn')} onPress={() => { goNext(); }} emoji="💪" />
                     </View>
                 )}
 
@@ -699,7 +697,7 @@ export default function OnboardingScreen({ onComplete }: OnboardingProps) {
                                 </TouchableOpacity>
                             ))}
                         </View>
-                        <BottomCTA text={t('onboarding.showcase.btn')} onPress={() => { track('onboarding_showcase_viewed', { lang: lang ?? 'unknown' }); goNext(); }} emoji="⚡" />
+                        <BottomCTA text={t('onboarding.showcase.btn')} onPress={() => { goNext(); }} emoji="⚡" />
                     </View>
                 )}
 

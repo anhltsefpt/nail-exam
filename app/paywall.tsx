@@ -95,7 +95,6 @@ export default function PaywallScreen() {
     // Subtle entrance animation on the badge
     const animIn = useRef(new Animated.Value(0)).current;
     useEffect(() => {
-        track('paywall_viewed');
         Animated.spring(animIn, {
             toValue: 1,
             tension: 55,
@@ -115,18 +114,15 @@ export default function PaywallScreen() {
         setPurchasing(true);
         const success = await purchasePackage(selectedPack);
         if (success) {
-            track('paywall_purchase_success', { package_id: selectedPack.identifier });
             // Navigate back immediately — don't setPurchasing(false) first
             // to avoid a visible re-render before dismissal
             router.back();
             return;
         }
-        track('paywall_purchase_failed', { package_id: selectedPack.identifier });
         setPurchasing(false);
     };
 
     const handleRestore = async () => {
-        track('paywall_restore_initiated');
         setRestoring(true);
         const success = await restorePurchases();
         if (success) {
@@ -134,7 +130,6 @@ export default function PaywallScreen() {
             router.back();
             return;
         }
-        track('paywall_restore_failed');
         setRestoring(false);
     };
 
