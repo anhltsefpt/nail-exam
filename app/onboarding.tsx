@@ -203,6 +203,7 @@ export default function OnboardingScreen({ onComplete }: OnboardingProps) {
     const setStoreLanguage = useUserStore((state) => state.setLanguage);
 
     const [enable_free_onboarding, setEnableFreeOnboarding] = useState(false);
+    const [hardPaywall, setHardPaywall] = useState(false);
 
     useEffect(() => {
         const fetchExperiment = async () => {
@@ -214,9 +215,13 @@ export default function OnboardingScreen({ onComplete }: OnboardingProps) {
                 const experiment = Experiment.initialize(expKey);
                 await experiment.fetch();
 
-                const variant = experiment.variant('enable_free_onboarding');
-                const isEnabled = variant?.value === true || variant?.value === 'true';
+                const freeOnboardingVariant = experiment.variant('enable_free_onboarding');
+                const isEnabled = freeOnboardingVariant?.value === 'true' || freeOnboardingVariant?.value === 'on';
                 setEnableFreeOnboarding(isEnabled);
+
+                const hardPaywallVariant = experiment.variant('hard_paywall');
+                const isHard = hardPaywallVariant?.value === true || hardPaywallVariant?.value === 'true' || hardPaywallVariant?.value === 'on';
+                setHardPaywall(isHard);
             } catch (error) {
                 console.warn('[Experiment] fetch wrapper failed:', error);
             }
@@ -224,7 +229,9 @@ export default function OnboardingScreen({ onComplete }: OnboardingProps) {
         fetchExperiment();
     }, []);
 
-    const [step, setStep] = useState(0);
+    const onboardingQuizDone = useUserStore((state) => state.onboardingQuizDone);
+    const setOnboardingQuizDone = useUserStore((state) => state.setOnboardingQuizDone);
+    const [step, setStep] = useState(onboardingQuizDone ? 8 : 0);
     const [lang, setLang] = useState<'en' | 'vi' | null>(null);
     const [examDate, setExamDate] = useState<string | null>(null);
     const [studyTime, setStudyTime] = useState<string | null>(null);
@@ -283,10 +290,11 @@ export default function OnboardingScreen({ onComplete }: OnboardingProps) {
                     const paid = info.entitlements.active[ENTITLEMENT_ID] !== undefined;
                     setPaywallPending(false);
                     if (paid) {
-                        setShowProSuccess(true);
+                        // User paid — complete onboarding immediately and go to main page
+                        track('onboarding_completed', { lang: lang ?? 'en', quiz_score: quizScore, via: 'purchase' });
+                        onComplete(lang ?? 'en');
                     } else {
-                        track('onboarding_paywall_dismissed_from_showcase', { lang: lang ?? 'unknown' });
-                        // Stay on step 6
+                        track('onboarding_paywall_dismissed', { lang: lang ?? 'unknown' });
                     }
                 } catch {
                     setPaywallPending(false);
@@ -312,6 +320,7 @@ export default function OnboardingScreen({ onComplete }: OnboardingProps) {
         } else {
             track('onboarding_quiz_answer', { question: 3, correct: quizAns === MINI_QUIZ[quizQ].ans, lang: lang ?? 'unknown' });
             track('onboarding_quiz_completed', { score: quizScore + (quizAns === MINI_QUIZ[quizQ].ans ? 1 : 0), lang: lang ?? 'unknown' });
+            setOnboardingQuizDone();
             Animated.timing(fadeAnim, { toValue: 0, duration: 180, useNativeDriver: true }).start(() => {
                 setStep(8);
                 Animated.timing(fadeAnim, { toValue: 1, duration: 220, useNativeDriver: true }).start();
@@ -322,6 +331,14 @@ export default function OnboardingScreen({ onComplete }: OnboardingProps) {
     const handleComplete = () => {
         track('onboarding_completed', { lang: lang ?? 'en', quiz_score: quizScore });
         onComplete(lang ?? 'en');
+
+        const alreadyPro = useUserStore.getState().isPro;
+        if (!enable_free_onboarding && !alreadyPro) {
+            // Complete onboarding first, then show paywall on top of the main app
+            setTimeout(() => {
+                router.push({ pathname: '/paywall', params: { source: 'onboarding', hard_paywall: hardPaywall ? '1' : '0' } });
+            }, 300);
+        }
     };
 
     const dailyStudySets = studyTime === '10' ? 1 : studyTime === '20' ? 2 : studyTime === '30' ? 4 : 6;
@@ -552,90 +569,75 @@ export default function OnboardingScreen({ onComplete }: OnboardingProps) {
                     <View style={styles.stepContainer}>
                         <ProgressDots current={4} total={5} />
                         <View style={styles.planScrollBody}>
-                            {/* Header — inline / compact */}
-                            <View style={styles.planHeader}>
-                                <Text style={styles.planEmoji}>🎯</Text>
-                                <View>
-                                    <Text style={styles.planTitle}>{t('onboarding.plan.title')}</Text>
-                                    <Text style={styles.planSub}>{t('onboarding.plan.subtitle')}</Text>
+                            {/* Header */}
+                            <Text style={styles.planTitle}>{t('onboarding.plan.title')}</Text>
+                            <Text style={styles.planSub}>{t('onboarding.plan.subtitle')}</Text>
+
+                            {/* Hero gauge — large centered ring */}
+                            <View style={styles.planHeroWrap}>
+                                <View style={styles.planHeroRing}>
+                                    <AnimRing target={passPct / 100} size={160} color={T.success} delay={300} />
+                                    <View style={{ position: 'absolute', alignItems: 'center', justifyContent: 'center' }}>
+                                        <Text style={styles.planHeroPct}>{passPct}%</Text>
+                                        <Text style={styles.planHeroLabel}>{t('onboarding.plan.passLabel')}</Text>
+                                    </View>
                                 </View>
                             </View>
 
-                            {/* Stats cards */}
-                            <View style={styles.statsRow}>
+                            {/* Encouraging text */}
+                            <Text style={styles.planEncourage}>
+                                {passPct >= 90
+                                    ? t('onboarding.plan.encourageHigh')
+                                    : passPct >= 82
+                                        ? t('onboarding.plan.encourageMed')
+                                        : t('onboarding.plan.encourageLow')}
+                            </Text>
+
+                            {/* Blueprint row — 3 stats */}
+                            <View style={styles.planBlueprintRow}>
+                                <View style={styles.planBlueprintItem}>
+                                    <Text style={styles.planBlueprintIcon}>⏱</Text>
+                                    <Text style={styles.planBlueprintValue}>
+                                        {t('onboarding.plan.statTime', { time: studyTime || '10' })}
+                                    </Text>
+                                </View>
+                                <View style={styles.planBlueprintDivider} />
+                                <View style={styles.planBlueprintItem}>
+                                    <Text style={styles.planBlueprintIcon}>🎯</Text>
+                                    <Text style={styles.planBlueprintValue}>
+                                        {t('onboarding.plan.statDays', { days: studyDays })}
+                                    </Text>
+                                </View>
+                                <View style={styles.planBlueprintDivider} />
+                                <View style={styles.planBlueprintItem}>
+                                    <Text style={styles.planBlueprintIcon}>📖</Text>
+                                    <Text style={styles.planBlueprintValue}>{t('onboarding.plan.statQs')}</Text>
+                                </View>
+                            </View>
+
+                            {/* Knowledge map card */}
+                            <View style={styles.planMapCard}>
+                                <Text style={styles.planMapTitle}>{t('onboarding.plan.knowledgeMapTitle')}</Text>
                                 {[
-                                    { label: t('onboarding.plan.statQuestions'), value: 805, color: T.rose, emoji: '❓' },
-                                    { label: t('onboarding.plan.statStudyDays'), value: studyDays, color: '#8B5CF6', emoji: '📅' },
-                                    { label: t('onboarding.plan.statSetsDay'), value: dailyStudySets, color: T.success, emoji: '📚' },
-                                ].map((s, i) => (
-                                    <View key={i} style={[styles.statCard, { borderColor: `${s.color}30` }]}>
-                                        <Text style={styles.statEmoji}>{s.emoji}</Text>
-                                        <Text style={[styles.statNum, { color: s.color }]}>
-                                            <Counter target={s.value} duration={900 + i * 250} />
-                                        </Text>
-                                        <Text style={styles.statLabel}>{s.label}</Text>
+                                    { label: t('onboarding.plan.rmSafety'), pct: 45, color: T.rose },
+                                    { label: t('onboarding.plan.rmScience'), pct: 30, color: '#8B5CF6' },
+                                    { label: t('onboarding.plan.rmSkin'), pct: 10, color: '#0891B2' },
+                                    { label: t('onboarding.plan.rmBusiness'), pct: 15, color: T.success },
+                                ].map((item, i) => (
+                                    <View key={i} style={styles.planMapRow}>
+                                        <View style={styles.planMapLabelRow}>
+                                            <Text style={styles.planMapLabel}>{item.label}</Text>
+                                            <Text style={[styles.planMapPct, { color: item.color }]}>{item.pct}%</Text>
+                                        </View>
+                                        <View style={styles.planMapBarTrack}>
+                                            <View style={[styles.planMapBarFill, { width: `${item.pct}%`, backgroundColor: item.color }]} />
+                                        </View>
                                     </View>
                                 ))}
                             </View>
 
-                            {/* Pass probability — horizontal layout to save space */}
-                            <View style={styles.probCard}>
-                                <View style={styles.probRingWrap}>
-                                    <AnimRing target={passPct / 100} size={90} color={T.success} delay={300} />
-                                    <View style={styles.probRingCenter}>
-                                        <Text style={styles.probPct}>{passPct}%</Text>
-                                        <Text style={styles.probPctLabel}>{t('onboarding.plan.passObj')}</Text>
-                                    </View>
-                                </View>
-                                <View style={styles.probRight}>
-                                    <Text style={styles.probCardTitle}>{t('onboarding.plan.probTitle')}</Text>
-                                    <Text style={styles.probDesc}>
-                                        {passPct >= 90
-                                            ? t('onboarding.plan.probHigh')
-                                            : passPct >= 82
-                                                ? t('onboarding.plan.probMed')
-                                                : t('onboarding.plan.probLow')}
-                                    </Text>
-                                    <View style={styles.probBreakdown}>
-                                        {[
-                                            { label: experience === 'done' ? t('onboarding.plan.tagGraduate') : experience === 'retake' ? t('onboarding.plan.tagRetaking') : experience === 'mid' ? t('onboarding.plan.tagInSchool') : t('onboarding.plan.tagBeginner'), color: '#8B5CF6' },
-                                            { label: t('onboarding.plan.tagMinDay').replace('{{time}}', studyTime || ''), color: T.rose },
-                                        ].map((b, i) => (
-                                            <View key={i} style={[styles.probPill, { backgroundColor: `${b.color}18`, borderColor: `${b.color}40` }]}>
-                                                <Text style={[styles.probPillText, { color: b.color }]}>{b.label}</Text>
-                                            </View>
-                                        ))}
-                                    </View>
-                                </View>
-                            </View>
-
-                            {/* Roadmap preview */}
-                            <View style={styles.roadmapCard}>
-                                <View style={styles.roadmapBar}>
-                                    {[
-                                        { c: T.rose, n: 9 },
-                                        { c: '#8B5CF6', n: 6 },
-                                        { c: '#0891B2', n: 2 },
-                                        { c: T.success, n: 3 },
-                                    ].map((p, i) => (
-                                        <View key={i} style={[styles.roadmapSegment, { flex: p.n, backgroundColor: p.c }]} />
-                                    ))}
-                                </View>
-                                <View style={styles.roadmapLegend}>
-                                    {[
-                                        { c: T.rose, l: t('onboarding.plan.rmSafety') },
-                                        { c: '#8B5CF6', l: t('onboarding.plan.rmScience') },
-                                        { c: '#0891B2', l: t('onboarding.plan.rmSkin') },
-                                        { c: T.success, l: t('onboarding.plan.rmBusiness') },
-                                    ].map((p, i) => (
-                                        <View key={i} style={styles.legendItem}>
-                                            <View style={[styles.legendDot, { backgroundColor: p.c }]} />
-                                            <Text style={styles.legendText}>{p.l}</Text>
-                                        </View>
-                                    ))}
-                                </View>
-                                <Text style={[styles.roadmapMeta, { marginTop: 6 }]}>{t('onboarding.plan.roadmapMeta')}</Text>
-                            </View>
+                            {/* Footer */}
+                            <Text style={styles.planFooter}>{t('onboarding.plan.planUpdates')}</Text>
                         </View>
                         <BottomCTA text={t('onboarding.plan.btn')} onPress={() => { goNext(); }} emoji="💪" />
                     </View>
@@ -850,19 +852,20 @@ export default function OnboardingScreen({ onComplete }: OnboardingProps) {
                 {/* ==================== STEP 8: RESULTS + SOFT PAYWALL ==================== */}
                 {step === 8 && (
                     <View style={styles.resultsContainer}>
-                        <Text style={styles.resultsBigEmoji}>
-                            {quizScore === 3 ? '🌟' : quizScore >= 2 ? '💪' : '📚'}
-                        </Text>
                         <Text style={styles.resultsTitle}>
-                            {quizScore === 3 ? t('onboarding.results.titleAmazing') : quizScore >= 2 ? t('onboarding.results.titleGreat') : t('onboarding.results.titleGood')}
+                            {quizScore === 3
+                                ? t('onboarding.results.titleAmazing')
+                                : quizScore >= 2
+                                    ? t('onboarding.results.titleGreat')
+                                    : t('onboarding.results.titleGood')}
                         </Text>
-                        <Text style={styles.resultsSubtitle}>{t('onboarding.results.subtitle').replace('{{score}}', `${quizScore}`)}</Text>
+                        <Text style={styles.resultsSubtitle}>{t('onboarding.results.subtitle')}</Text>
 
                         {/* Score ring */}
                         <View style={styles.resultsRingWrap}>
                             <AnimRing
                                 target={quizScore / 3}
-                                size={72}
+                                size={90}
                                 color={quizScore >= 2 ? T.success : T.warning}
                                 delay={300}
                             />
@@ -871,45 +874,48 @@ export default function OnboardingScreen({ onComplete }: OnboardingProps) {
                             </View>
                         </View>
 
-                        {/* Personalized message */}
-                        <View style={[styles.resultsMsg, { backgroundColor: quizScore >= 2 ? T.successBg : T.warningBg }]}>
-                            <Text style={[styles.resultsMsgText, { color: quizScore >= 2 ? T.successText : T.warningText }]}>
-                                {quizScore === 3
-                                    ? t('onboarding.results.msgHigh')
-                                    : quizScore === 2
-                                        ? t('onboarding.results.msgMed')
-                                        : t('onboarding.results.msgLow')}
-                            </Text>
+                        {/* Toolbox */}
+                        <Text style={styles.toolboxTitle}>{t('onboarding.results.toolboxTitle')}</Text>
+                        <View style={styles.toolboxGrid}>
+                            <View style={styles.toolCard}>
+                                <Text style={styles.toolCardIcon}>🗺️</Text>
+                                <Text style={styles.toolCardTitle}>{t('onboarding.results.toolRoadmap')}</Text>
+                                <Text style={styles.toolCardDesc}>{t('onboarding.results.toolRoadmapDesc')}</Text>
+                            </View>
+                            <View style={styles.toolCard}>
+                                <Text style={styles.toolCardIcon}>📝</Text>
+                                <Text style={styles.toolCardTitle}>{t('onboarding.results.toolQuestions')}</Text>
+                                <Text style={styles.toolCardDesc}>{t('onboarding.results.toolQuestionsDesc')}</Text>
+                            </View>
+                            <TouchableOpacity
+                                activeOpacity={0.8}
+                                onPress={() => {
+                                    track('onboarding_ai_feature_tapped', { lang: lang ?? 'unknown', source: 'results' });
+                                    setPaywallPending(true);
+                                    router.push({ pathname: '/paywall', params: { source: 'onboarding_results', hard_paywall: '0' } });
+                                }}
+                                style={[styles.toolCard, styles.toolCardHero]}
+                            >
+                                <Text style={styles.toolCardIcon}>✨</Text>
+                                <Text style={[styles.toolCardTitle, styles.toolCardHeroTitle]}>
+                                    {t('onboarding.results.toolAi')}
+                                </Text>
+                                <Text style={[styles.toolCardDesc, styles.toolCardHeroDesc]}>
+                                    {t('onboarding.results.toolAiDesc')}
+                                </Text>
+                            </TouchableOpacity>
+                            <View style={styles.toolCard}>
+                                <Text style={styles.toolCardIcon}>🇻🇳</Text>
+                                <Text style={styles.toolCardTitle}>{t('onboarding.results.toolBilingual')}</Text>
+                                <Text style={styles.toolCardDesc}>{t('onboarding.results.toolBilingualDesc')}</Text>
+                            </View>
                         </View>
 
-                        {/* What you get */}
-                        <Text style={styles.resultsPlanHeader}>{t('onboarding.results.planHeader')}</Text>
-                        {[
-                            { icon: '🗺️', text: t('onboarding.results.planRoadmap'), free: true },
-                            { icon: '❓', text: t('onboarding.results.planQuestions'), free: true },
-                            { icon: '🇻🇳', text: t('onboarding.results.planBilingual'), free: true },
-                            { icon: '🤖', text: t('onboarding.results.planAi'), free: false },
-                            { icon: '⚡', text: t('onboarding.results.planExams'), free: false },
-                        ].map((f, i, arr) => (
-                            <View key={i} style={[styles.planRow, i < arr.length - 1 && styles.planRowBorder]}>
-                                <Text style={styles.planIcon}>{f.icon}</Text>
-                                <Text style={styles.planText}>{f.text}</Text>
-                                <View style={[styles.planBadge, { backgroundColor: f.free ? T.successBg : T.roseLight }]}>
-                                    <Text style={[styles.planBadgeText, { color: f.free ? T.success : T.rose }]}>
-                                        {f.free ? t('onboarding.results.badgeFree') : t('onboarding.results.badgePro')}
-                                    </Text>
-                                </View>
-                            </View>
-                        ))}
-
                         {/* CTA */}
-                        <TouchableOpacity
-                            onPress={handleComplete}
-                            style={styles.startBtn}
-                            activeOpacity={0.85}
-                        >
+                        <TouchableOpacity onPress={handleComplete} style={styles.startBtn} activeOpacity={0.85}>
                             <Text style={styles.startBtnText}>{t('onboarding.results.btnStartLearning')}</Text>
                         </TouchableOpacity>
+                        <Text style={styles.resultsFooter}>{t('onboarding.results.footer')}</Text>
                     </View>
                 )}
             </Animated.View>
@@ -1154,200 +1160,156 @@ const styles = StyleSheet.create({
     // --- Plan screen (step 5) ---
     planScrollBody: {
         flex: 1,
-        paddingHorizontal: 16,
+        paddingHorizontal: 20,
         paddingBottom: 12,
         paddingTop: 4,
-    },
-    planHeader: {
-        flexDirection: 'row',
         alignItems: 'center',
-        gap: 12,
-        marginBottom: 12,
-    },
-    planEmoji: {
-        fontSize: 36,
     },
     planTitle: {
-        fontSize: 17,
+        fontSize: 20,
         fontWeight: '800',
         color: T.ink,
         letterSpacing: -0.3,
-        lineHeight: 22,
+        lineHeight: 26,
+        textAlign: 'center',
+        marginBottom: 4,
     },
     planSub: {
-        fontSize: 12,
+        fontSize: 13,
         color: T.muted,
-        marginTop: 2,
+        textAlign: 'center',
+        marginBottom: 16,
     },
 
-    // --- Stats row ---
-    statsRow: {
-        flexDirection: 'row',
-        gap: 8,
-        marginBottom: 10,
-    },
-    statCard: {
-        flex: 1,
-        paddingVertical: 10,
-        paddingHorizontal: 6,
-        borderRadius: 14,
-        backgroundColor: T.canvas,
+    // --- Hero gauge ---
+    planHeroWrap: {
         alignItems: 'center',
-        borderWidth: 1.5,
+        justifyContent: 'center',
+        marginBottom: 12,
+        shadowColor: T.success,
+        shadowOffset: { width: 0, height: 0 },
+        shadowOpacity: 0.25,
+        shadowRadius: 20,
+        elevation: 8,
+    },
+    planHeroRing: {
+        width: 160,
+        height: 160,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    planHeroPct: {
+        fontSize: 40,
+        fontWeight: '900',
+        color: T.successText,
+        lineHeight: 44,
+    },
+    planHeroLabel: {
+        fontSize: 12,
+        fontWeight: '700',
+        color: T.success,
+        marginTop: 2,
+    },
+    planEncourage: {
+        fontSize: 14,
+        fontWeight: '600',
+        color: T.successText,
+        textAlign: 'center',
+        lineHeight: 20,
+        marginBottom: 16,
+    },
+
+    // --- Blueprint row ---
+    planBlueprintRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: T.canvas,
+        borderRadius: 14,
+        paddingVertical: 12,
+        paddingHorizontal: 16,
+        marginBottom: 16,
+        borderWidth: 1,
         borderColor: T.borderLight,
+        alignSelf: 'stretch',
+    },
+    planBlueprintItem: {
+        flex: 1,
+        alignItems: 'center',
         gap: 2,
     },
-    statEmoji: {
+    planBlueprintIcon: {
         fontSize: 16,
     },
-    statNum: {
-        fontSize: 18,
-        fontWeight: '800',
-        color: T.rose,
+    planBlueprintValue: {
+        fontSize: 13,
+        fontWeight: '700',
+        color: T.ink,
+    },
+    planBlueprintDivider: {
+        width: 1,
+        height: 28,
+        backgroundColor: T.borderLight,
+    },
+
+    // --- Knowledge map card ---
+    planMapCard: {
+        padding: 16,
+        borderRadius: 16,
+        backgroundColor: T.canvas,
+        borderWidth: 1,
+        borderColor: T.borderLight,
+        alignSelf: 'stretch',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.06,
+        shadowRadius: 8,
+        elevation: 3,
+    },
+    planMapTitle: {
+        fontSize: 15,
+        fontWeight: '700',
+        color: T.ink,
+        marginBottom: 14,
+    },
+    planMapRow: {
+        marginBottom: 12,
+    },
+    planMapLabelRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 6,
+    },
+    planMapLabel: {
+        fontSize: 14,
+        fontWeight: '600',
+        color: T.ink,
+    },
+    planMapPct: {
+        fontSize: 13,
+        fontWeight: '700',
+    },
+    planMapBarTrack: {
+        height: 8,
+        borderRadius: 4,
+        backgroundColor: `${T.borderLight}`,
+        overflow: 'hidden',
+    },
+    planMapBarFill: {
+        height: 8,
+        borderRadius: 4,
+    },
+    planFooter: {
+        fontSize: 12,
+        color: T.muted,
+        textAlign: 'center',
+        marginTop: 12,
     },
     counterText: {
         fontSize: 18,
         fontWeight: '800',
         color: T.rose,
-    },
-    statLabel: {
-        fontSize: 9,
-        color: T.muted,
-        fontWeight: '600',
-        textAlign: 'center',
-    },
-
-    // --- Pass probability card (redesigned) ---
-    probCard: {
-        borderRadius: 16,
-        backgroundColor: T.successBg,
-        flexDirection: 'row',
-        alignItems: 'center',
-        padding: 14,
-        marginBottom: 12,
-        gap: 12,
-        borderWidth: 1,
-        borderColor: `${T.success}30`,
-    },
-    probCardTitle: {
-        fontSize: 11,
-        fontWeight: '700',
-        color: T.successText,
-        letterSpacing: 0.3,
-        marginBottom: 4,
-    },
-    probRingWrap: {
-        width: 90,
-        height: 90,
-        alignItems: 'center',
-        justifyContent: 'center',
-        flexShrink: 0,
-    },
-    probRingCenter: {
-        position: 'absolute',
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    probRight: {
-        flex: 1,
-    },
-    probPct: {
-        fontSize: 22,
-        fontWeight: '900',
-        color: T.successText,
-        lineHeight: 26,
-    },
-    probPctLabel: {
-        fontSize: 9,
-        fontWeight: '600',
-        color: T.success,
-    },
-    probDesc: {
-        fontSize: 13,
-        fontWeight: '600',
-        color: T.successText,
-        marginBottom: 8,
-        lineHeight: 18,
-    },
-    probNote: {
-        fontSize: 10,
-        color: T.success,
-        textAlign: 'center',
-        marginBottom: 10,
-    },
-    probBreakdown: {
-        flexDirection: 'row',
-        gap: 6,
-        flexWrap: 'wrap',
-    },
-    probPill: {
-        paddingHorizontal: 8,
-        paddingVertical: 3,
-        borderRadius: 50,
-        borderWidth: 1,
-    },
-    probPillText: {
-        fontSize: 10,
-        fontWeight: '600',
-    },
-
-
-    // --- Roadmap ---
-    roadmapCard: {
-        padding: 14,
-        borderRadius: 14,
-        backgroundColor: T.canvas,
-        borderWidth: 1,
-        borderColor: T.borderLight,
-    },
-    roadmapLabel: {
-        fontSize: 11,
-        fontWeight: '700',
-        color: T.muted,
-        marginBottom: 10,
-        letterSpacing: 1,
-    },
-    roadmapBar: {
-        flexDirection: 'row',
-        height: 8,
-        borderRadius: 4,
-        overflow: 'hidden',
-        gap: 2,
-    },
-    roadmapSegment: {
-        height: 8,
-        borderRadius: 4,
-    },
-    roadmapLegend: {
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        gap: 8,
-        marginTop: 12,
-        justifyContent: 'center',
-    },
-    legendItem: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 4,
-    },
-    legendDot: {
-        width: 8,
-        height: 8,
-        borderRadius: 4,
-    },
-    legendText: {
-        fontSize: 10,
-        color: T.muted,
-        fontWeight: '500',
-    },
-    roadmapFooter: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        marginTop: 10,
-    },
-    roadmapMeta: {
-        fontSize: 10,
-        color: T.muted,
     },
 
     // --- Feature showcase ---
@@ -1540,35 +1502,34 @@ const styles = StyleSheet.create({
     },
 
 
-    // --- Results ---
+    // --- Results (Value Showcase) ---
     resultsContainer: {
         flex: 1,
         backgroundColor: T.white,
-        paddingHorizontal: 16,
-        paddingTop: 14,
+        paddingHorizontal: 20,
+        paddingTop: 20,
         paddingBottom: 8,
         alignItems: 'center',
     },
-    resultsTopRow: {}, // unused but kept to avoid ref error
-    resultsTitleWrap: {},
-    resultsBigEmoji: { fontSize: 36, marginBottom: 4 },
     resultsTitle: {
-        fontSize: 20,
+        fontSize: 22,
         fontWeight: '800',
         color: T.ink,
-        marginBottom: 2,
+        textAlign: 'center',
+        marginBottom: 4,
     },
     resultsSubtitle: {
-        fontSize: 12,
+        fontSize: 13,
         color: T.muted,
-        marginBottom: 10,
+        textAlign: 'center',
+        marginBottom: 14,
     },
     resultsRingWrap: {
-        width: 72,
-        height: 72,
+        width: 90,
+        height: 90,
         alignItems: 'center',
         justifyContent: 'center',
-        marginBottom: 10,
+        marginBottom: 16,
     },
     resultsRingCenter: {
         position: 'absolute',
@@ -1576,61 +1537,66 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     resultsRingText: {
-        fontSize: 18,
+        fontSize: 22,
         fontWeight: '800',
         color: T.ink,
     },
-    resultsMsg: {
-        padding: 10,
-        borderRadius: 12,
-        width: '100%',
-        marginBottom: 10,
-    },
-    resultsMsgText: {
-        fontSize: 12,
-        fontWeight: '600',
-        lineHeight: 17,
-        textAlign: 'center',
-    },
-    resultsPlanHeader: {
-        fontSize: 10,
+    toolboxTitle: {
+        fontSize: 13,
         fontWeight: '700',
         color: T.muted,
-        letterSpacing: 1,
+        letterSpacing: 1.2,
+        textTransform: 'uppercase',
         alignSelf: 'flex-start',
-        marginBottom: 6,
+        marginBottom: 8,
     },
-    planRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 10,
-        paddingVertical: 7,
+    toolboxGrid: {
         width: '100%',
+        gap: 10,
     },
-    planRowBorder: {
-        borderBottomWidth: 1,
-        borderBottomColor: T.borderLight,
+    toolCard: {
+        backgroundColor: T.canvas,
+        borderRadius: 14,
+        padding: 14,
+        paddingVertical: 12,
+        borderWidth: 1,
+        borderColor: T.borderLight,
     },
-    planIcon: { fontSize: 18 },
-    planText: {
-        flex: 1,
-        fontSize: 13,
-        fontWeight: '600',
-        color: T.ink,
+    toolCardIcon: {
+        fontSize: 22,
+        marginBottom: 4,
     },
-    planBadge: {
-        paddingHorizontal: 8,
-        paddingVertical: 3,
-        borderRadius: 6,
-    },
-    planBadgeText: {
-        fontSize: 10,
+    toolCardTitle: {
+        fontSize: 14,
         fontWeight: '700',
+        color: T.ink,
+        marginBottom: 2,
+    },
+    toolCardDesc: {
+        fontSize: 12,
+        color: T.muted,
+        lineHeight: 17,
+    },
+    toolCardHero: {
+        backgroundColor: '#F5F0FF',
+        borderColor: '#D8B4FE',
+    },
+    toolCardHeroTitle: {
+        color: '#7C3AED',
+    },
+    toolCardHeroDesc: {
+        color: '#6B21A8',
+    },
+    resultsFooter: {
+        fontSize: 12,
+        color: T.muted,
+        textAlign: 'center',
+        marginTop: 8,
     },
     startBtn: {
         backgroundColor: T.rose,
         borderRadius: 14,
-        paddingVertical: 13,
+        paddingVertical: 15,
         width: '100%',
         alignItems: 'center',
         marginTop: 10,

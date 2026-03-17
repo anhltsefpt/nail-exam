@@ -98,6 +98,13 @@ function RootLayoutNav() {
 
 
 
+  // If user is already Pro but hasn't completed onboarding, skip it
+  useEffect(() => {
+    if (isPro && !hasCompletedOnboarding) {
+      setHasCompletedOnboarding();
+    }
+  }, [isPro, hasCompletedOnboarding, setHasCompletedOnboarding]);
+
   const handleOnboardingComplete = (selectedLang: 'en' | 'vi') => {
     setLanguage(selectedLang);
     setHasCompletedOnboarding();

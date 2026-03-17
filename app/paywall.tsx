@@ -1,7 +1,7 @@
 import { Colors } from '@/constants/theme';
 import { useRevenueCat } from '@/hooks/useRevenueCat';
 import { track } from '@/lib/analytics';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
@@ -85,6 +85,13 @@ export default function PaywallScreen() {
     const [purchasing, setPurchasing] = useState(false);
     const [restoring, setRestoring] = useState(false);
 
+    // Hard paywall: hide close button until user taps "Try for free"
+    const { source, hard_paywall } = useLocalSearchParams<{ source?: string; hard_paywall?: string }>();
+    const isFromOnboarding = source === 'onboarding';
+    const isHardPaywall = isFromOnboarding && hard_paywall === '1';
+    const [hardPaywall] = useState(isHardPaywall);
+    const [closeVisible, setCloseVisible] = useState(!isHardPaywall);
+
     // Always use only the first package
     useEffect(() => {
         if (packages.length > 0) {
@@ -112,6 +119,7 @@ export default function PaywallScreen() {
         if (!selectedPack) return;
         track('paywall_purchase_initiated', { package_id: selectedPack.identifier });
         setPurchasing(true);
+        setCloseVisible(true);
         const success = await purchasePackage(selectedPack);
         if (success) {
             // Navigate back immediately — don't setPurchasing(false) first
@@ -159,9 +167,11 @@ export default function PaywallScreen() {
             {/* ── Header: title + close ── */}
             <View style={s.header}>
                 <Text style={s.headerTitle}>{t('paywall.title')} <Text style={{ color: C.primary }}>{t('paywall.premium')}</Text></Text>
-                <TouchableOpacity onPress={() => handleClose('x_button')} hitSlop={12} style={s.closeBtn}>
-                    <Text style={s.closeBtnText}>✕</Text>
-                </TouchableOpacity>
+                {closeVisible && (
+                    <TouchableOpacity onPress={() => handleClose('x_button')} hitSlop={12} style={s.closeBtn}>
+                        <Text style={s.closeBtnText}>✕</Text>
+                    </TouchableOpacity>
+                )}
             </View>
 
             {/* ── Badge icon ── */}
@@ -244,7 +254,14 @@ export default function PaywallScreen() {
                         }
                     </TouchableOpacity>
                     <Text style={[s.footerLink, { color: C.border }]}>·</Text>
-                    <TouchableOpacity onPress={() => handleClose('free_plan_button')}>
+                    <TouchableOpacity onPress={() => {
+                        if (hardPaywall && !closeVisible) {
+                            track('paywall_hard_free_tapped');
+                            setCloseVisible(true);
+                            return;
+                        }
+                        handleClose('free_plan_button');
+                    }}>
                         <Text style={s.footerLink}>{t('paywall.cta.freePlan')}</Text>
                     </TouchableOpacity>
                 </View>

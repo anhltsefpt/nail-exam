@@ -81,6 +81,7 @@ export interface UserState {
 
     // Onboarding
     hasCompletedOnboarding: boolean;
+    onboardingQuizDone: boolean;
 
     // Actions
     setIsPro: (val: boolean) => void;
@@ -102,6 +103,7 @@ export interface UserState {
     setReminderTime: (time: string) => void;
     setFeedbackRating: (rating: number) => void;
     setHasCompletedOnboarding: () => void;
+    setOnboardingQuizDone: () => void;
 }
 
 // --- Initial State ---
@@ -141,6 +143,7 @@ const INITIAL_STATE = {
     topicSetProgress: {},
     isPro: false,
     hasCompletedOnboarding: false,
+    onboardingQuizDone: false,
 };
 
 // --- Store ---
@@ -153,6 +156,7 @@ export const useUserStore = create<UserState>()(
             setIsPro: (val) => set({ isPro: val }),
 
             setHasCompletedOnboarding: () => set({ hasCompletedOnboarding: true }),
+            setOnboardingQuizDone: () => set({ onboardingQuizDone: true }),
 
             setName: (name) => set({ name }),
 
