@@ -46,6 +46,7 @@
           }
         }
       ],
+      "react-native-ota-hot-update",
       "@react-native-community/datetimepicker"
     ],
     "experiments": {

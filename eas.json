@@ -24,7 +24,7 @@
         "EXPO_PUBLIC_SUPABASE_URL": "https://mhgzqdaoyluebxazfoev.supabase.co",
         "EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY": "sb_publishable_4KkIgslql4DfrZmBOorJ5Q_1J4v_2a-",
         "EXPO_PUBLIC_RC_API_KEY": "appl_rYLmZiRYvjkwJoSIrMKIgxQyimK",
-        "EXPO_PUBLIC_AMPLITUDE_API_KEY": "YOUR_PRODUCTION_AMPLITUDE_KEY"
+        "EXPO_PUBLIC_AMPLITUDE_API_KEY": "e1c2189a2ea60e8ed3fe3ce149c9bdf6"
       }
     }
   },

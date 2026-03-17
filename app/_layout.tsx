@@ -2,14 +2,15 @@ import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native
 import * as Notifications from 'expo-notifications';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { StyleSheet, Text, useColorScheme, View } from 'react-native';
+import { AppState, StyleSheet, Text, useColorScheme, View } from 'react-native';
 import Purchases, { LOG_LEVEL, STOREKIT_VERSION } from 'react-native-purchases';
 import { ErrorBoundary } from '../components/ErrorBoundary';
 import { useRevenueCat } from '../hooks/useRevenueCat';
 import '../i18n'; // Initialize i18n
 import { getAmplitudeUserId, getDeviceId, identify, initAnalytics, setUserProperties } from '../lib/analytics';
+import { checkForOtaUpdate } from '../lib/otaUpdate';
 import { useUserStore } from '../store/useUserStore';
 import OnboardingScreen from './onboarding';
 
@@ -63,6 +64,19 @@ function RootLayoutNav() {
 
   const hasCompletedOnboarding = useUserStore((state) => state.hasCompletedOnboarding);
   const setHasCompletedOnboarding = useUserStore((state) => state.setHasCompletedOnboarding);
+
+  // OTA hot update: check on mount + whenever app becomes active
+  const appState = useRef(AppState.currentState);
+  useEffect(() => {
+    checkForOtaUpdate();
+    const sub = AppState.addEventListener('change', (nextState) => {
+      if (appState.current.match(/inactive|background/) && nextState === 'active') {
+        checkForOtaUpdate();
+      }
+      appState.current = nextState;
+    });
+    return () => sub.remove();
+  }, []);
 
   // Two-way identity sync: Amplitude ↔ RevenueCat
   // Per https://www.revenuecat.com/docs/integrations/third-party-integrations/amplitude

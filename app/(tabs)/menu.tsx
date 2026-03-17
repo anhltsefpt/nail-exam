@@ -570,12 +570,6 @@ export default function MenuScreen() {
                         onPress={() => { }}
                         rightElement={<View />} // Empty view to remove chevron
                     />
-                    <MenuItem
-                        icon={MessageSquare}
-                        label={t('menu.items.faqs')}
-                        onPress={() => { }}
-                        isLast
-                    />
                 </View>
 
                 {/* Feedback And Sharing */}
