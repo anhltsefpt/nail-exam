@@ -143,10 +143,17 @@ NEXT_BUILD=$((PREV_BUILD + 1))
 echo "   Previous build: $PREV_BUILD → Next build: $NEXT_BUILD"
 
 # ─────────────────────────────────────────────────
-# Insert row into update table
+# Remove old records for the same from_version, then insert new one
 # ─────────────────────────────────────────────────
 echo ""
-echo "💾 Recording update in database..."
+echo "�️  Removing old update records for v${FROM_VERSION}..."
+curl -s -X DELETE \
+  "${SUPABASE_URL}/rest/v1/update?from_version=eq.${FROM_VERSION}" \
+  -H "Authorization: Bearer ${SUPABASE_KEY}" \
+  -H "apikey: ${SUPABASE_KEY}" \
+  -o /dev/null -w "HTTP %{http_code}\n"
+
+echo "💾 Inserting new update record..."
 RESPONSE=$(curl -s -X POST \
   "${SUPABASE_URL}/rest/v1/update" \
   -H "Authorization: Bearer ${SUPABASE_KEY}" \

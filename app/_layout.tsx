@@ -7,10 +7,11 @@ import { useTranslation } from 'react-i18next';
 import { AppState, StyleSheet, Text, useColorScheme, View } from 'react-native';
 import Purchases, { LOG_LEVEL, STOREKIT_VERSION } from 'react-native-purchases';
 import { ErrorBoundary } from '../components/ErrorBoundary';
+import OtaUpdateModal from '../components/OtaUpdateModal';
 import { useRevenueCat } from '../hooks/useRevenueCat';
 import '../i18n'; // Initialize i18n
 import { getAmplitudeUserId, getDeviceId, identify, initAnalytics, setUserProperties } from '../lib/analytics';
-import { checkForOtaUpdate } from '../lib/otaUpdate';
+import { checkForOtaUpdate, resetOtaCheckLock } from '../lib/otaUpdate';
 import { useUserStore } from '../store/useUserStore';
 import OnboardingScreen from './onboarding';
 
@@ -71,6 +72,7 @@ function RootLayoutNav() {
     checkForOtaUpdate();
     const sub = AppState.addEventListener('change', (nextState) => {
       if (appState.current.match(/inactive|background/) && nextState === 'active') {
+        resetOtaCheckLock();
         checkForOtaUpdate();
       }
       appState.current = nextState;
@@ -129,7 +131,7 @@ function RootLayoutNav() {
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="+not-found" />
-        <Stack.Screen name="paywall" options={{ presentation: 'transparentModal', headerShown: false, animation: 'fade' }} />
+        <Stack.Screen name="paywall" options={{ presentation: 'card', headerShown: false, animation: 'slide_from_right' }} />
         <Stack.Screen name="ai-chat" options={{ presentation: 'modal', headerShown: false }} />
         <Stack.Screen name="menu" options={{ headerShown: false }} />
         <Stack.Screen name="topic/[topicId]" options={{ headerShown: false }} />
@@ -142,6 +144,7 @@ function RootLayoutNav() {
           <OnboardingScreen onComplete={handleOnboardingComplete} />
         </View>
       )}
+      <OtaUpdateModal />
     </>
   );
 }

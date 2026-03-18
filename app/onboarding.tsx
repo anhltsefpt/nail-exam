@@ -330,14 +330,16 @@ export default function OnboardingScreen({ onComplete }: OnboardingProps) {
 
     const handleComplete = () => {
         track('onboarding_completed', { lang: lang ?? 'en', quiz_score: quizScore });
-        onComplete(lang ?? 'en');
 
         const alreadyPro = useUserStore.getState().isPro;
         if (!enable_free_onboarding && !alreadyPro) {
-            // Complete onboarding first, then show paywall on top of the main app
+            // Push paywall first so it covers the screen, then complete onboarding behind it
+            router.push({ pathname: '/paywall', params: { source: 'onboarding', hard_paywall: hardPaywall ? '1' : '0' } });
             setTimeout(() => {
-                router.push({ pathname: '/paywall', params: { source: 'onboarding', hard_paywall: hardPaywall ? '1' : '0' } });
+                onComplete(lang ?? 'en');
             }, 300);
+        } else {
+            onComplete(lang ?? 'en');
         }
     };
 
@@ -568,7 +570,7 @@ export default function OnboardingScreen({ onComplete }: OnboardingProps) {
                 {step === 5 && (
                     <View style={styles.stepContainer}>
                         <ProgressDots current={4} total={5} />
-                        <View style={styles.planScrollBody}>
+                        <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.planScrollBody} showsVerticalScrollIndicator={false}>
                             {/* Header */}
                             <Text style={styles.planTitle}>{t('onboarding.plan.title')}</Text>
                             <Text style={styles.planSub}>{t('onboarding.plan.subtitle')}</Text>
@@ -638,7 +640,7 @@ export default function OnboardingScreen({ onComplete }: OnboardingProps) {
 
                             {/* Footer */}
                             <Text style={styles.planFooter}>{t('onboarding.plan.planUpdates')}</Text>
-                        </View>
+                        </ScrollView>
                         <BottomCTA text={t('onboarding.plan.btn')} onPress={() => { goNext(); }} emoji="💪" />
                     </View>
                 )}
@@ -852,70 +854,74 @@ export default function OnboardingScreen({ onComplete }: OnboardingProps) {
                 {/* ==================== STEP 8: RESULTS + SOFT PAYWALL ==================== */}
                 {step === 8 && (
                     <View style={styles.resultsContainer}>
-                        <Text style={styles.resultsTitle}>
-                            {quizScore === 3
-                                ? t('onboarding.results.titleAmazing')
-                                : quizScore >= 2
-                                    ? t('onboarding.results.titleGreat')
-                                    : t('onboarding.results.titleGood')}
-                        </Text>
-                        <Text style={styles.resultsSubtitle}>{t('onboarding.results.subtitle')}</Text>
+                        <ScrollView contentContainerStyle={styles.resultsScroll} showsVerticalScrollIndicator={false}>
+                            <Text style={styles.resultsTitle}>
+                                {quizScore === 3
+                                    ? t('onboarding.results.titleAmazing')
+                                    : quizScore >= 2
+                                        ? t('onboarding.results.titleGreat')
+                                        : t('onboarding.results.titleGood')}
+                            </Text>
+                            <Text style={styles.resultsSubtitle}>{t('onboarding.results.subtitle')}</Text>
 
-                        {/* Score ring */}
-                        <View style={styles.resultsRingWrap}>
-                            <AnimRing
-                                target={quizScore / 3}
-                                size={90}
-                                color={quizScore >= 2 ? T.success : T.warning}
-                                delay={300}
-                            />
-                            <View style={styles.resultsRingCenter}>
-                                <Text style={styles.resultsRingText}>{Math.round((quizScore / 3) * 100)}%</Text>
+                            {/* Score ring */}
+                            <View style={styles.resultsRingWrap}>
+                                <AnimRing
+                                    target={quizScore / 3}
+                                    size={90}
+                                    color={quizScore >= 2 ? T.success : T.warning}
+                                    delay={300}
+                                />
+                                <View style={styles.resultsRingCenter}>
+                                    <Text style={styles.resultsRingText}>{Math.round((quizScore / 3) * 100)}%</Text>
+                                </View>
                             </View>
-                        </View>
 
-                        {/* Toolbox */}
-                        <Text style={styles.toolboxTitle}>{t('onboarding.results.toolboxTitle')}</Text>
-                        <View style={styles.toolboxGrid}>
-                            <View style={styles.toolCard}>
-                                <Text style={styles.toolCardIcon}>🗺️</Text>
-                                <Text style={styles.toolCardTitle}>{t('onboarding.results.toolRoadmap')}</Text>
-                                <Text style={styles.toolCardDesc}>{t('onboarding.results.toolRoadmapDesc')}</Text>
+                            {/* Toolbox */}
+                            <Text style={styles.toolboxTitle}>{t('onboarding.results.toolboxTitle')}</Text>
+                            <View style={styles.toolboxGrid}>
+                                <View style={styles.toolCard}>
+                                    <Text style={styles.toolCardIcon}>🗺️</Text>
+                                    <Text style={styles.toolCardTitle}>{t('onboarding.results.toolRoadmap')}</Text>
+                                    <Text style={styles.toolCardDesc}>{t('onboarding.results.toolRoadmapDesc')}</Text>
+                                </View>
+                                <View style={styles.toolCard}>
+                                    <Text style={styles.toolCardIcon}>📝</Text>
+                                    <Text style={styles.toolCardTitle}>{t('onboarding.results.toolQuestions')}</Text>
+                                    <Text style={styles.toolCardDesc}>{t('onboarding.results.toolQuestionsDesc')}</Text>
+                                </View>
+                                <TouchableOpacity
+                                    activeOpacity={0.8}
+                                    onPress={() => {
+                                        track('onboarding_ai_feature_tapped', { lang: lang ?? 'unknown', source: 'results' });
+                                        setPaywallPending(true);
+                                        router.push({ pathname: '/paywall', params: { source: 'onboarding_results', hard_paywall: '0' } });
+                                    }}
+                                    style={[styles.toolCard, styles.toolCardHero]}
+                                >
+                                    <Text style={styles.toolCardIcon}>✨</Text>
+                                    <Text style={[styles.toolCardTitle, styles.toolCardHeroTitle]}>
+                                        {t('onboarding.results.toolAi')}
+                                    </Text>
+                                    <Text style={[styles.toolCardDesc, styles.toolCardHeroDesc]}>
+                                        {t('onboarding.results.toolAiDesc')}
+                                    </Text>
+                                </TouchableOpacity>
+                                <View style={styles.toolCard}>
+                                    <Text style={styles.toolCardIcon}>🇻🇳</Text>
+                                    <Text style={styles.toolCardTitle}>{t('onboarding.results.toolBilingual')}</Text>
+                                    <Text style={styles.toolCardDesc}>{t('onboarding.results.toolBilingualDesc')}</Text>
+                                </View>
                             </View>
-                            <View style={styles.toolCard}>
-                                <Text style={styles.toolCardIcon}>📝</Text>
-                                <Text style={styles.toolCardTitle}>{t('onboarding.results.toolQuestions')}</Text>
-                                <Text style={styles.toolCardDesc}>{t('onboarding.results.toolQuestionsDesc')}</Text>
-                            </View>
-                            <TouchableOpacity
-                                activeOpacity={0.8}
-                                onPress={() => {
-                                    track('onboarding_ai_feature_tapped', { lang: lang ?? 'unknown', source: 'results' });
-                                    setPaywallPending(true);
-                                    router.push({ pathname: '/paywall', params: { source: 'onboarding_results', hard_paywall: '0' } });
-                                }}
-                                style={[styles.toolCard, styles.toolCardHero]}
-                            >
-                                <Text style={styles.toolCardIcon}>✨</Text>
-                                <Text style={[styles.toolCardTitle, styles.toolCardHeroTitle]}>
-                                    {t('onboarding.results.toolAi')}
-                                </Text>
-                                <Text style={[styles.toolCardDesc, styles.toolCardHeroDesc]}>
-                                    {t('onboarding.results.toolAiDesc')}
-                                </Text>
+                        </ScrollView>
+
+                        {/* Sticky bottom */}
+                        <View style={{ paddingBottom: insets.bottom, alignItems: 'center' }}>
+                            <TouchableOpacity onPress={handleComplete} style={styles.startBtn} activeOpacity={0.85}>
+                                <Text style={styles.startBtnText}>{t('onboarding.results.btnStartLearning')}</Text>
                             </TouchableOpacity>
-                            <View style={styles.toolCard}>
-                                <Text style={styles.toolCardIcon}>🇻🇳</Text>
-                                <Text style={styles.toolCardTitle}>{t('onboarding.results.toolBilingual')}</Text>
-                                <Text style={styles.toolCardDesc}>{t('onboarding.results.toolBilingualDesc')}</Text>
-                            </View>
+                            <Text style={styles.resultsFooter}>{t('onboarding.results.footer')}</Text>
                         </View>
-
-                        {/* CTA */}
-                        <TouchableOpacity onPress={handleComplete} style={styles.startBtn} activeOpacity={0.85}>
-                            <Text style={styles.startBtnText}>{t('onboarding.results.btnStartLearning')}</Text>
-                        </TouchableOpacity>
-                        <Text style={styles.resultsFooter}>{t('onboarding.results.footer')}</Text>
                     </View>
                 )}
             </Animated.View>
@@ -1509,7 +1515,10 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
         paddingTop: 20,
         paddingBottom: 8,
+    },
+    resultsScroll: {
         alignItems: 'center',
+        paddingBottom: 12,
     },
     resultsTitle: {
         fontSize: 22,
