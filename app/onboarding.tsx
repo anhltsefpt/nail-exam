@@ -849,7 +849,7 @@ export default function OnboardingScreen({ onComplete }: OnboardingProps) {
                                                     <Text style={styles.quizFeedbackTitle}>
                                                         {t('onboarding.miniQuiz.explanationTitle')}
                                                     </Text>
-                                                    <Text style={[styles.quizFeedbackSub, { color: T.ink, marginTop: 4, lineHeight: 20 }]}>
+                                                    <Text style={[styles.quizFeedbackSub, { color: T.ink, marginTop: 4, fontSize: 14, lineHeight: 22 }]}>
                                                         {MINI_QUIZ[quizQ].exp as string}
                                                     </Text>
                                                 </>
