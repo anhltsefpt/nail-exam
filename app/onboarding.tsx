@@ -297,8 +297,6 @@ export default function OnboardingScreen({ onComplete }: OnboardingProps) {
                         // User paid — complete onboarding immediately and go to main page
                         track('onboarding_completed', { lang: lang ?? 'en', quiz_score: quizScore, via: 'purchase' });
                         onComplete(lang ?? 'en');
-                    } else {
-                        track('onboarding_paywall_dismissed', { lang: lang ?? 'unknown' });
                     }
                 } catch {
                     setPaywallPending(false);

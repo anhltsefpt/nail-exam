@@ -58,6 +58,7 @@ export default function TopicDetailScreen() {
                 }
             });
         }
+        // Pro users can access any topic — no paywall needed
     }, [isPro, nodeOrder]);
     const phase = theme.phase[phaseIndex];
     const phaseColor = phase?.primary ?? theme.primary;
@@ -200,10 +201,12 @@ export default function TopicDetailScreen() {
                                             borderWidth: 2,
                                         },
                                     ]}
-                                    activeOpacity={(isActive || isPassed) ? 0.75 : 1}
+                                    activeOpacity={isUnlocked ? 0.75 : 1}
                                     onPress={() => {
-                                        if (isActive || isPassed) {
+                                        if (isUnlocked) {
                                             handleStartSet(index, set.offset, set.count);
+                                        } else {
+                                            router.push('/paywall');
                                         }
                                     }}
                                 >
@@ -260,7 +263,7 @@ export default function TopicDetailScreen() {
                                     </View>
 
                                     {/* Chevron indicator for unlocked/passed sets */}
-                                    {(isActive || isPassed) && (
+                                    {isUnlocked && (
                                         <ChevronRight size={20} color={theme.textMuted} />
                                     )}
 

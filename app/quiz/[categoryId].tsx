@@ -84,6 +84,7 @@ export default function QuizScreen() {
     useEffect(() => {
         if (topicId && offset && limit) {
             loadQuestions(topicId, parseInt(offset, 10), parseInt(limit, 10));
+            track('quiz_start', { categoryId, topicId, setIndex });
         }
 
         return () => {

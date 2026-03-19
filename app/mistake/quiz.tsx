@@ -7,7 +7,7 @@ import { MistakeRecord, useUserStore } from '@/store/useUserStore';
 
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { ArrowLeft, BookOpen, Check, HelpCircle, Lightbulb, X } from 'lucide-react-native';
-import React, { useCallback, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
     ActivityIndicator,
@@ -78,6 +78,12 @@ export default function MistakeQuizScreen() {
     const { questions: allQuestions, loading, error } = useMistakeQuestions(
         initialMistakes.map((m) => m.questionId),
     );
+
+    useEffect(() => {
+        if (isComplete) {
+            track('mistake_quiz_completed', { mode, topicId: topicId || 'all' });
+        }
+    }, [isComplete, mode, topicId]);
 
     // Build a lookup for fast access
     const questionMap = useMemo(
@@ -153,7 +159,7 @@ export default function MistakeQuizScreen() {
             }
         }
 
-        track('quiz_ai_chat', { prompt: prompt || 'open' });
+        track('mistake_quiz_ai_chat', { prompt: prompt || 'open' });
         router.push({
             pathname: '/ai-chat',
             params: {
