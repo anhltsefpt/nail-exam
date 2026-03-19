@@ -191,15 +191,15 @@
             "freeInfo": "Miễn phí · Không cần đăng ký"
         },
         "language": {
-            "title": "Choose your language",
-            "subtitle": "Chọn ngôn ngữ của bạn",
+            "title": "Choose your preferred language",
+            "subtitle": "Chọn ngôn ngữ ưa thích của bạn",
             "enName": "English",
             "enSub": "Study in English",
             "viName": "Tiếng Việt",
             "viSub": "Học bằng tiếng Việt"
         },
         "experience": {
-            "title": "Bạn đang ở giai đoạn nào?",
+            "title": "Bạn đang ở đâu trên hành trình của mình?",
             "subtitle": "Giúp chúng tôi cá nhân hóa lộ trình cho bạn",
             "start": "Mới bắt đầu",
             "startSub": "Chưa học được nhiều",
@@ -207,12 +207,12 @@
             "schoolSub": "Đang học nghề nail",
             "done": "Đã tốt nghiệp",
             "doneSub": "Sẵn sàng thi chứng chỉ",
-            "retake": "Thi lại",
+            "retake": "Thử sức lại lần hai",
             "retakeSub": "Thi chưa qua, đang thử lại"
         },
         "examDate": {
             "title": "Khi nào bạn thi?",
-            "subtitle": "Chúng tôi sẽ tạo lịch học hàng ngày cho bạn",
+            "subtitle": "Mỗi lộ trình đều được thiết kế riêng để phù hợp với thời gian và tối đa hóa điểm số của bạn.",
             "week1": "Tuần này",
             "week1Sub": "Chế độ chuyên sâu",
             "week2": "Trong 2 tuần",
@@ -223,16 +223,16 @@
             "idkSub": "Tự học theo nhịp độ cá nhân"
         },
         "studyTime": {
-            "title": "Bạn có thể học bao lâu mỗi ngày?",
-            "subtitle": "Chỉ 10 phút một ngày cũng mang lại hiệu quả!",
-            "min10": "10 phút",
-            "min10Sub": "1 bộ câu hỏi/ngày",
-            "min20": "20 phút",
-            "min20Sub": "2 bộ câu hỏi/ngày",
-            "min30": "30 phút",
-            "min30Sub": "3-4 bộ câu/ngày",
-            "min60": "Hơn 60 phút",
-            "min60Sub": "Chế độ tăng cường",
+            "title": "Bạn có bao nhiêu thời gian?",
+            "subtitle": "Hãy cho biết thời gian rảnh của bạn, chúng tôi sẽ tạo một lịch học mỗi ngày thiết kế riêng cho bạn.",
+            "min10": "Học nhanh",
+            "min10Sub": "Hoàn hảo cho những giờ nghỉ ngắn.",
+            "min20": "Cân bằng",
+            "min20Sub": "Tốc độ học hàng ngày được khuyến nghị nhất.",
+            "min30": "Tập trung",
+            "min30Sub": "Dành cho những ai muốn hoàn thành sớm hơn.",
+            "min60": "Tăng tốc ôn thi",
+            "min60Sub": "Tối đa hóa việc học để có kết quả nhanh chóng.",
             "btn": "Tạo Lộ Trình"
         },
         "plan": {
@@ -254,24 +254,25 @@
             "btn": "Xem Lộ Trình Đầy Đủ"
         },
         "showcase": {
-            "title": "NailPrep hoạt động thế nào",
-            "subtitle": "3 công cụ hỗ trợ bạn thi đỗ",
+            "title": "Lý do bạn sẽ đỗ cùng NailPrep",
+            "subtitle": "Học thông minh hơn, đỗ nhanh hơn",
             "roadmap": "Lộ Trình Học",
             "roadmapDesc": "20 bước theo mức độ quan trọng. Ưu tiên chủ đề hay thi.",
-            "ai": "AI Giải Thích Chi Tiết",
-            "aiDesc": "Trả lời sai? Chạm 'Giải Thích' — AI sẽ gỡ rối giúp bạn.",
-            "bilingual": "Học bằng Tiếng Việt",
-            "bilingualDesc": "Mọi câu hỏi và giải thích đều có sẵn bằng Tiếng Việt.",
-            "aiPaywallHint": "Nhấn để mở khóa ✨",
-            "btn": "Thử Một Câu Hỏi Nhanh"
+            "ai": "Gia sư AI cá nhân 24/7",
+            "aiDesc": "Gặp khó với một câu hỏi? Nhận ngay lời giải thích đơn giản giúp những khái niệm khó trở nên dễ nhớ.",
+            "bilingual": "Hỗ trợ song ngữ (Anh + Việt)",
+            "bilingualDesc": "Chuyển sang tiếng Anh bất cứ lúc nào để làm rõ các thuật ngữ thi phức tạp.",
+            "aiPaywallHint": "Hỗ trợ bởi AI ✨",
+            "btn": "Kiểm tra kiến thức của bạn"
         },
         "miniQuiz": {
             "header": "⚡ Trắc nghiệm nhanh",
             "questionProgress": "{{current}} / {{total}}",
             "feedbackCorrect": "Chính xác! 🎉",
             "feedbackCorrectSub": "Làm tốt lắm — bạn đã nắm được câu này!",
-            "feedbackWrong": "AI có thể giải thích câu này →",
-            "feedbackWrongSub": "Tài khoản Premium được AI giải thích tức thì",
+            "feedbackWrong": "Nhận giải thích từ AI 💡",
+            "feedbackWrongSub": "Hiểu rõ 'Tại sao' lại có đáp án này.",
+            "explanationTitle": "Giải thích",
             "btnNext": "Câu Tiếp Theo",
             "btnResult": "Xem kết quả của tôi",
             "btnWait": "Chọn một đáp án",
@@ -280,16 +281,19 @@
             "q1b": "Gây bệnh",
             "q1c": "Làm sạch bề mặt",
             "q1d": "Sản xuất oxy",
+            "q1Exp": "Vi khuẩn gây bệnh là những vi sinh vật có hại, có thể gây bệnh hoặc nhiễm trùng ở người.",
             "q2": "Bước đầu tiên trước mọi dịch vụ về móng là:",
             "q2a": "Sơn móng",
             "q2b": "Dũa móng",
             "q2c": "Rửa và làm sạch tay",
             "q2d": "Dùng sơn lót",
+            "q2Exp": "Rửa và sát khuẩn tay là bước quan trọng nhất để ngăn ngừa sự lây lan của các bệnh truyền nhiễm trước khi bắt đầu bất kỳ dịch vụ nào.",
             "q3": "Máy hấp tiệt trùng được dùng để:",
             "q3a": "Sấy khô sơn móng",
             "q3b": "Tiệt trùng dụng cụ",
             "q3c": "Trộn hóa chất",
-            "q3d": "Thông gió trong tiệm"
+            "q3d": "Thông gió trong tiệm",
+            "q3Exp": "Máy hấp tiệt trùng sử dụng áp suất cao và hơi nước để tiêu diệt hoàn toàn mọi vi sinh vật, bao gồm cả bào tử, trên dụng cụ."
         },
         "results": {
             "titleAmazing": "Tuyệt Vời! Bạn có nền tảng vững chắc!",

@@ -239,6 +239,7 @@ export default function OnboardingScreen({ onComplete }: OnboardingProps) {
     const [quizQ, setQuizQ] = useState(0);
     const [quizAns, setQuizAns] = useState<string | null>(null);
     const [quizShow, setQuizShow] = useState(false);
+    const [showExp, setShowExp] = useState(false);
     const [quizScore, setQuizScore] = useState(0);
     const [paywallPending, setPaywallPending] = useState(false);
     const [showProSuccess, setShowProSuccess] = useState(false);
@@ -251,6 +252,7 @@ export default function OnboardingScreen({ onComplete }: OnboardingProps) {
             c: t('onboarding.miniQuiz.q1c'),
             d: t('onboarding.miniQuiz.q1d'),
             ans: 'B',
+            exp: t('onboarding.miniQuiz.q1Exp'),
         },
         {
             q: t('onboarding.miniQuiz.q2'),
@@ -259,6 +261,7 @@ export default function OnboardingScreen({ onComplete }: OnboardingProps) {
             c: t('onboarding.miniQuiz.q2c'),
             d: t('onboarding.miniQuiz.q2d'),
             ans: 'C',
+            exp: t('onboarding.miniQuiz.q2Exp'),
         },
         {
             q: t('onboarding.miniQuiz.q3'),
@@ -267,6 +270,7 @@ export default function OnboardingScreen({ onComplete }: OnboardingProps) {
             c: t('onboarding.miniQuiz.q3c'),
             d: t('onboarding.miniQuiz.q3d'),
             ans: 'B',
+            exp: t('onboarding.miniQuiz.q3Exp'),
         },
     ];
 
@@ -317,6 +321,7 @@ export default function OnboardingScreen({ onComplete }: OnboardingProps) {
             setQuizQ((q) => q + 1);
             setQuizAns(null);
             setQuizShow(false);
+            setShowExp(false);
         } else {
             track('onboarding_quiz_answer', { question: 3, correct: quizAns === MINI_QUIZ[quizQ].ans, lang: lang ?? 'unknown' });
             track('onboarding_quiz_completed', { score: quizScore + (quizAns === MINI_QUIZ[quizQ].ans ? 1 : 0), lang: lang ?? 'unknown' });
@@ -820,16 +825,38 @@ export default function OnboardingScreen({ onComplete }: OnboardingProps) {
                             {/* Feedback teaser after answering */}
                             {quizShow && (
                                 <View style={styles.quizFeedbackCard}>
-                                    <Text style={styles.quizFeedbackIcon}>💡</Text>
-                                    <View style={{ flex: 1 }}>
-                                        <Text style={styles.quizFeedbackTitle}>
-                                            {quizAns === MINI_QUIZ[quizQ].ans ? t('onboarding.miniQuiz.feedbackCorrect') : t('onboarding.miniQuiz.feedbackWrong')}
-                                        </Text>
-                                        <Text style={styles.quizFeedbackSub}>
-                                            {quizAns === MINI_QUIZ[quizQ].ans
-                                                ? t('onboarding.miniQuiz.feedbackCorrectSub')
-                                                : t('onboarding.miniQuiz.feedbackWrongSub')}
-                                        </Text>
+                                    <View style={{ flex: 1, flexDirection: 'row', gap: 12 }}>
+                                        <Text style={styles.quizFeedbackIcon}>💡</Text>
+                                        <View style={{ flex: 1 }}>
+                                            {quizAns === MINI_QUIZ[quizQ].ans ? (
+                                                <>
+                                                    <Text style={styles.quizFeedbackTitle}>
+                                                        {t('onboarding.miniQuiz.feedbackCorrect')}
+                                                    </Text>
+                                                    <Text style={styles.quizFeedbackSub}>
+                                                        {t('onboarding.miniQuiz.feedbackCorrectSub')}
+                                                    </Text>
+                                                </>
+                                            ) : !showExp ? (
+                                                <TouchableOpacity activeOpacity={0.7} onPress={() => setShowExp(true)}>
+                                                    <Text style={[styles.quizFeedbackTitle, { color: T.rose, textDecorationLine: 'underline' }]}>
+                                                        {t('onboarding.miniQuiz.feedbackWrong')}
+                                                    </Text>
+                                                    <Text style={[styles.quizFeedbackSub, { marginTop: 2 }]}>
+                                                        {t('onboarding.miniQuiz.feedbackWrongSub')}
+                                                    </Text>
+                                                </TouchableOpacity>
+                                            ) : (
+                                                <>
+                                                    <Text style={styles.quizFeedbackTitle}>
+                                                        {t('onboarding.miniQuiz.explanationTitle')}
+                                                    </Text>
+                                                    <Text style={[styles.quizFeedbackSub, { color: T.ink, marginTop: 4, lineHeight: 20 }]}>
+                                                        {MINI_QUIZ[quizQ].exp as string}
+                                                    </Text>
+                                                </>
+                                            )}
+                                        </View>
                                     </View>
                                 </View>
                             )}

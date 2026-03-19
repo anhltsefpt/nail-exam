@@ -191,15 +191,15 @@
             "freeInfo": "Free · No account needed"
         },
         "language": {
-            "title": "Choose your language",
-            "subtitle": "Chọn ngôn ngữ của bạn",
+            "title": "Choose your preferred language",
+            "subtitle": "Chọn ngôn ngữ ưa thích của bạn",
             "enName": "English",
             "enSub": "Study in English",
             "viName": "Tiếng Việt",
             "viSub": "Học bằng tiếng Việt"
         },
         "experience": {
-            "title": "Where are you in your studies?",
+            "title": "Where are you in your journey?",
             "subtitle": "This helps us personalize your plan",
             "start": "Just starting",
             "startSub": "Haven't studied much yet",
@@ -207,12 +207,12 @@
             "schoolSub": "Currently in nail tech program",
             "done": "Finished school",
             "doneSub": "Ready to take the exam",
-            "retake": "Retaking the exam",
+            "retake": "Second time's a charm",
             "retakeSub": "Failed before, trying again"
         },
         "examDate": {
             "title": "When is your exam?",
-            "subtitle": "We'll create a daily study schedule",
+            "subtitle": "Every plan is custom-built to fit your timeline and maximize your score.",
             "week1": "This week",
             "week1Sub": "Intensive mode",
             "week2": "In 2 weeks",
@@ -223,16 +223,16 @@
             "idkSub": "I'll study at my own pace"
         },
         "studyTime": {
-            "title": "How much time can you study daily?",
-            "subtitle": "Even 10 minutes a day works!",
-            "min10": "10 min",
-            "min10Sub": "1 set per day",
-            "min20": "20 min",
-            "min20Sub": "2 sets per day",
-            "min30": "30 min",
-            "min30Sub": "3-4 sets per day",
-            "min60": "60+ min",
-            "min60Sub": "Power study mode",
+            "title": "How much time do you have?",
+            "subtitle": "Tell us your availability, and we'll build a custom daily plan to fit your life.",
+            "min10": "Bite-sized",
+            "min10Sub": "Perfect for busy breaks.",
+            "min20": "Balanced",
+            "min20Sub": "Our most recommended daily pace.",
+            "min30": "Focused",
+            "min30Sub": "For those who want to finish sooner.",
+            "min60": "Power Prep",
+            "min60Sub": "Maximized learning for rapid results.",
             "btn": "Create My Plan"
         },
         "plan": {
@@ -254,24 +254,25 @@
             "btn": "View My Full Roadmap"
         },
         "showcase": {
-            "title": "How NailPrep works",
-            "subtitle": "3 powerful tools to help you pass",
+            "title": "Why You'll Pass with NailPrep",
+            "subtitle": "Study Smarter, Pass Faster",
             "roadmap": "Follow the Roadmap",
             "roadmapDesc": "20 steps in order of importance. High-yield topics first.",
-            "ai": "AI Explains Every Answer",
-            "aiDesc": "Got it wrong? Tap \"Explain\" — AI tells you why in simple language.",
-            "bilingual": "Study in Vietnamese",
-            "bilingualDesc": "Every question and explanation available in Tiếng Việt.",
-            "aiPaywallHint": "Tap to unlock ✨",
-            "btn": "Try a Quick Quiz"
+            "ai": "Personal AI Tutor 24/7",
+            "aiDesc": "Stuck on a question? Get instant, simple explanations that make tough concepts easy to remember.",
+            "bilingual": "Bilingual Support (English + Vietnamese)",
+            "bilingualDesc": "Switch to Vietnamese anytime to clarify tricky exam terms.",
+            "aiPaywallHint": "AI Powered ✨",
+            "btn": "Test Your Knowledge"
         },
         "miniQuiz": {
             "header": "⚡ Quick Quiz",
             "questionProgress": "{{current}} / {{total}}",
             "feedbackCorrect": "You got it! 🎉",
             "feedbackCorrectSub": "Nice work — you already know this!",
-            "feedbackWrong": "AI can explain this →",
-            "feedbackWrongSub": "Premium users get instant AI explanations",
+            "feedbackWrong": "Get AI Explanation 💡",
+            "feedbackWrongSub": "Understand the 'Why' behind this question.",
+            "explanationTitle": "Explanation",
             "btnNext": "Next Question",
             "btnResult": "See My Results",
             "btnWait": "Select an answer",
@@ -280,16 +281,19 @@
             "q1b": "Cause disease",
             "q1c": "Clean surfaces",
             "q1d": "Produce oxygen",
+            "q1Exp": "Pathogenic bacteria are harmful microorganisms that can cause disease or infection in humans.",
             "q2": "The first step before any nail service is:",
             "q2a": "Apply polish",
             "q2b": "File nails",
             "q2c": "Wash and sanitize hands",
             "q2d": "Apply primer",
+            "q2Exp": "Washing and sanitizing hands is the most important step to prevent the spread of infections before starting any service.",
             "q3": "An autoclave is used to:",
             "q3a": "Dry nail polish",
             "q3b": "Sterilize implements",
             "q3c": "Mix chemicals",
-            "q3d": "Ventilate the salon"
+            "q3d": "Ventilate the salon",
+            "q3Exp": "An autoclave uses high pressure and steam to completely destroy all microbial life, including spores, on tools."
         },
         "results": {
             "titleAmazing": "Amazing! You've got strong basics!",

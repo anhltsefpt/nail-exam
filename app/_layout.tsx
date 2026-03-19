@@ -131,7 +131,7 @@ function RootLayoutNav() {
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="+not-found" />
-        <Stack.Screen name="paywall" options={{ presentation: 'card', headerShown: false, animation: 'slide_from_right' }} />
+        <Stack.Screen name="paywall" options={{ presentation: 'transparentModal', headerShown: false, animation: 'slide_from_right' }} />
         <Stack.Screen name="ai-chat" options={{ presentation: 'modal', headerShown: false }} />
         <Stack.Screen name="menu" options={{ headerShown: false }} />
         <Stack.Screen name="topic/[topicId]" options={{ headerShown: false }} />
