@@ -127,7 +127,14 @@
         "aiChatUnknown": "Không xác định",
         "aiChatUserSelected": "Người dùng đã chọn",
         "aiChatCorrect": "Đúng ✓",
-        "aiChatIncorrect": "Sai ✗"
+        "aiChatIncorrect": "Sai ✗",
+        "resultTitle": "Hoàn thành vòng",
+        "resultSubtitle": "Bạn đã cố gắng rất tốt!",
+        "resultCorrectOnFirstTry": "đúng lần đầu",
+        "resultPerfect": "Điểm tuyệt đối!",
+        "resultAlmostPerfect": "Gần hoàn hảo — tiếp tục nhé!",
+        "resultContinue": "Tiếp tục",
+        "resultTryAgain": "Thử lại"
     },
     "aiChat": {
         "title": "AI Assistant",

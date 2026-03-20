@@ -127,7 +127,14 @@
         "aiChatUnknown": "Unknown",
         "aiChatUserSelected": "User selected",
         "aiChatCorrect": "Correct ✓",
-        "aiChatIncorrect": "Incorrect ✗"
+        "aiChatIncorrect": "Incorrect ✗",
+        "resultTitle": "Round Complete",
+        "resultSubtitle": "Great effort on this round!",
+        "resultCorrectOnFirstTry": "correct on first try",
+        "resultPerfect": "Perfect score!",
+        "resultAlmostPerfect": "Almost perfect — keep going!",
+        "resultContinue": "Continue",
+        "resultTryAgain": "Try Again"
     },
     "aiChat": {
         "title": "AI Assistant",
