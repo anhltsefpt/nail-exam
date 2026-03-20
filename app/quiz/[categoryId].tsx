@@ -6,6 +6,7 @@ import { useQuizStore } from '@/store/useQuizStore';
 import { useUserStore } from '@/store/useUserStore';
 
 import { LinearGradient } from 'expo-linear-gradient';
+import * as StoreReview from 'expo-store-review';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { ArrowLeft, BookOpen, Check, HelpCircle, Lightbulb, Type, X } from 'lucide-react-native';
 import React, { useCallback, useEffect, useRef } from 'react';
@@ -843,6 +844,32 @@ function ResultView({
   const { count: questionCount } = useQuestionCount(topicId);
   const sets = divideIntoSets(questionCount, 20);
   const { t } = useTranslation();
+
+  // --- Native Store Review on first quiz completion ---
+  const feedbackRating = useUserStore((state) => state.feedbackRating);
+  const setFeedbackRating = useUserStore((state) => state.setFeedbackRating);
+  const hasRequestedReview = useRef(false);
+
+  useEffect(() => {
+    // Only prompt if user hasn't already reviewed
+    if (feedbackRating !== null || hasRequestedReview.current) return;
+    hasRequestedReview.current = true;
+
+    // Wait for result animations to finish before showing the review prompt
+    const timer = setTimeout(async () => {
+      try {
+        if (await StoreReview.hasAction()) {
+          await StoreReview.requestReview();
+          // Mark as reviewed so the prompt won't appear again
+          setFeedbackRating(5);
+        }
+      } catch (e) {
+        // Silently ignore – review prompt is non-critical
+      }
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   // Animations
   const gaugeScale = useSharedValue(0.8);
